@@ -1,0 +1,54 @@
+---
+title: "Tourism Expenditure Survey merging"
+output: html_notebook
+---
+
+Merging data files from 2009 to 2016.
+
+
+```{r}
+library(foreign)
+library(dbplyr)
+library(tidyr)
+```
+
+```{r}
+data_2009 <- read.spss("TES2009_ELE_final_agg.sav", to.data.frame=TRUE)
+data_2010 <- read.spss("TES2010_ELE_final_agg.sav", to.data.frame=TRUE)
+data_2012 <- read.spss("TES2012_ELE_final_agg.sav", to.data.frame=TRUE)
+data_2013 <- read.spss("TES2013_ELE_final_agg.sav", to.data.frame=TRUE)
+data_2014 <- read.spss("TES2014_ELE_final_agg.sav", to.data.frame=TRUE)
+data_2015 <- read.spss("TES2015_ELE_final_agg.sav", to.data.frame=TRUE)
+data_2016 <- read.spss("TES2016_ELE_final_agg.sav", to.data.frame=TRUE)
+```
+
+Bind all datasets using their serial number to create a unique key.
+```{r}
+data_2009$key <- 200900000+data_2009$sernr
+data_2010$key <- 201000000+data_2010$TES_ID_SERIALNUMBER
+data_2012$key <- 201200000+data_2012$TES_ID_SERIALNUMBER
+data_2013$key <- 201300000+data_2013$TES_ID_SERIALNUMBER
+data_2014$key <- 201400000+data_2014$SERIAL_NR
+data_2015$key <- 201500000+data_2015$TES_ID_SERIALNUMBER
+data_2016$key <- 201600000+data_2016$TES_ID_SERIALNUMBER
+
+Binded_data <- full_join(data_2009,
+                         data_2010,
+                         by="key")
+Binded_data <- full_join(Binded_data,
+                         data_2012,
+                         by="key")
+Binded_data <- full_join(Binded_data,
+                         data_2013,
+                         by="key")
+Binded_data <- full_join(Binded_data,
+                         data_2014,
+                         by="key")
+Binded_data <- full_join(Binded_data,
+                         data_2015,
+                         by="key")
+Binded_data <- full_join(Binded_data,
+                         data_2016,
+                         by="key")
+```
+
