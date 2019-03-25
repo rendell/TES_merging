@@ -72,3 +72,14 @@ df <- subset(df, select = -c(a, c))
 table(Binded_data$coalesce)
 
 ```
+
+
+#dropping variables
+DF <- data.frame(
+  x=1:10,
+  y=10:1,
+  z=rep(5,10),
+  a=11:20
+)
+drops <- c("x","z")
+DF[ , !(names(DF) %in% drops)]
