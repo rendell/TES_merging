@@ -15,9 +15,12 @@ library(tidyr)
 ```{r}
 data_2009 <- read.spss("TES2009_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2010 <- read.spss("TES2010_ELE_final_agg.sav", to.data.frame=TRUE)
+data_2011 <- read.spss("TES2011_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2012 <- read.spss("TES2012_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2013 <- read.spss("TES2013_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2014 <- read.spss("TES2014_ELE_final_agg.sav", to.data.frame=TRUE)
+data_2015 <- read.spss("TES2015_ELE_final_agg.sav", to.data.frame=TRUE)
+data_2016 <- read.spss("TES2016_ELE_final_agg.sav", to.data.frame=TRUE)
 ```
 
 Bind all datasets using their serial number to create a unique key.
