@@ -76,13 +76,14 @@ table(Binded_data$coalesce)
 
 ```
 
+Stackoverflow suggestion:
+```
+special_function <-function(df, Name_new_variable, Name_a, Name_b, Name_c) {
+  df <- as.data.frame(df) %>% select(Name_a, Name_b, Name_c)
+  df[, Name_new_variable]= coalesce(df[, Name_a], df[, Name_b], df[, Name_c])
+  df <- df %>% select(-c(Name_a, Name_b, Name_c)) 
+  return(df)
+}
 
-#dropping variables
-DF <- data.frame(
-  x=1:10,
-  y=10:1,
-  z=rep(5,10),
-  a=11:20
-)
-drops <- c("x","z")
-DF[ , !(names(DF) %in% drops)]
+special_function(df, "NewVariableName", "a", "b", "c")
+```
