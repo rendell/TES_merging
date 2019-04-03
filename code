@@ -12,7 +12,7 @@ library(dplyr)
 library(tidyr)
 ```
 
-```{r}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_2009 <- read.spss("TES2009_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2010 <- read.spss("TES2010_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2011 <- read.spss("TES2011_ELE_final_agg.sav", to.data.frame=TRUE)
@@ -25,15 +25,32 @@ data_2016 <- read.spss("TES2016_ELE_final_agg.sav", to.data.frame=TRUE)
 
 Bind all datasets using their serial number to create a unique key.
 ```{r}
-data_2009$key <- 200900000+data_2009$sernr
-data_2010$key <- 201000000+data_2010$TES_ID_SERIALNUMBER
-data_2012$key <- 201200000+data_2012$TES_ID_SERIALNUMBER
-data_2013$key <- 201300000+data_2013$TES_ID_SERIALNUMBER
-data_2014$key <- 201400000+data_2014$SERIAL_NR
+colnames(data_2009) <- paste(colnames(data_2009), "2009", sep = "_")
+colnames(data_2010) <- paste(colnames(data_2010), "2010", sep = "_")
+colnames(data_2011) <- paste(colnames(data_2011), "2011", sep = "_")
+colnames(data_2012) <- paste(colnames(data_2012), "2012", sep = "_")
+colnames(data_2013) <- paste(colnames(data_2013), "2013", sep = "_")
+colnames(data_2014) <- paste(colnames(data_2014), "2014", sep = "_")
+colnames(data_2015) <- paste(colnames(data_2015), "2015", sep = "_")
+colnames(data_2016) <- paste(colnames(data_2016), "2016", sep = "_")
+
+data_2009$key <- 200900000+data_2009$sernr_2009
+data_2010$key <- 201000000+data_2010$TES_ID_SERIALNUMBER_2010
+data_2011$key <- 201100000+data_2011$TES_ID_SERIALNUMBER_2011
+data_2012$key <- 201200000+data_2012$TES_ID_SERIALNUMBER_2012
+data_2013$key <- 201300000+data_2013$TES_ID_SERIALNUMBER_2013
+data_2014$key <- 201400000+data_2014$SERIAL_NR_2014
+data_2015$key <- 201500000+data_2015$TES_ID_SERIALNUMBER_2015
+data_2016$key <- 201600000+data_2016$TES_ID_SERIALNUMBER_2016
+
 
 df <- full_join(data_2009,
                          data_2010,
                          by="key")
+df <- full_join(df,
+                         data_2011,
+                         by="key")
+
 df <- full_join(df,
                          data_2012,
                          by="key")
@@ -43,33 +60,102 @@ df <- full_join(df,
 df <- full_join(df,
                          data_2014,
                          by="key")
+df <- full_join(df,
+                         data_2015,
+                         by="key")
+df <- full_join(df,
+                         data_2016,
+                         by="key")
+
+df <- df %>% select(-c(sernr_2009,TES_ID_SERIALNUMBER_2010,TES_ID_SERIALNUMBER_2011,TES_ID_SERIALNUMBER_2012,TES_ID_SERIALNUMBER_2013,TES_ID_SERIALNUMBER_2014,TES_ID_SERIALNUMBER_2015,TES_ID_SERIALNUMBER_2016))
+
+rm(data_2009)
+rm(data_2010)
+rm(data_2011)
+rm(data_2012)
+rm(data_2013)
+rm(data_2014)
+rm(data_2015)
+rm(data_2016)
 ```
 
-Attemptin to write  "Rendell" function to automate merging of variables
+Attempting to write  "Rendell" function to automate merging of variables
+Stackoverflow suggestion:
 ```{r}
-Rendell <-function(df, New_name, Name_2009, Name_2010, Name_2012, Name_2013, Name_2014) {
-  df$New_name <- coalesce(df$Name_2009,
-                                     df$Name_2010,
-                                     df$Name_2012,
-                                     df$Name_2013,
-                                     df$Name_2014
-                                     )
+rendell <-function(df, Name_new_variable, 
+                   Name_2009, 
+                   Name_2010, 
+                   Name_2011, 
+                   Name_2012, 
+                   Name_2013, 
+                   Name_2014,
+                   Name_2015, 
+                   Name_2016) {
+  df[, Name_new_variable]= coalesce(df[, Name_2009], 
+                                    df[, Name_2010], 
+                                    df[, Name_2011],
+                                    df[, Name_2012],
+                                    df[, Name_2013],
+                                    df[, Name_2014],
+                                    df[, Name_2015],
+                                    df[, Name_2016]
+                                    )
+  
+  df <- df %>% select(-c(Name_2009, Name_2010, 
+                   Name_2011, 
+                   Name_2012, 
+                   Name_2013, 
+                   Name_2014,
+                   Name_2015, 
+                   Name_2016)) 
 }
 ```
 
-Use case
+Variable 1 which is "Year":
 ```{r}
-Rendell(df=df,
-        New_name=test,
-        Name_2009=year,
-        Name_2010=YEAR.x,
-        Name_2012=YEAR.y,
-        Name_2013=YEAR.x.x,
-        Name_2014=YEAR.y.y
-        )
+df <- rendell(df                = df,
+        Name_new_variable = "Year", 
+        Name_2009         = "year_2009",
+        Name_2010         = "YEAR_2010", 
+        Name_2011         = "YEAR_2011", 
+        Name_2012         = "YEAR_2012", 
+        Name_2013         = "YEAR_2013", 
+        Name_2014         = "YEAR_2014", 
+        Name_2015         = "YEAR_2015", 
+        Name_2016         = "YEAR_2016" )
+```
+Variable 2 which is "Month". Noticed that 2009 variable October was names as Oktober. Needed to fix that first.
+```{r}
+df$month_2009 <- revalue(df$month_2009, c("Oktober"="October"))
+
+df <- rendell(df                = df,
+        Name_new_variable = "Month", 
+        Name_2009         = "month_2009",
+        Name_2010         = "MONTH_2010", 
+        Name_2011         = "MONTH_2011", 
+        Name_2012         = "MONTH_2012", 
+        Name_2013         = "MONTH_2013", 
+        Name_2014         = "MONTH_2014", 
+        Name_2015         = "MONTH_2015", 
+        Name_2016         = "MONTH_2016" )
+```
+Variable 3: Gender
+```{r}
+df <- rendell(df                = df,
+        Name_new_variable = "Gender", 
+        Name_2009         = "a9_2009",
+        Name_2010         = "A9_SEX_2010", 
+        Name_2011         = "A9_SEX_2011", 
+        Name_2012         = "A9_SEX_2012", 
+        Name_2013         = "A9_SEX_2013", 
+        Name_2014         = "A9_SEX_2014", 
+        Name_2015         = "A9_SEX_2015", 
+        Name_2016         = "A9_SEX_2016" )
+summary(df$Gender)
+#Note that there are 5 NA's.
+```
 
 
-df <- subset(df, select = -c(a, c))
 
 
 table(Binded_data$coalesce)
