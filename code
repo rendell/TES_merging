@@ -2,7 +2,9 @@
 title: "Tourism Expenditure Survey merging"
 output: html_notebook
 ---
-
+```{r}
+setwd("~/CBS TOUR/SPSS")
+```
 Merging data files from 2009 to 2016.
 
 
@@ -79,7 +81,7 @@ rm(data_2015)
 rm(data_2016)
 ```
 
-Attempting to write  "Rendell" function to automate merging of variables
+Writing  "Rendell" function to automate merging of variables
 Stackoverflow suggestion:
 ```{r}
 rendell <-function(df, Name_new_variable, 
@@ -101,7 +103,8 @@ rendell <-function(df, Name_new_variable,
                                     df[, Name_2016]
                                     )
   
-  df <- df %>% select(-c(Name_2009, Name_2010, 
+  df <- df %>% select(-c(Name_2009, 
+                         Name_2010, 
                    Name_2011, 
                    Name_2012, 
                    Name_2013, 
@@ -152,24 +155,53 @@ df <- rendell(df                = df,
         Name_2015         = "A9_SEX_2015", 
         Name_2016         = "A9_SEX_2016" )
 summary(df$Gender)
-#Note that there are 5 NA's.
+#Note: there are 5 NA's.
 ```
 
-
-
-
-table(Binded_data$coalesce)
-
+Variable 4: Ethnic background (refered to as "Type")
+```{r}
+df <- rendell(df                = df,
+        Name_new_variable = "Type", 
+        Name_2009         = "type_2009",
+        Name_2010         = "TYPE_2010", 
+        Name_2011         = "TYPE_2011", 
+        Name_2012         = "TYPE_2012", 
+        Name_2013         = "TYPE_2013", 
+        Name_2014         = "TYPE_2014", 
+        Name_2015         = "TYPE_2015", 
+        Name_2016         = "TYPE_2016" )
+summary(df$Type)
+#Note: coalesce not working aparantly unequal factor levels perhaps. 
 ```
 
-Stackoverflow suggestion:
+Variable 5: Main purpose of visit
+```{r}
+df <- rendell(df                = df,
+        Name_new_variable = "A1_MAIN_PURPOSE_VISIT", 
+        Name_2009         = "a1_2009",
+        Name_2010         = "A1_MAIN_PURPOSE_VISIT_2010", 
+        Name_2011         = "A1_MAIN_PURPOSE_VISIT_2011", 
+        Name_2012         = "A1_MAIN_PURPOSE_VISIT_2012", 
+        Name_2013         = "A1_MAIN_PURPOSE_VISIT_2013", 
+        Name_2014         = "A1_MAIN_PURPOSE_VISIT_2014", 
+        Name_2015         = "A1_MAIN_PURPOSE_VISIT_2015", 
+        Name_2016         = "A1_MAIN_PURPOSE_VISIT_2016" )
+summary(df$A1_MAIN_PURPOSE_VISIT)
+#Note: coalesce not working aparantly unequal factor levels perhaps. 
 ```
-special_function <-function(df, Name_new_variable, Name_a, Name_b, Name_c) {
-  df <- as.data.frame(df) %>% select(Name_a, Name_b, Name_c)
-  df[, Name_new_variable]= coalesce(df[, Name_a], df[, Name_b], df[, Name_c])
-  df <- df %>% select(-c(Name_a, Name_b, Name_c)) 
-  return(df)
-}
 
-special_function(df, "NewVariableName", "a", "b", "c")
+Variable 6: 
+```{r}
+df <- rendell(df                = df,
+        Name_new_variable = "A1_MAIN_PURPOSE_VISIT", 
+        Name_2009         = "a1_2009",
+        Name_2010         = "A1_MAIN_PURPOSE_VISIT_2010", 
+        Name_2011         = "A1_MAIN_PURPOSE_VISIT_2011", 
+        Name_2012         = "A1_MAIN_PURPOSE_VISIT_2012", 
+        Name_2013         = "A1_MAIN_PURPOSE_VISIT_2013", 
+        Name_2014         = "A1_MAIN_PURPOSE_VISIT_2014", 
+        Name_2015         = "A1_MAIN_PURPOSE_VISIT_2015", 
+        Name_2016         = "A1_MAIN_PURPOSE_VISIT_2016" )
+summary(df$A1_MAIN_PURPOSE_VISIT)
+#Note: coalesce not working aparantly unequal factor levels perhaps. 
 ```
