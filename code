@@ -44,8 +44,26 @@ data_2013$key <- 201300000+data_2013$TES_ID_SERIALNUMBER_2013
 data_2014$key <- 201400000+data_2014$SERIAL_NR_2014
 data_2015$key <- 201500000+data_2015$TES_ID_SERIALNUMBER_2015
 data_2016$key <- 201600000+data_2016$TES_ID_SERIALNUMBER_2016
+```
 
+Prior to joining I want to take care of the variables who's names are not consistent
+```{r}
+# Variable 7: Place of Residence
+levels(data_2009$a2_2009) <- c(levels(data_2009$a2_2009), "The Netherlands")
+data_2009$a2_2009[data_2009$a2_2009=="Netherlands"]  <- "The Netherlands" 
+data_2009$a2_2009 <- factor(data_2009$a2_2009)
+data_2009$a2_2009 <- factor(data_2009$a2_2009, levels = c("United States", 
+                                                          "Venezuela", 
+                                                          "The Netherlands",
+                                                          "Brazil",
+                                                          "Netherlands Antilles",
+                                                          "Canada",
+                                                          "Colombia",
+                                                          "Other"
+                                                          ))
+```
 
+```{r}
 df <- full_join(data_2009,
                          data_2010,
                          by="key")
@@ -158,20 +176,38 @@ summary(df$Gender)
 #Note: there are 5 NA's.
 ```
 
-Variable 4: Ethnic background (refered to as "Type")
-```{r}
-df <- rendell(df                = df,
-        Name_new_variable = "Type", 
-        Name_2009         = "type_2009",
-        Name_2010         = "TYPE_2010", 
-        Name_2011         = "TYPE_2011", 
-        Name_2012         = "TYPE_2012", 
-        Name_2013         = "TYPE_2013", 
-        Name_2014         = "TYPE_2014", 
-        Name_2015         = "TYPE_2015", 
-        Name_2016         = "TYPE_2016" )
-summary(df$Type)
+Variable 4: Ethnic background (refered to as "Type")    #Not included at the moment
+```{r, eval=FALSE}
+# levels(df$TYPE_2010) <- c(levels(df$TYPE_2010), "Cat_1") 
+# df$TYPE_2010[df$TYPE_2010==1]  <- "Cat_1" 
+
+# levels(df$TYPE_2010) <- c(levels(df$TYPE_2010), "Cat_2") 
+# df$TYPE_2010[df$TYPE_2010==2]  <- "Cat_2" 
+
+# df <- subset(df, TYPE_2010 != 1)                                         # this is not yet operational
+
+
+# df <- rendell(df                = df,
+#        Name_new_variable = "Type", 
+#        Name_2009         = "type_2009",
+#        Name_2010         = "TYPE_2010", 
+#        Name_2011         = "TYPE_2011", 
+#        Name_2012         = "TYPE_2012", 
+#        Name_2013         = "TYPE_2013", 
+#       Name_2014         = "TYPE_2014", 
+#        Name_2015         = "TYPE_2015", 
+#        Name_2016         = "TYPE_2016" )
+#summary(df$Type)
 #Note: coalesce not working aparantly unequal factor levels perhaps. 
+
+df$type_2009 <- NULL
+df$TYPE_2010 <- NULL
+df$TYPE_2011 <- NULL
+df$TYPE_2012 <- NULL
+df$TYPE_2013 <- NULL
+df$TYPE_2014 <- NULL
+df$TYPE_2015 <- NULL
+df$TYPE_2016 <- NULL
 ```
 
 Variable 5: Main purpose of visit
@@ -190,18 +226,35 @@ summary(df$A1_MAIN_PURPOSE_VISIT)
 #Note: coalesce not working aparantly unequal factor levels perhaps. 
 ```
 
-Variable 6: 
+Variable 6: Other purpose of visit
 ```{r}
 df <- rendell(df                = df,
-        Name_new_variable = "A1_MAIN_PURPOSE_VISIT", 
-        Name_2009         = "a1_2009",
-        Name_2010         = "A1_MAIN_PURPOSE_VISIT_2010", 
-        Name_2011         = "A1_MAIN_PURPOSE_VISIT_2011", 
-        Name_2012         = "A1_MAIN_PURPOSE_VISIT_2012", 
-        Name_2013         = "A1_MAIN_PURPOSE_VISIT_2013", 
-        Name_2014         = "A1_MAIN_PURPOSE_VISIT_2014", 
-        Name_2015         = "A1_MAIN_PURPOSE_VISIT_2015", 
-        Name_2016         = "A1_MAIN_PURPOSE_VISIT_2016" )
-summary(df$A1_MAIN_PURPOSE_VISIT)
+        Name_new_variable = "OTHER_PURPOSE_VISIT", 
+        Name_2009         = "a1a_2009",
+        Name_2010         = "OTHER_PURPOSE_OF_VISIT_2010", 
+        Name_2011         = "OTHER_PURPOSE_OF_VISIT_2011", 
+        Name_2012         = "OTHER_PURPOSE_OF_VISIT_2012", 
+        Name_2013         = "OTHER_PURPOSE_OF_VISIT_2013", 
+        Name_2014         = "OTHER_PURPOSE_OF_VISIT_2014", 
+        Name_2015         = "OTHER_PURPOSE_OF_VISIT_2015", 
+        Name_2016         = "OTHER_PURPOSE_OF_VISIT_2016" )
+summary(df$OTHER_PURPOSE_VISIT)
 #Note: coalesce not working aparantly unequal factor levels perhaps. 
+```
+
+Variable 7: Place of Residence
+```{r}
+
+df <- rendell(df                = df,
+        Name_new_variable = "PLACE_RESIDENCE", 
+        Name_2009         = "a2_2009",
+        Name_2010         = "A2_2010", 
+        Name_2011         = "A2_2011", 
+        Name_2012         = "A2_2012", 
+        Name_2013         = "A2_2013", 
+        Name_2014         = "A2_2014", 
+        Name_2015         = "A2_2015", 
+        Name_2016         = "A2_2016" )
+summary(df$PLACE_RESIDENCE)
+#Note: NOt finsihed yet. There are NA's appearing
 ```
