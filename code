@@ -7,11 +7,11 @@ setwd("~/CBS TOUR/SPSS")
 ```
 Merging data files from 2009 to 2016.
 
-
 ```{r}
 library(foreign)
 library(dplyr)
 library(tidyr)
+library(plyr)
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
@@ -132,6 +132,12 @@ rendell <-function(df, Name_new_variable,
 }
 ```
 
+Writing progress function
+```{r}
+progress <- round(1-length(df)/(343+494+495+494+494+505+526+511),2)
+```
+
+*Complete*
 Variable 1 which is "Year":
 ```{r}
 df <- rendell(df                = df,
@@ -145,7 +151,9 @@ df <- rendell(df                = df,
         Name_2015         = "YEAR_2015", 
         Name_2016         = "YEAR_2016" )
 ```
-Variable 2 which is "Month". Noticed that 2009 variable October was names as Oktober. Needed to fix that first.
+
+*Complete*
+Variable 2 which is "Month". Noticed that 2009 variable October was names as Oktober. This was first corrected.
 ```{r}
 df$month_2009 <- revalue(df$month_2009, c("Oktober"="October"))
 
@@ -160,6 +168,8 @@ df <- rendell(df                = df,
         Name_2015         = "MONTH_2015", 
         Name_2016         = "MONTH_2016" )
 ```
+
+*Complete*
 Variable 3: Gender
 ```{r}
 df <- rendell(df                = df,
@@ -176,7 +186,9 @@ summary(df$Gender)
 #Note: there are 5 NA's.
 ```
 
+*Complete*
 Variable 4: Ethnic background (refered to as "Type")    #Not included at the moment
+The choice was taken by CBS to drop this variable since it was unlikely to be included in further analysis. 
 ```{r, eval=FALSE}
 # levels(df$TYPE_2010) <- c(levels(df$TYPE_2010), "Cat_1") 
 # df$TYPE_2010[df$TYPE_2010==1]  <- "Cat_1" 
@@ -210,8 +222,23 @@ df$TYPE_2015 <- NULL
 df$TYPE_2016 <- NULL
 ```
 
-Variable 5: Main purpose of visit
+
+Variable 5: Main purpose of visit                                                                                  *complete*
 ```{r}
+df$a1_2009 <- revalue(df$a1_2009, c(
+  "Vacation"=" Vacation",
+  "Honeymoon"=" Honeymoon",
+  "Incentive award"= " Incentive award",
+  "Visit friends/relatives"=" Visit friends/relatives",
+  "Golf"=" Golf",
+  "Business and leisure"=" Business and leisure",
+  "Business only/ Convention/ Conference"=" Business only/ Convention/ Conference",
+  "Wedding"=" Wedding",
+  "Get married"=" Get married",
+  "Events/ Festival"=" Events/ Festival",
+  "Other"=" Other"
+  ))
+
 df <- rendell(df                = df,
         Name_new_variable = "A1_MAIN_PURPOSE_VISIT", 
         Name_2009         = "a1_2009",
@@ -223,10 +250,10 @@ df <- rendell(df                = df,
         Name_2015         = "A1_MAIN_PURPOSE_VISIT_2015", 
         Name_2016         = "A1_MAIN_PURPOSE_VISIT_2016" )
 summary(df$A1_MAIN_PURPOSE_VISIT)
-#Note: coalesce not working aparantly unequal factor levels perhaps. 
 ```
 
 Variable 6: Other purpose of visit
+Can this one be left out of the analysis?                                                                         *Follow up*
 ```{r}
 df <- rendell(df                = df,
         Name_new_variable = "OTHER_PURPOSE_VISIT", 
@@ -239,7 +266,8 @@ df <- rendell(df                = df,
         Name_2015         = "OTHER_PURPOSE_OF_VISIT_2015", 
         Name_2016         = "OTHER_PURPOSE_OF_VISIT_2016" )
 summary(df$OTHER_PURPOSE_VISIT)
-#Note: coalesce not working aparantly unequal factor levels perhaps. 
+
+df$OTHER_PURPOSE_VISIT <- NULL
 ```
 
 Variable 7: Place of Residence
@@ -256,5 +284,5 @@ df <- rendell(df                = df,
         Name_2015         = "A2_2015", 
         Name_2016         = "A2_2016" )
 summary(df$PLACE_RESIDENCE)
-#Note: NOt finsihed yet. There are NA's appearing
+#Note: Not finsihed yet. There are NA's appearing
 ```
