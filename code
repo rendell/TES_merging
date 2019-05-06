@@ -12,6 +12,10 @@ library(foreign)
 library(dplyr)
 library(tidyr)
 library(plyr)
+library(tm)
+library(wordcloud)
+library(RColorBrewer)
+library(SnowballC)
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
@@ -253,7 +257,7 @@ summary(df$A1_MAIN_PURPOSE_VISIT)
 ```
 
 Variable 6: Other purpose of visit
-Can this one be left out of the analysis?                                                                         *Follow up*
+Can this one be left out of the analysis? Yes it can.                                                             *complete*
 ```{r}
 df <- rendell(df                = df,
         Name_new_variable = "OTHER_PURPOSE_VISIT", 
@@ -267,7 +271,36 @@ df <- rendell(df                = df,
         Name_2016         = "OTHER_PURPOSE_OF_VISIT_2016" )
 summary(df$OTHER_PURPOSE_VISIT)
 
-df$OTHER_PURPOSE_VISIT <- NULL
+corpus <- Corpus(VectorSource(df$OTHER_PURPOSE_VISIT))
+
+##Data Cleaning and Wrangling
+corpus.clean<-tm_map(corpus, PlainTextDocument)
+corpus.clean<-tm_map(corpus.clean,tolower)
+corpus.clean<-tm_map(corpus.clean,removeNumbers)
+corpus.clean<-tm_map(corpus.clean,removePunctuation)
+corpus.clean<-tm_map(corpus.clean,stripWhitespace)
+corpus.clean = tm_map(corpus.clean, removeWords, stopwords())
+# Remove your own stop word
+# specify your stopwords as a character vector
+corpus.clean <- tm_map(corpus.clean, removeWords, c("cont", "conocer","los")) 
+
+dtm <- TermDocumentMatrix(corpus.clean)
+m <- as.matrix(dtm)
+v <- sort(rowSums(m),decreasing=TRUE)
+other.purpose <- data.frame(word = names(v),freq=v)
+head(other.purpose, 10)
+
+set.seed(1234)
+wordcloud(words = other.purpose$word, freq = other.purpose$freq, min.freq = 1,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+
+
+rm(corpus.clean)
+rm(corpus)
+rm(dtm)
+rm(m)
+rm(v)
 ```
 
 Variable 7: Place of Residence
