@@ -66,7 +66,7 @@ data_2009$a2_2009 <- factor(data_2009$a2_2009, levels = c("United States",
                                                           "Other"
                                                           ))
 ```
-
+Combining the seperate data sets in to one integrated dataframe. 
 ```{r}
 df <- full_join(data_2009,
                          data_2010,
@@ -92,7 +92,9 @@ df <- full_join(df,
                          by="key")
 
 df <- df %>% select(-c(sernr_2009,TES_ID_SERIALNUMBER_2010,TES_ID_SERIALNUMBER_2011,TES_ID_SERIALNUMBER_2012,TES_ID_SERIALNUMBER_2013,TES_ID_SERIALNUMBER_2014,TES_ID_SERIALNUMBER_2015,TES_ID_SERIALNUMBER_2016))
+```
 
+```{r}
 rm(data_2009)
 rm(data_2010)
 rm(data_2011)
@@ -188,7 +190,7 @@ df <- rendell(df                = df,
         Name_2016         = "A9_SEX_2016" )
 summary(df$Gender)
 #Note: there are 5 NA's.
-```
+``` 
 
 *Complete*
 Variable 4: Ethnic background (refered to as "Type")    #Not included at the moment
@@ -254,6 +256,7 @@ df <- rendell(df                = df,
         Name_2015         = "A1_MAIN_PURPOSE_VISIT_2015", 
         Name_2016         = "A1_MAIN_PURPOSE_VISIT_2016" )
 summary(df$A1_MAIN_PURPOSE_VISIT)
+
 ```
 
 Variable 6: Other purpose of visit
@@ -305,6 +308,17 @@ rm(v)
 
 Variable 7: Place of Residence
 ```{r}
+df$a2_2009 <- as.character(df$a2_2009)
+df$A2_2010 <- as.character(df$A2_2010)
+df$A2_2011 <- as.character(df$A2_2011)
+df$A2_2012 <- as.character(df$A2_2012)
+df$A2_2013 <- as.character(df$A2_2013)
+df$A2_2014 <- as.character(df$A2_2014)
+df$A2_2015 <- as.character(df$A2_2015)
+df$A2_2016 <- as.character(df$A2_2016)
+
+
+
 
 df <- rendell(df                = df,
         Name_new_variable = "PLACE_RESIDENCE", 
@@ -316,6 +330,20 @@ df <- rendell(df                = df,
         Name_2014         = "A2_2014", 
         Name_2015         = "A2_2015", 
         Name_2016         = "A2_2016" )
+df$PLACE_RESIDENCE <- as.factor(df$PLACE_RESIDENCE)
 summary(df$PLACE_RESIDENCE)
 #Note: Not finsihed yet. There are NA's appearing
+```
+
+# Analysis
+```{r}
+Y.2009 <- filter(df, Year == "2009")
+Y.2010 <- filter(df, Year == "2010")
+Y.2011 <- filter(df, Year == "2011")
+Y.2012 <- filter(df, Year == "2012")
+Y.2013 <- filter(df, Year == "2013")
+Y.2014 <- filter(df, Year == "2014")
+Y.2015 <- filter(df, Year == "2015")
+Y.2016 <- filter(df, Year == "2016")
+
 ```
