@@ -7,6 +7,7 @@ setwd("~/CBS TOUR/SPSS")
 ```
 Merging data files from 2009 to 2018.
 
+# Variables
 The following variables have been identified for analysis:
 
 1	Daily expenditure
@@ -86,6 +87,8 @@ data_2013 <- read.spss("TES2013_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2014 <- read.spss("TES2014_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2015 <- read.spss("TES2015_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2016 <- read.spss("TES2016_ELE_final_agg.sav", to.data.frame=TRUE)
+data_2017 <- read.spss("TES2017_ELE_final_agg.sav", to.data.frame=TRUE)
+
 ```
 
 Bind all datasets using their serial number to create a unique key.
