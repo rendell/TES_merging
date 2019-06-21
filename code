@@ -5,7 +5,66 @@ output: html_notebook
 ```{r}
 setwd("~/CBS TOUR/SPSS")
 ```
-Merging data files from 2009 to 2016.
+Merging data files from 2009 to 2018.
+
+The following variables have been identified for analysis:
+
+1	Daily expenditure
+2	place of residence
+3	Number of visits
+4	income level
+5	Method visitors used to book a trip
+6	Type of accomodation
+7	important source of information visitors used
+8	travel arragenment
+9	lenght of stay
+10	age group visitors
+11	yearly household income
+12	Occupation
+13	visiotrs that have been to aruba by cruise prior to visit
+14	visitors that have been to the caribbean prior
+15	purpose of visit
+16	users of timeshare property
+17	type of flight used by the visitor
+18	united states state
+19	statement 1
+20	statement 2
+21	statement 3
+22	statement 4
+23	statement 5
+24	statement 6
+25	statement 7
+26	statement 8
+27	statement 9
+28	Rating service accomodation
+29	Rating rservice meals & drinks
+30	Rating service Local transportation
+31	Rating service Shopping
+32	Rating service entertainment / recreation
+33	Rating service quality of service
+34	Rating overall visit Aruba
+35	Rating value for money accomodation
+36	Rating value for money meals & drinks
+37	Rating value for money local transportation
+38	Rating value for money shopping
+39	Rating value for money entertainment/ recreation
+40	Rating value for money quality of service
+41	Average daily expenditure Accomodation
+42	Average daily expenditure Food & Beverage
+43	Average daily expenditure Groceries/sundries
+44	Average daily expenditure Entertainment/Recreation
+45	Average daily expenditure Taxis
+46	Average daily expenditure Car rental
+47	Average daily expenditure Public transportation
+48	Average daily expenditure Tax free shopping
+49	Average daily expenditure shopping
+50	Average daily expenditure Casinos
+51	Average daily expenditure Internet/Telephone
+52	Average daily expenditure Other
+53	Average daily expenditure Total
+54	Persons the expenditure covers
+55	Estimated total tourism expenditure
+
 
 ```{r}
 library(foreign)
