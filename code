@@ -10,61 +10,70 @@ Merging data files from 2009 to 2018.
 # Variables
 The following variables have been identified for analysis:
 
-1	Daily expenditure
-2	place of residence
-3	Number of visits
-4	income level
-5	Method visitors used to book a trip
-6	Type of accomodation
-7	important source of information visitors used
-8	travel arragenment
-9	lenght of stay
-10	age group visitors
-11	yearly household income
-12	Occupation
-13	visiotrs that have been to aruba by cruise prior to visit
-14	visitors that have been to the caribbean prior
-15	purpose of visit
-16	users of timeshare property
-17	type of flight used by the visitor
-18	united states state
-19	statement 1
-20	statement 2
-21	statement 3
-22	statement 4
-23	statement 5
-24	statement 6
-25	statement 7
-26	statement 8
-27	statement 9
-28	Rating service accomodation
-29	Rating rservice meals & drinks
-30	Rating service Local transportation
-31	Rating service Shopping
-32	Rating service entertainment / recreation
-33	Rating service quality of service
-34	Rating overall visit Aruba
-35	Rating value for money accomodation
-36	Rating value for money meals & drinks
-37	Rating value for money local transportation
-38	Rating value for money shopping
-39	Rating value for money entertainment/ recreation
-40	Rating value for money quality of service
-41	Average daily expenditure Accomodation
-42	Average daily expenditure Food & Beverage
-43	Average daily expenditure Groceries/sundries
-44	Average daily expenditure Entertainment/Recreation
-45	Average daily expenditure Taxis
-46	Average daily expenditure Car rental
-47	Average daily expenditure Public transportation
-48	Average daily expenditure Tax free shopping
-49	Average daily expenditure shopping
-50	Average daily expenditure Casinos
-51	Average daily expenditure Internet/Telephone
-52	Average daily expenditure Other
-53	Average daily expenditure Total
-54	Persons the expenditure covers
-55	Estimated total tourism expenditure
+*completed*
+1   Year
+2   Month
+3   Gender
+4   Etnic Background
+5   Main purpose of visit
+6   Other purpose of visit
+7   Place of residence
+
+*Pending*
+3	  Daily expenditure
+5	  Number of visits
+6	  income level
+7 	Method visitors used to book a trip
+8	  Type of accomodation
+9	  important source of information visitors used
+10	travel arragenment
+11	lenght of stay
+12	age group visitors
+13	yearly household income
+14	Occupation
+15	visiotrs that have been to aruba by cruise prior to visit
+16	visitors that have been to the caribbean prior
+17	purpose of visit
+18	users of timeshare property
+19	type of flight used by the visitor
+20	united states state
+21	statement 1
+22	statement 2
+23	statement 3
+24	statement 4
+25	statement 5
+26	statement 6
+27	statement 7
+28	statement 8
+29	statement 9
+30	Rating service accomodation
+31	Rating rservice meals & drinks
+32	Rating service Local transportation
+33	Rating service Shopping
+34	Rating service entertainment / recreation
+35	Rating service quality of service
+36	Rating overall visit Aruba
+37	Rating value for money accomodation
+38	Rating value for money meals & drinks
+39	Rating value for money local transportation
+40	Rating value for money shopping
+41	Rating value for money entertainment/ recreation
+42	Rating value for money quality of service
+43	Average daily expenditure Accomodation
+44	Average daily expenditure Food & Beverage
+45	Average daily expenditure Groceries/sundries
+46	Average daily expenditure Entertainment/Recreation
+47	Average daily expenditure Taxis
+48	Average daily expenditure Car rental
+49	Average daily expenditure Public transportation
+50	Average daily expenditure Tax free shopping
+51	Average daily expenditure shopping
+52	Average daily expenditure Casinos
+53	Average daily expenditure Internet/Telephone
+54	Average daily expenditure Other
+55	Average daily expenditure Total
+56	Persons the expenditure covers
+57	Estimated total tourism expenditure
 
 
 ```{r}
@@ -78,6 +87,10 @@ library(RColorBrewer)
 library(SnowballC)
 ```
 
+# Reading in data
+Data files obtained from the Tourism Department and were processed in SPSS by Kepa.
+*currently there are issues with 2015,2016 and 2017 that will need to be sorted*
+Also 2018 has yet to be delivered. 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_2009 <- read.spss("TES2009_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2010 <- read.spss("TES2010_ELE_final_agg.sav", to.data.frame=TRUE)
@@ -87,8 +100,8 @@ data_2013 <- read.spss("TES2013_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2014 <- read.spss("TES2014_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2015 <- read.spss("TES2015_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2016 <- read.spss("TES2016_ELE_final_agg.sav", to.data.frame=TRUE)
-data_2017 <- read.spss("TES2017_ELE_final_agg.sav", to.data.frame=TRUE)
-
+data_2017 <- read.spss("TES2017_ELE_final.sav", to.data.frame=TRUE)
+# data 2018 to be included
 ```
 
 Bind all datasets using their serial number to create a unique key.
@@ -110,6 +123,8 @@ data_2013$key <- 201300000+data_2013$TES_ID_SERIALNUMBER_2013
 data_2014$key <- 201400000+data_2014$SERIAL_NR_2014
 data_2015$key <- 201500000+data_2015$TES_ID_SERIALNUMBER_2015
 data_2016$key <- 201600000+data_2016$TES_ID_SERIALNUMBER_2016
+#Data 2017 to be included
+#Data 2018 to be included
 ```
 
 Prior to joining I want to take care of the variables who's names are not consistent
@@ -165,6 +180,7 @@ rm(data_2013)
 rm(data_2014)
 rm(data_2015)
 rm(data_2016)
+rm(data_2017)
 ```
 
 Writing  "Rendell" function to automate merging of variables
@@ -205,8 +221,8 @@ Writing progress function
 progress <- round(1-length(df)/(343+494+495+494+494+505+526+511),2)
 ```
 
+# 1: "Year"
 *Complete*
-Variable 1 which is "Year":
 ```{r}
 df <- rendell(df                = df,
         Name_new_variable = "Year", 
@@ -220,8 +236,9 @@ df <- rendell(df                = df,
         Name_2016         = "YEAR_2016" )
 ```
 
+# 2: "Month"
 *Complete*
-Variable 2 which is "Month". Noticed that 2009 variable October was names as Oktober. This was first corrected.
+Noticed that 2009 variable October was names as Oktober. This was first corrected.
 ```{r}
 df$month_2009 <- revalue(df$month_2009, c("Oktober"="October"))
 
@@ -237,8 +254,8 @@ df <- rendell(df                = df,
         Name_2016         = "MONTH_2016" )
 ```
 
+# 3 Gender
 *Complete*
-Variable 3: Gender
 ```{r}
 df <- rendell(df                = df,
         Name_new_variable = "Gender", 
@@ -255,7 +272,8 @@ summary(df$Gender)
 ``` 
 
 *Complete*
-Variable 4: Ethnic background (refered to as "Type")    #Not included at the moment
+# 4: Ethnic background (refered to as "Type")
+*Not included at the moment*
 The choice was taken by CBS to drop this variable since it was unlikely to be included in further analysis. 
 ```{r, eval=FALSE}
 # levels(df$TYPE_2010) <- c(levels(df$TYPE_2010), "Cat_1") 
@@ -290,8 +308,7 @@ df$TYPE_2015 <- NULL
 df$TYPE_2016 <- NULL
 ```
 
-
-Variable 5: Main purpose of visit                                                                                  *complete*
+# 5: Main purpose of visit                                                                  *complete*
 ```{r}
 df$a1_2009 <- revalue(df$a1_2009, c(
   "Vacation"=" Vacation",
@@ -321,8 +338,8 @@ summary(df$A1_MAIN_PURPOSE_VISIT)
 
 ```
 
-Variable 6: Other purpose of visit
-Can this one be left out of the analysis? Yes it can.                                                             *complete*
+# 6: Other purpose of visit
+Can this one be left out of the analysis? Yes it can.                                       *complete*
 ```{r}
 df <- rendell(df                = df,
         Name_new_variable = "OTHER_PURPOSE_VISIT", 
@@ -368,7 +385,7 @@ rm(m)
 rm(v)
 ```
 
-Variable 7: Place of Residence
+# 7: Place of Residence
 ```{r}
 df$a2_2009 <- as.character(df$a2_2009)
 df$A2_2010 <- as.character(df$A2_2010)
