@@ -59,6 +59,9 @@ The following variables have been identified for analysis:
 40	Rating value for money shopping
 41	Rating value for money entertainment/ recreation
 42	Rating value for money quality of service
+
+
+# *These are temporary variables in the files*
 43	Average daily expenditure Accomodation
 44	Average daily expenditure Food & Beverage
 45	Average daily expenditure Groceries/sundries
@@ -100,7 +103,7 @@ data_2013 <- read.spss("TES2013_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2014 <- read.spss("TES2014_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2015 <- read.spss("TES2015_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2016 <- read.spss("TES2016_ELE_final_agg.sav", to.data.frame=TRUE)
-data_2017 <- read.spss("TES2017_ELE_final.sav", to.data.frame=TRUE)
+data_2017 <- read.spss("TES2017_ELE_final_agg2.sav", to.data.frame=TRUE)
 # data 2018 to be included
 ```
 
@@ -424,5 +427,74 @@ Y.2013 <- filter(df, Year == "2013")
 Y.2014 <- filter(df, Year == "2014")
 Y.2015 <- filter(df, Year == "2015")
 Y.2016 <- filter(df, Year == "2016")
+
+```
+
+Kypa 2017 
+```{r}
+# Create total expenditure variable
+data_2017$total_expenditure_2017 <- data_2017$TOT_DEP_EXP1 + 
+  data_2017$TOT_DEP_EXP2 +
+  data_2017$TOT_DEP_EXP3 +
+  data_2017$TOT_DEP_EXP4 +
+  data_2017$TOT_DEP_EXP5 +
+  data_2017$TOT_DEP_EXP6 +
+  data_2017$TOT_DEP_EXP7 +
+  data_2017$TOT_DEP_EXP8 +
+  data_2017$TOT_DEP_EXP9 +
+  data_2017$TOT_DEP_EXP10 +
+  data_2017$TOT_DEP_EXP11 +
+  data_2017$TOT_DEP_EXP12 +
+  data_2017$TOT_DEP_EXP13 +
+  data_2017$TOT_DEP_EXP14 +
+  data_2017$TOT_DEP_EXP12_1 +
+  data_2017$TOT_DEP_EXP12_2
+
+data_2017$gross_up_2017 <- data_2017$total_expenditure_2017* 
+  data_2017$weight 
+  
+  # data_2017$B9T
+  
+  
+sum <- sum(data_2017$gross_up_2017, na.rm=TRUE)
+# should be getting the 2.135.796.028 
+# 1.005.526.506
+```
+
+Kypa 2014 
+```{r}
+# Create total expenditure variable
+data_2014$total_expenditure_2014 <- data_2014$TOT_DEP_EXP1 + 
+  data_2014$TOT_DEP_EXP2 +
+  data_2014$TOT_DEP_EXP3 +
+  data_2014$TOT_DEP_EXP4 +
+  data_2014$TOT_DEP_EXP5 +
+  data_2014$TOT_DEP_EXP6 +
+  data_2014$TOT_DEP_EXP7 +
+  data_2014$TOT_DEP_EXP8 +
+  data_2014$TOT_DEP_EXP9 +
+  data_2014$TOT_DEP_EXP10 +
+  data_2014$TOT_DEP_EXP11 +
+  data_2014$TOT_DEP_EXP12 +
+  data_2014$TOT_DEP_EXP13 +
+  data_2014$TOT_DEP_EXP14 +
+  data_2014$TOT_DEP_EXP12_1 +
+  data_2014$TOT_DEP_EXP12_2
+
+data_2014$gross_up_2014 <- data_2014$total_expenditure_2014* 
+  data_2014$weight * data_2014$B9T
+  
+  # data_2014$B9T
+  
+  
+sum <- sum(data_2014$gross_up_2014, na.rm=TRUE)
+1.690.596.977
+
+
+data_2014$number_visitors <-data_2014$weight * data_2014$B9T
+sum_vis <- sum(data_2014$number_visitors, na.rm=TRUE)
+
+
+exp_1 <- data_2014$TOT_DEP_EXP1 * data_2014$weight * data_2014$B9T
 
 ```
