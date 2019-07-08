@@ -83,7 +83,6 @@ The following variables have been identified for analysis:
 library(foreign)
 library(dplyr)
 library(tidyr)
-library(plyr)
 library(tm)
 library(wordcloud)
 library(RColorBrewer)
@@ -92,8 +91,6 @@ library(SnowballC)
 
 # Reading in data
 Data files obtained from the Tourism Department and were processed in SPSS by Kepa.
-*currently there are issues with 2015,2016 and 2017 that will need to be sorted*
-Also 2018 has yet to be delivered. 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 data_2009 <- read.spss("TES2009_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2010 <- read.spss("TES2010_ELE_final_agg.sav", to.data.frame=TRUE)
@@ -105,7 +102,106 @@ data_2015 <- read.spss("TES2015_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2016 <- read.spss("TES2016_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2017 <- read.spss("TES2017_ELE_final_agg2.sav", to.data.frame=TRUE)
 # data 2018 to be included
+data_2018_q1 <- read.spss("TES2018_ELE_final_Q1agg2.sav", to.data.frame=TRUE)
+data_2018_q2 <- read.spss("TES2018_ELE_final_Q2agg2.sav", to.data.frame=TRUE)
+data_2018_q3 <- read.spss("TES2018_ELE_final_Q3agg2.sav", to.data.frame=TRUE)
+data_2018_q4 <- read.spss("TES2018_ELE_final_Q4agg2.sav", to.data.frame=TRUE)
 ```
+
+```{r}
+data_2018_q1$Q <- "Q1"
+data_2018_q2$Q <- "Q2"
+data_2018_q3$Q <- "Q3"
+data_2018_q4$Q <- "Q4"
+
+data_2018 <- bind_rows(select(data_2018_q1,
+  TOT_DEP_EXP1,
+  TOT_DEP_EXP2,
+  TOT_DEP_EXP3,
+  TOT_DEP_EXP4,
+  TOT_DEP_EXP5,
+  TOT_DEP_EXP6,
+  TOT_DEP_EXP7,
+  TOT_DEP_EXP8,
+  TOT_DEP_EXP9,
+  TOT_DEP_EXP10,
+  TOT_DEP_EXP11,
+  TOT_DEP_EXP12,
+  TOT_DEP_EXP13,
+  TOT_DEP_EXP14,
+  TOT_DEP_EXP12_1,
+  TOT_DEP_EXP12_2,
+  weight,
+  Q,
+  RESIDENCE_TSA2016_GRP
+),
+select(data_2018_q2,
+  TOT_DEP_EXP1,
+  TOT_DEP_EXP2,
+  TOT_DEP_EXP3,
+  TOT_DEP_EXP4,
+  TOT_DEP_EXP5,
+  TOT_DEP_EXP6,
+  TOT_DEP_EXP7,
+  TOT_DEP_EXP8,
+  TOT_DEP_EXP9,
+  TOT_DEP_EXP10,
+  TOT_DEP_EXP11,
+  TOT_DEP_EXP12,
+  TOT_DEP_EXP13,
+  TOT_DEP_EXP14,
+  TOT_DEP_EXP12_1,
+  TOT_DEP_EXP12_2,
+  weight,
+  Q,
+  RESIDENCE_TSA2016_GRP
+),
+select(data_2018_q3,
+  TOT_DEP_EXP1,
+  TOT_DEP_EXP2,
+  TOT_DEP_EXP3,
+  TOT_DEP_EXP4,
+  TOT_DEP_EXP5,
+  TOT_DEP_EXP6,
+  TOT_DEP_EXP7,
+  TOT_DEP_EXP8,
+  TOT_DEP_EXP9,
+  TOT_DEP_EXP10,
+  TOT_DEP_EXP11,
+  TOT_DEP_EXP12,
+  TOT_DEP_EXP13,
+  TOT_DEP_EXP14,
+  TOT_DEP_EXP12_1,
+  TOT_DEP_EXP12_2,
+  weight,
+  Q,
+  RESIDENCE_TSA2016_GRP
+),
+select(data_2018_q4,
+  TOT_DEP_EXP1,
+  TOT_DEP_EXP2,
+  TOT_DEP_EXP3,
+  TOT_DEP_EXP4,
+  TOT_DEP_EXP5,
+  TOT_DEP_EXP6,
+  TOT_DEP_EXP7,
+  TOT_DEP_EXP8,
+  TOT_DEP_EXP9,
+  TOT_DEP_EXP10,
+  TOT_DEP_EXP11,
+  TOT_DEP_EXP12,
+  TOT_DEP_EXP13,
+  TOT_DEP_EXP14,
+  TOT_DEP_EXP12_1,
+  TOT_DEP_EXP12_2,
+  weight,
+  Q,
+  RESIDENCE_TSA2016_GRP
+)
+)
+```
+
+
 
 Bind all datasets using their serial number to create a unique key.
 ```{r}
@@ -430,41 +526,15 @@ Y.2016 <- filter(df, Year == "2016")
 
 ```
 
-Kypa 2017 
-```{r}
-# Create total expenditure variable
-data_2017$total_expenditure_2017 <- data_2017$TOT_DEP_EXP1 + 
-  data_2017$TOT_DEP_EXP2 +
-  data_2017$TOT_DEP_EXP3 +
-  data_2017$TOT_DEP_EXP4 +
-  data_2017$TOT_DEP_EXP5 +
-  data_2017$TOT_DEP_EXP6 +
-  data_2017$TOT_DEP_EXP7 +
-  data_2017$TOT_DEP_EXP8 +
-  data_2017$TOT_DEP_EXP9 +
-  data_2017$TOT_DEP_EXP10 +
-  data_2017$TOT_DEP_EXP11 +
-  data_2017$TOT_DEP_EXP12 +
-  data_2017$TOT_DEP_EXP13 +
-  data_2017$TOT_DEP_EXP14 +
-  data_2017$TOT_DEP_EXP12_1 +
-  data_2017$TOT_DEP_EXP12_2
 
-data_2017$gross_up_2017 <- data_2017$total_expenditure_2017* 
-  data_2017$weight 
-  
-  # data_2017$B9T
-  
-  
-sum <- sum(data_2017$gross_up_2017, na.rm=TRUE)
-# should be getting the 2.135.796.028 
-# 1.005.526.506
+# *Kypa example*
+Kypa 2014 step one: replace NA's with 0.
+```{r}
+data_2014[is.na(data_2014)] <- 0
 ```
-
-Kypa 2014 
+Create total expenditure variable
 ```{r}
-# Create total expenditure variable
-data_2014$total_expenditure_2014 <- data_2014$TOT_DEP_EXP1 + 
+data_2014$TOT_EXP_2014 <- data_2014$TOT_DEP_EXP1 + 
   data_2014$TOT_DEP_EXP2 +
   data_2014$TOT_DEP_EXP3 +
   data_2014$TOT_DEP_EXP4 +
@@ -480,21 +550,172 @@ data_2014$total_expenditure_2014 <- data_2014$TOT_DEP_EXP1 +
   data_2014$TOT_DEP_EXP14 +
   data_2014$TOT_DEP_EXP12_1 +
   data_2014$TOT_DEP_EXP12_2
-
-data_2014$gross_up_2014 <- data_2014$total_expenditure_2014* 
-  data_2014$weight * data_2014$B9T
-  
-  # data_2014$B9T
-  
-  
-sum <- sum(data_2014$gross_up_2014, na.rm=TRUE)
-1.690.596.977
-
-
-data_2014$number_visitors <-data_2014$weight * data_2014$B9T
-sum_vis <- sum(data_2014$number_visitors, na.rm=TRUE)
-
-
-exp_1 <- data_2014$TOT_DEP_EXP1 * data_2014$weight * data_2014$B9T
-
 ```
+Total expenditure by weight
+```{r}
+total_exp_2014 <- sum(data_2014$TOT_EXP_2014*data_2014$weight)
+```
+
+#Total 2018
+```{r}
+data_2018[is.na(data_2018)] <- 0
+
+data_2018$TOT_DEP_EXP1    <- data_2018$TOT_DEP_EXP1    * data_2018$weight
+data_2018$TOT_DEP_EXP2    <- data_2018$TOT_DEP_EXP2    * data_2018$weight
+data_2018$TOT_DEP_EXP3    <- data_2018$TOT_DEP_EXP3    * data_2018$weight
+data_2018$TOT_DEP_EXP4    <- data_2018$TOT_DEP_EXP4    * data_2018$weight
+data_2018$TOT_DEP_EXP5    <- data_2018$TOT_DEP_EXP5    * data_2018$weight
+data_2018$TOT_DEP_EXP6    <- data_2018$TOT_DEP_EXP6    * data_2018$weight
+data_2018$TOT_DEP_EXP7    <- data_2018$TOT_DEP_EXP7    * data_2018$weight
+data_2018$TOT_DEP_EXP8    <- data_2018$TOT_DEP_EXP8    * data_2018$weight
+data_2018$TOT_DEP_EXP9    <- data_2018$TOT_DEP_EXP9    * data_2018$weight
+data_2018$TOT_DEP_EXP10   <- data_2018$TOT_DEP_EXP10   * data_2018$weight
+data_2018$TOT_DEP_EXP11   <- data_2018$TOT_DEP_EXP11   * data_2018$weight
+data_2018$TOT_DEP_EXP12   <- data_2018$TOT_DEP_EXP12   * data_2018$weight
+data_2018$TOT_DEP_EXP13   <- data_2018$TOT_DEP_EXP13   * data_2018$weight
+data_2018$TOT_DEP_EXP14   <- data_2018$TOT_DEP_EXP14   * data_2018$weight
+data_2018$TOT_DEP_EXP12_1 <- data_2018$TOT_DEP_EXP12_1 * data_2018$weight
+data_2018$TOT_DEP_EXP12_2 <- data_2018$TOT_DEP_EXP12_2 * data_2018$weight
+
+rm(data_2018_q1)
+rm(data_2018_q2)
+rm(data_2018_q3)
+rm(data_2018_q4)
+
+
+data_2018$TOT_EXP_2018 <- data_2018$TOT_DEP_EXP1 + 
+  data_2018$TOT_DEP_EXP2 +
+  data_2018$TOT_DEP_EXP3 +
+  data_2018$TOT_DEP_EXP4 +
+  data_2018$TOT_DEP_EXP5 +
+  data_2018$TOT_DEP_EXP6 +
+  data_2018$TOT_DEP_EXP7 +
+  data_2018$TOT_DEP_EXP8 +
+  data_2018$TOT_DEP_EXP9 +
+  data_2018$TOT_DEP_EXP10 +
+  data_2018$TOT_DEP_EXP11 +
+  data_2018$TOT_DEP_EXP12 +
+  data_2018$TOT_DEP_EXP13 +
+  data_2018$TOT_DEP_EXP14 +
+  data_2018$TOT_DEP_EXP12_1 +
+  data_2018$TOT_DEP_EXP12_2
+
+table_2018_TOT_DEP_EXP1     <- data_2018 %>%
+  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
+  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP1))
+  
+table_2018_TOT_DEP_EXP2     <- data_2018 %>%
+  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
+  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP2))
+
+table_2018_TOT_DEP_EXP3     <- data_2018 %>%
+  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
+  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP3))
+
+table_2018_TOT_DEP_EXP4     <- data_2018 %>%
+  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
+  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP4))
+
+table_2018_TOT_DEP_EXP5     <- data_2018 %>%
+  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
+  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP5))
+
+table_2018_TOT_DEP_EXP6     <- data_2018 %>%
+  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
+  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP6))
+
+table_2018_TOT_DEP_EXP7     <- data_2018 %>%
+  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
+  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP7))
+
+table_2018_TOT_DEP_EXP8     <- data_2018 %>%
+  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
+  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP8))
+
+table_2018_TOT_DEP_EXP9     <- data_2018 %>%
+  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
+  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP9))
+
+table_2018_TOT_DEP_EXP10    <- data_2018 %>%
+  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
+  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP10))
+
+table_2018_TOT_DEP_EXP11    <- data_2018 %>%
+  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
+  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP11))
+
+table_2018_TOT_DEP_EXP12    <- data_2018 %>%
+  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
+  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP12))
+
+table_2018_TOT_DEP_EXP13    <- data_2018 %>%
+  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
+  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP13))
+
+table_2018_TOT_DEP_EXP14    <- data_2018 %>%
+  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
+  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP14))
+
+table_2018_TOT_DEP_EXP12_1  <- data_2018 %>%
+  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
+  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP12_1))
+
+table_2018_TOT_DEP_EXP12_2  <- data_2018 %>%
+  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
+  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP12_2))
+
+table_2018_TOT_DEP_EXP1$exp      <-"EXP1"
+table_2018_TOT_DEP_EXP2$exp      <-"EXP2"
+table_2018_TOT_DEP_EXP3$exp      <-"EXP3"
+table_2018_TOT_DEP_EXP4$exp      <-"EXP4"
+table_2018_TOT_DEP_EXP5$exp      <-"EXP5"
+table_2018_TOT_DEP_EXP6$exp      <-"EXP6"
+table_2018_TOT_DEP_EXP7$exp      <-"EXP7"
+table_2018_TOT_DEP_EXP8$exp      <-"EXP8"
+table_2018_TOT_DEP_EXP9$exp      <-"EXP9"
+table_2018_TOT_DEP_EXP10$exp     <-"EXP10"
+table_2018_TOT_DEP_EXP11$exp     <-"EXP11"
+table_2018_TOT_DEP_EXP12$exp     <-"EXP12"
+table_2018_TOT_DEP_EXP13$exp     <-"EXP13"
+table_2018_TOT_DEP_EXP14$exp     <-"EXP14"
+table_2018_TOT_DEP_EXP12_1$exp   <-"EXP12_1"
+table_2018_TOT_DEP_EXP12_2$exp   <-"EXP12_2"
+
+
+table_2018_all <- bind_rows(table_2018_TOT_DEP_EXP1,
+          table_2018_TOT_DEP_EXP2,
+          table_2018_TOT_DEP_EXP3,
+          table_2018_TOT_DEP_EXP4,
+          table_2018_TOT_DEP_EXP5,
+          table_2018_TOT_DEP_EXP6,
+          table_2018_TOT_DEP_EXP7,
+          table_2018_TOT_DEP_EXP8,
+          table_2018_TOT_DEP_EXP9,
+          table_2018_TOT_DEP_EXP10,
+          table_2018_TOT_DEP_EXP11,
+          table_2018_TOT_DEP_EXP12,
+          table_2018_TOT_DEP_EXP13,
+          table_2018_TOT_DEP_EXP14,
+          table_2018_TOT_DEP_EXP12_1,
+          table_2018_TOT_DEP_EXP12_2
+          )
+
+table_2018_all <- table_2018_all %>%
+  group_by(RESIDENCE_TSA2016_GRP,Q,exp) %>%
+  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP))
+
+table_2018_all <- spread(table_2018_all,RESIDENCE_TSA2016_GRP, TOT_DEP_EXP)
+
+write.csv(table_2018_all, "table_2018_all.csv")
+
+
+## Leave for check
+
+table_2018_TOT <- data_2018 %>%
+  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
+  summarise(TOT_EXP_2018=sum(TOT_EXP_2018))
+
+
+table_2018_TOT<- spread(table_2018_TOT, RESIDENCE_TSA2016_GRP, TOT_EXP_2018)
+```
+
