@@ -582,7 +582,6 @@ rm(data_2018_q2)
 rm(data_2018_q3)
 rm(data_2018_q4)
 
-
 data_2018$TOT_EXP_2018 <- data_2018$TOT_DEP_EXP1 + 
   data_2018$TOT_DEP_EXP2 +
   data_2018$TOT_DEP_EXP3 +
@@ -707,15 +706,14 @@ table_2018_all <- table_2018_all %>%
 table_2018_all <- spread(table_2018_all,RESIDENCE_TSA2016_GRP, TOT_DEP_EXP)
 
 write.csv(table_2018_all, "table_2018_all.csv")
+```
 
-
+```{r}
 ## Leave for check
 
 table_2018_TOT <- data_2018 %>%
   group_by(RESIDENCE_TSA2016_GRP, Q) %>%
   summarise(TOT_EXP_2018=sum(TOT_EXP_2018))
 
-
 table_2018_TOT<- spread(table_2018_TOT, RESIDENCE_TSA2016_GRP, TOT_EXP_2018)
 ```
-
