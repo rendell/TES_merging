@@ -22,7 +22,7 @@ The following variables have been identified for analysis:
 *Pending*
 3	  Daily expenditure
 5	  Number of visits
-6	  income level
+6	  income level 
 7 	Method visitors used to book a trip
 8	  Type of accomodation
 9	  important source of information visitors used
@@ -82,6 +82,7 @@ The following variables have been identified for analysis:
 ```{r}
 library(foreign)
 library(dplyr)
+library(plyr)
 library(tidyr)
 library(tm)
 library(wordcloud)
@@ -213,6 +214,9 @@ colnames(data_2013) <- paste(colnames(data_2013), "2013", sep = "_")
 colnames(data_2014) <- paste(colnames(data_2014), "2014", sep = "_")
 colnames(data_2015) <- paste(colnames(data_2015), "2015", sep = "_")
 colnames(data_2016) <- paste(colnames(data_2016), "2016", sep = "_")
+colnames(data_2017) <- paste(colnames(data_2017), "2017", sep = "_")
+# 2018 missing
+
 
 data_2009$key <- 200900000+data_2009$sernr_2009
 data_2010$key <- 201000000+data_2010$TES_ID_SERIALNUMBER_2010
@@ -222,7 +226,9 @@ data_2013$key <- 201300000+data_2013$TES_ID_SERIALNUMBER_2013
 data_2014$key <- 201400000+data_2014$SERIAL_NR_2014
 data_2015$key <- 201500000+data_2015$TES_ID_SERIALNUMBER_2015
 data_2016$key <- 201600000+data_2016$TES_ID_SERIALNUMBER_2016
-#Data 2017 to be included
+data_2017$key <- 201700000+data_2017$TES_ID_SERIALNUMBER_2017
+
+
 #Data 2018 to be included
 ```
 
@@ -266,8 +272,11 @@ df <- full_join(df,
 df <- full_join(df,
                          data_2016,
                          by="key")
+df <- full_join(df,
+                         data_2017,
+                         by="key")
 
-df <- df %>% select(-c(sernr_2009,TES_ID_SERIALNUMBER_2010,TES_ID_SERIALNUMBER_2011,TES_ID_SERIALNUMBER_2012,TES_ID_SERIALNUMBER_2013,TES_ID_SERIALNUMBER_2014,TES_ID_SERIALNUMBER_2015,TES_ID_SERIALNUMBER_2016))
+df <- df %>% select(-c(sernr_2009,TES_ID_SERIALNUMBER_2010,TES_ID_SERIALNUMBER_2011,TES_ID_SERIALNUMBER_2012,TES_ID_SERIALNUMBER_2013,TES_ID_SERIALNUMBER_2014,TES_ID_SERIALNUMBER_2015,TES_ID_SERIALNUMBER_2016,TES_ID_SERIALNUMBER_2017))
 ```
 
 ```{r}
@@ -293,7 +302,8 @@ rendell <-function(df, Name_new_variable,
                    Name_2013, 
                    Name_2014,
                    Name_2015, 
-                   Name_2016) {
+                   Name_2016,
+                   Name_2017) {
   df[, Name_new_variable]= coalesce(df[, Name_2009], 
                                     df[, Name_2010], 
                                     df[, Name_2011],
@@ -301,7 +311,8 @@ rendell <-function(df, Name_new_variable,
                                     df[, Name_2013],
                                     df[, Name_2014],
                                     df[, Name_2015],
-                                    df[, Name_2016]
+                                    df[, Name_2016],
+                                    df[, Name_2017]
                                     )
   
   df <- df %>% select(-c(Name_2009, 
@@ -311,7 +322,9 @@ rendell <-function(df, Name_new_variable,
                    Name_2013, 
                    Name_2014,
                    Name_2015, 
-                   Name_2016)) 
+                   Name_2016,
+                   Name_2017
+                   )) 
 }
 ```
 
@@ -332,7 +345,8 @@ df <- rendell(df                = df,
         Name_2013         = "YEAR_2013", 
         Name_2014         = "YEAR_2014", 
         Name_2015         = "YEAR_2015", 
-        Name_2016         = "YEAR_2016" )
+        Name_2016         = "YEAR_2016",
+        Name_2017         = "year_2017")
 ```
 
 # 2: "Month"
@@ -340,6 +354,7 @@ df <- rendell(df                = df,
 Noticed that 2009 variable October was names as Oktober. This was first corrected.
 ```{r}
 df$month_2009 <- revalue(df$month_2009, c("Oktober"="October"))
+df$MONTH_2017<- as.factor(df$MONTH_2017)
 
 df <- rendell(df                = df,
         Name_new_variable = "Month", 
@@ -350,7 +365,9 @@ df <- rendell(df                = df,
         Name_2013         = "MONTH_2013", 
         Name_2014         = "MONTH_2014", 
         Name_2015         = "MONTH_2015", 
-        Name_2016         = "MONTH_2016" )
+        Name_2016         = "MONTH_2016",
+        Name_2017         = "MONTH_2017"
+        )
 ```
 
 # 3 Gender
@@ -717,3 +734,4 @@ table_2018_TOT <- data_2018 %>%
 
 table_2018_TOT<- spread(table_2018_TOT, RESIDENCE_TSA2016_GRP, TOT_EXP_2018)
 ```
+
