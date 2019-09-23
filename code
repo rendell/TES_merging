@@ -14,12 +14,13 @@ The following variables have been identified for analysis:
 1   Year
 2   Month
 3   Gender
+
+
+*Pending*
 4   Etnic Background
 5   Main purpose of visit
 6   Other purpose of visit
 7   Place of residence
-
-*Pending*
 3	  Daily expenditure
 5	  Number of visits
 6	  income level 
@@ -81,13 +82,12 @@ The following variables have been identified for analysis:
 
 ```{r}
 library(foreign)
-library(dplyr)
-library(plyr)
-library(tidyr)
+library(tidyverse)
 library(tm)
 library(wordcloud)
 library(RColorBrewer)
 library(SnowballC)
+library(forcats)
 ```
 
 # Reading in data
@@ -102,19 +102,11 @@ data_2014 <- read.spss("TES2014_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2015 <- read.spss("TES2015_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2016 <- read.spss("TES2016_ELE_final_agg.sav", to.data.frame=TRUE)
 data_2017 <- read.spss("TES2017_ELE_final_agg2.sav", to.data.frame=TRUE)
-# data 2018 to be included
-data_2018_q1 <- read.spss("TES2018_ELE_final_Q1agg2.sav", to.data.frame=TRUE)
-data_2018_q2 <- read.spss("TES2018_ELE_final_Q2agg2.sav", to.data.frame=TRUE)
-data_2018_q3 <- read.spss("TES2018_ELE_final_Q3agg2.sav", to.data.frame=TRUE)
-data_2018_q4 <- read.spss("TES2018_ELE_final_Q4agg2.sav", to.data.frame=TRUE)
+data_2018 <- read.spss("TES2018_ELE_final_agg2.sav", to.data.frame=TRUE)
 ```
 
 ```{r}
-data_2018_q1$Q <- "Q1"
-data_2018_q2$Q <- "Q2"
-data_2018_q3$Q <- "Q3"
-data_2018_q4$Q <- "Q4"
-
+#Example, this was used for the quarterly files
 data_2018 <- bind_rows(select(data_2018_q1,
   TOT_DEP_EXP1,
   TOT_DEP_EXP2,
@@ -215,7 +207,7 @@ colnames(data_2014) <- paste(colnames(data_2014), "2014", sep = "_")
 colnames(data_2015) <- paste(colnames(data_2015), "2015", sep = "_")
 colnames(data_2016) <- paste(colnames(data_2016), "2016", sep = "_")
 colnames(data_2017) <- paste(colnames(data_2017), "2017", sep = "_")
-# 2018 missing
+colnames(data_2018) <- paste(colnames(data_2018), "2018", sep = "_")
 
 
 data_2009$key <- 200900000+data_2009$sernr_2009
@@ -227,9 +219,7 @@ data_2014$key <- 201400000+data_2014$SERIAL_NR_2014
 data_2015$key <- 201500000+data_2015$TES_ID_SERIALNUMBER_2015
 data_2016$key <- 201600000+data_2016$TES_ID_SERIALNUMBER_2016
 data_2017$key <- 201700000+data_2017$TES_ID_SERIALNUMBER_2017
-
-
-#Data 2018 to be included
+data_2018$key <- 201800000+data_2018$TES_ID_SERIALNUMBER_2018
 ```
 
 Prior to joining I want to take care of the variables who's names are not consistent
@@ -275,8 +265,11 @@ df <- full_join(df,
 df <- full_join(df,
                          data_2017,
                          by="key")
+df <- full_join(df,
+                         data_2018,
+                         by="key")
 
-df <- df %>% select(-c(sernr_2009,TES_ID_SERIALNUMBER_2010,TES_ID_SERIALNUMBER_2011,TES_ID_SERIALNUMBER_2012,TES_ID_SERIALNUMBER_2013,TES_ID_SERIALNUMBER_2014,TES_ID_SERIALNUMBER_2015,TES_ID_SERIALNUMBER_2016,TES_ID_SERIALNUMBER_2017))
+df <- df %>% select(-c(sernr_2009,TES_ID_SERIALNUMBER_2010,TES_ID_SERIALNUMBER_2011,TES_ID_SERIALNUMBER_2012,TES_ID_SERIALNUMBER_2013,TES_ID_SERIALNUMBER_2014,TES_ID_SERIALNUMBER_2015,TES_ID_SERIALNUMBER_2016,TES_ID_SERIALNUMBER_2017, TES_ID_SERIALNUMBER_2018))
 ```
 
 ```{r}
@@ -289,6 +282,7 @@ rm(data_2014)
 rm(data_2015)
 rm(data_2016)
 rm(data_2017)
+rm(data_2018)
 ```
 
 Writing  "Rendell" function to automate merging of variables
@@ -303,7 +297,8 @@ rendell <-function(df, Name_new_variable,
                    Name_2014,
                    Name_2015, 
                    Name_2016,
-                   Name_2017) {
+                   Name_2017,
+                   Name_2018) {
   df[, Name_new_variable]= coalesce(df[, Name_2009], 
                                     df[, Name_2010], 
                                     df[, Name_2011],
@@ -312,7 +307,8 @@ rendell <-function(df, Name_new_variable,
                                     df[, Name_2014],
                                     df[, Name_2015],
                                     df[, Name_2016],
-                                    df[, Name_2017]
+                                    df[, Name_2017],
+                                    df[, Name_2018]
                                     )
   
   df <- df %>% select(-c(Name_2009, 
@@ -323,10 +319,12 @@ rendell <-function(df, Name_new_variable,
                    Name_2014,
                    Name_2015, 
                    Name_2016,
-                   Name_2017
+                   Name_2017,
+                   Name_2018
                    )) 
 }
 ```
+
 
 Writing progress function
 ```{r}
@@ -346,15 +344,49 @@ df <- rendell(df                = df,
         Name_2014         = "YEAR_2014", 
         Name_2015         = "YEAR_2015", 
         Name_2016         = "YEAR_2016",
-        Name_2017         = "year_2017")
+        Name_2017         = "year_2017",
+        Name_2018         = "YEAR_2018")
 ```
 
 # 2: "Month"
 *Complete*
 Noticed that 2009 variable October was names as Oktober. This was first corrected.
+Also, 2017 and 2018 were numerical and had to be converted to factors of the same type.
 ```{r}
 df$month_2009 <- revalue(df$month_2009, c("Oktober"="October"))
 df$MONTH_2017<- as.factor(df$MONTH_2017)
+df$MONTH_2018<- as.factor(df$MONTH_2018)
+
+df$MONTH_2018 <- fct_recode(df$MONTH_2018, 
+                            January="1", 
+                            February="2", 
+                            March="3", 
+                            April="4", 
+                            May="5", 
+                            June="6", 
+                            July="7", 
+                            August="8", 
+                            September="9", 
+                            October="10", 
+                            November="11", 
+                            December="12" 
+                            )
+
+df$MONTH_2017 <- fct_recode(df$MONTH_2017, 
+                            January="1", 
+                            February="2", 
+                            March="3", 
+                            April="4", 
+                            May="5", 
+                            June="6", 
+                            July="7", 
+                            August="8", 
+                            September="9", 
+                            October="10", 
+                            November="11", 
+                            December="12" 
+                            )
+
 
 df <- rendell(df                = df,
         Name_new_variable = "Month", 
@@ -366,7 +398,8 @@ df <- rendell(df                = df,
         Name_2014         = "MONTH_2014", 
         Name_2015         = "MONTH_2015", 
         Name_2016         = "MONTH_2016",
-        Name_2017         = "MONTH_2017"
+        Name_2017         = "MONTH_2017",
+        Name_2018         = "MONTH_2018"
         )
 ```
 
@@ -382,7 +415,10 @@ df <- rendell(df                = df,
         Name_2013         = "A9_SEX_2013", 
         Name_2014         = "A9_SEX_2014", 
         Name_2015         = "A9_SEX_2015", 
-        Name_2016         = "A9_SEX_2016" )
+        Name_2016         = "A9_SEX_2016",
+        Name_2017         = "A9_SEX_2017",
+        Name_2018         = "A9_SEX_2018"
+        )
 summary(df$Gender)
 #Note: there are 5 NA's.
 ``` 
@@ -424,7 +460,7 @@ df$TYPE_2015 <- NULL
 df$TYPE_2016 <- NULL
 ```
 
-# 5: Main purpose of visit                                                                  *complete*
+# 5: Main purpose of visit                                                                  *pending*
 ```{r}
 df$a1_2009 <- revalue(df$a1_2009, c(
   "Vacation"=" Vacation",
@@ -449,13 +485,16 @@ df <- rendell(df                = df,
         Name_2013         = "A1_MAIN_PURPOSE_VISIT_2013", 
         Name_2014         = "A1_MAIN_PURPOSE_VISIT_2014", 
         Name_2015         = "A1_MAIN_PURPOSE_VISIT_2015", 
-        Name_2016         = "A1_MAIN_PURPOSE_VISIT_2016" )
+        Name_2016         = "A1_MAIN_PURPOSE_VISIT_2016",
+        Name_2017         = "A1_MAIN_PURPOSE_VISIT_2017",
+        Name_2018         = "A1_MAIN_PURPOSE_VISIT_2018"
+        )
 summary(df$A1_MAIN_PURPOSE_VISIT)
 
 ```
 
 # 6: Other purpose of visit
-Can this one be left out of the analysis? Yes it can.                                       *complete*
+Can this one be left out of the analysis? Yes it can.                                       *pending*
 ```{r}
 df <- rendell(df                = df,
         Name_new_variable = "OTHER_PURPOSE_VISIT", 
@@ -542,6 +581,15 @@ Y.2015 <- filter(df, Year == "2015")
 Y.2016 <- filter(df, Year == "2016")
 
 ```
+
+
+
+
+
+
+
+
+
 
 
 # *Kypa example*
