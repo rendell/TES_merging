@@ -88,6 +88,8 @@ library(wordcloud)
 library(RColorBrewer)
 library(SnowballC)
 library(forcats)
+library(xts)
+library(dygraphs)
 ```
 
 # Reading in data
@@ -459,6 +461,404 @@ df$TYPE_2014 <- NULL
 df$TYPE_2015 <- NULL
 df$TYPE_2016 <- NULL
 ```
+
+# Tourism expenditure components
+This closely follows the example that was supplied by Kepa.
+```{r}
+df <- rendell(df                = df,
+        Name_new_variable = "EXP1", 
+        Name_2009         = "TOT_DEP_EXP1_2009",
+        Name_2010         = "TOT_DEP_EXP1_2010", 
+        Name_2011         = "TOT_DEP_EXP1_2011", 
+        Name_2012         = "TOT_DEP_EXP1_2012", 
+        Name_2013         = "TOT_DEP_EXP1_2013", 
+        Name_2014         = "TOT_DEP_EXP1_2014", 
+        Name_2015         = "TOT_DEP_EXP1_2015", 
+        Name_2016         = "TOT_DEP_EXP1_2016",
+        Name_2017         = "TOT_DEP_EXP1_2017",
+        Name_2018         = "TOT_DEP_EXP1_2018"
+        )
+
+df <- rendell(df                = df,
+        Name_new_variable = "EXP2", 
+        Name_2009         = "TOT_DEP_EXP2_2009",
+        Name_2010         = "TOT_DEP_EXP2_2010", 
+        Name_2011         = "TOT_DEP_EXP2_2011", 
+        Name_2012         = "TOT_DEP_EXP2_2012", 
+        Name_2013         = "TOT_DEP_EXP2_2013", 
+        Name_2014         = "TOT_DEP_EXP2_2014", 
+        Name_2015         = "TOT_DEP_EXP2_2015", 
+        Name_2016         = "TOT_DEP_EXP2_2016",
+        Name_2017         = "TOT_DEP_EXP2_2017",
+        Name_2018         = "TOT_DEP_EXP2_2018"
+        )
+
+df <- rendell(df                = df,
+        Name_new_variable = "EXP3", 
+        Name_2009         = "TOT_DEP_EXP3_2009",
+        Name_2010         = "TOT_DEP_EXP3_2010", 
+        Name_2011         = "TOT_DEP_EXP3_2011", 
+        Name_2012         = "TOT_DEP_EXP3_2012", 
+        Name_2013         = "TOT_DEP_EXP3_2013", 
+        Name_2014         = "TOT_DEP_EXP3_2014", 
+        Name_2015         = "TOT_DEP_EXP3_2015", 
+        Name_2016         = "TOT_DEP_EXP3_2016",
+        Name_2017         = "TOT_DEP_EXP3_2017",
+        Name_2018         = "TOT_DEP_EXP3_2018"
+        )
+
+df <- rendell(df                = df,
+        Name_new_variable = "EXP4", 
+        Name_2009         = "TOT_DEP_EXP4_2009",
+        Name_2010         = "TOT_DEP_EXP4_2010", 
+        Name_2011         = "TOT_DEP_EXP4_2011", 
+        Name_2012         = "TOT_DEP_EXP4_2012", 
+        Name_2013         = "TOT_DEP_EXP4_2013", 
+        Name_2014         = "TOT_DEP_EXP4_2014", 
+        Name_2015         = "TOT_DEP_EXP4_2015", 
+        Name_2016         = "TOT_DEP_EXP4_2016",
+        Name_2017         = "TOT_DEP_EXP4_2017",
+        Name_2018         = "TOT_DEP_EXP4_2018"
+        )
+
+df <- rendell(df                = df,
+        Name_new_variable = "EXP5", 
+        Name_2009         = "TOT_DEP_EXP5_2009",
+        Name_2010         = "TOT_DEP_EXP5_2010", 
+        Name_2011         = "TOT_DEP_EXP5_2011", 
+        Name_2012         = "TOT_DEP_EXP5_2012", 
+        Name_2013         = "TOT_DEP_EXP5_2013", 
+        Name_2014         = "TOT_DEP_EXP5_2014", 
+        Name_2015         = "TOT_DEP_EXP5_2015", 
+        Name_2016         = "TOT_DEP_EXP5_2016",
+        Name_2017         = "TOT_DEP_EXP5_2017",
+        Name_2018         = "TOT_DEP_EXP5_2018"
+        )
+
+df <- rendell(df                = df,
+        Name_new_variable = "EXP6", 
+        Name_2009         = "TOT_DEP_EXP6_2009",
+        Name_2010         = "TOT_DEP_EXP6_2010", 
+        Name_2011         = "TOT_DEP_EXP6_2011", 
+        Name_2012         = "TOT_DEP_EXP6_2012", 
+        Name_2013         = "TOT_DEP_EXP6_2013", 
+        Name_2014         = "TOT_DEP_EXP6_2014", 
+        Name_2015         = "TOT_DEP_EXP6_2015", 
+        Name_2016         = "TOT_DEP_EXP6_2016",
+        Name_2017         = "TOT_DEP_EXP6_2017",
+        Name_2018         = "TOT_DEP_EXP6_2018"
+        )
+
+df <- rendell(df                = df,
+        Name_new_variable = "EXP7", 
+        Name_2009         = "TOT_DEP_EXP7_2009",
+        Name_2010         = "TOT_DEP_EXP7_2010", 
+        Name_2011         = "TOT_DEP_EXP7_2011", 
+        Name_2012         = "TOT_DEP_EXP7_2012", 
+        Name_2013         = "TOT_DEP_EXP7_2013", 
+        Name_2014         = "TOT_DEP_EXP7_2014", 
+        Name_2015         = "TOT_DEP_EXP7_2015", 
+        Name_2016         = "TOT_DEP_EXP7_2016",
+        Name_2017         = "TOT_DEP_EXP7_2017",
+        Name_2018         = "TOT_DEP_EXP7_2018"
+        )
+
+df <- rendell(df                = df,
+        Name_new_variable = "EXP8", 
+        Name_2009         = "TOT_DEP_EXP8_2009",
+        Name_2010         = "TOT_DEP_EXP8_2010", 
+        Name_2011         = "TOT_DEP_EXP8_2011", 
+        Name_2012         = "TOT_DEP_EXP8_2012", 
+        Name_2013         = "TOT_DEP_EXP8_2013", 
+        Name_2014         = "TOT_DEP_EXP8_2014", 
+        Name_2015         = "TOT_DEP_EXP8_2015", 
+        Name_2016         = "TOT_DEP_EXP8_2016",
+        Name_2017         = "TOT_DEP_EXP8_2017",
+        Name_2018         = "TOT_DEP_EXP8_2018"
+        )
+
+df <- rendell(df                = df,
+        Name_new_variable = "EXP9", 
+        Name_2009         = "TOT_DEP_EXP9_2009",
+        Name_2010         = "TOT_DEP_EXP9_2010", 
+        Name_2011         = "TOT_DEP_EXP9_2011", 
+        Name_2012         = "TOT_DEP_EXP9_2012", 
+        Name_2013         = "TOT_DEP_EXP9_2013", 
+        Name_2014         = "TOT_DEP_EXP9_2014", 
+        Name_2015         = "TOT_DEP_EXP9_2015", 
+        Name_2016         = "TOT_DEP_EXP9_2016",
+        Name_2017         = "TOT_DEP_EXP9_2017",
+        Name_2018         = "TOT_DEP_EXP9_2018"
+        )
+
+df <- rendell(df                = df,
+        Name_new_variable = "EXP10", 
+        Name_2009         = "TOT_DEP_EXP10_2009",
+        Name_2010         = "TOT_DEP_EXP10_2010", 
+        Name_2011         = "TOT_DEP_EXP10_2011", 
+        Name_2012         = "TOT_DEP_EXP10_2012", 
+        Name_2013         = "TOT_DEP_EXP10_2013", 
+        Name_2014         = "TOT_DEP_EXP10_2014", 
+        Name_2015         = "TOT_DEP_EXP10_2015", 
+        Name_2016         = "TOT_DEP_EXP10_2016",
+        Name_2017         = "TOT_DEP_EXP10_2017",
+        Name_2018         = "TOT_DEP_EXP10_2018"
+        )
+
+df <- rendell(df                = df,
+        Name_new_variable = "EXP11", 
+        Name_2009         = "TOT_DEP_EXP11_2009",
+        Name_2010         = "TOT_DEP_EXP11_2010", 
+        Name_2011         = "TOT_DEP_EXP11_2011", 
+        Name_2012         = "TOT_DEP_EXP11_2012", 
+        Name_2013         = "TOT_DEP_EXP11_2013", 
+        Name_2014         = "TOT_DEP_EXP11_2014", 
+        Name_2015         = "TOT_DEP_EXP11_2015", 
+        Name_2016         = "TOT_DEP_EXP11_2016",
+        Name_2017         = "TOT_DEP_EXP11_2017",
+        Name_2018         = "TOT_DEP_EXP11_2018"
+        )
+
+df <- rendell(df                = df,
+        Name_new_variable = "EXP12", 
+        Name_2009         = "TOT_DEP_EXP12_2009",
+        Name_2010         = "TOT_DEP_EXP12_2010", 
+        Name_2011         = "TOT_DEP_EXP12_2011", 
+        Name_2012         = "TOT_DEP_EXP12_2012", 
+        Name_2013         = "TOT_DEP_EXP12_2013", 
+        Name_2014         = "TOT_DEP_EXP12_2014", 
+        Name_2015         = "TOT_DEP_EXP12_2015", 
+        Name_2016         = "TOT_DEP_EXP12_2016",
+        Name_2017         = "TOT_DEP_EXP12_2017",
+        Name_2018         = "TOT_DEP_EXP12_2018"
+        )
+
+df <- rendell(df                = df,
+        Name_new_variable = "EXP13", 
+        Name_2009         = "TOT_DEP_EXP13_2009",
+        Name_2010         = "TOT_DEP_EXP13_2010", 
+        Name_2011         = "TOT_DEP_EXP13_2011", 
+        Name_2012         = "TOT_DEP_EXP13_2012", 
+        Name_2013         = "TOT_DEP_EXP13_2013", 
+        Name_2014         = "TOT_DEP_EXP13_2014", 
+        Name_2015         = "TOT_DEP_EXP13_2015", 
+        Name_2016         = "TOT_DEP_EXP13_2016",
+        Name_2017         = "TOT_DEP_EXP13_2017",
+        Name_2018         = "TOT_DEP_EXP13_2018"
+        )
+
+df <- rendell(df                = df,
+        Name_new_variable = "EXP14", 
+        Name_2009         = "TOT_DEP_EXP14_2009",
+        Name_2010         = "TOT_DEP_EXP14_2010", 
+        Name_2011         = "TOT_DEP_EXP14_2011", 
+        Name_2012         = "TOT_DEP_EXP14_2012", 
+        Name_2013         = "TOT_DEP_EXP14_2013", 
+        Name_2014         = "TOT_DEP_EXP14_2014", 
+        Name_2015         = "TOT_DEP_EXP14_2015", 
+        Name_2016         = "TOT_DEP_EXP14_2016",
+        Name_2017         = "TOT_DEP_EXP14_2017",
+        Name_2018         = "TOT_DEP_EXP14_2018"
+        )
+
+df <- rendell(df                = df,
+        Name_new_variable = "EXP12_1", 
+        Name_2009         = "TOT_DEP_EXP12_1_2009",
+        Name_2010         = "TOT_DEP_EXP12_1_2010", 
+        Name_2011         = "TOT_DEP_EXP12_1_2011", 
+        Name_2012         = "TOT_DEP_EXP12_1_2012", 
+        Name_2013         = "TOT_DEP_EXP12_1_2013", 
+        Name_2014         = "TOT_DEP_EXP12_1_2014", 
+        Name_2015         = "TOT_DEP_EXP12_1_2015", 
+        Name_2016         = "TOT_DEP_EXP12_1_2016",
+        Name_2017         = "TOT_DEP_EXP12_1_2017",
+        Name_2018         = "TOT_DEP_EXP12_1_2018"
+        )
+
+df <- rendell(df                = df,
+        Name_new_variable = "EXP12_2", 
+        Name_2009         = "TOT_DEP_EXP12_2_2009",
+        Name_2010         = "TOT_DEP_EXP12_2_2010", 
+        Name_2011         = "TOT_DEP_EXP12_2_2011", 
+        Name_2012         = "TOT_DEP_EXP12_2_2012", 
+        Name_2013         = "TOT_DEP_EXP12_2_2013", 
+        Name_2014         = "TOT_DEP_EXP12_2_2014", 
+        Name_2015         = "TOT_DEP_EXP12_2_2015", 
+        Name_2016         = "TOT_DEP_EXP12_2_2016",
+        Name_2017         = "TOT_DEP_EXP12_2_2017",
+        Name_2018         = "TOT_DEP_EXP12_2_2018"
+        )
+
+df$TOT_EXP <- df$EXP1 + 
+              df$EXP2 +
+              df$EXP3 +
+              df$EXP4 + 
+              df$EXP5 +
+              df$EXP6 +
+              df$EXP7 +
+              df$EXP8 +
+              df$EXP9 +
+              df$EXP10 +
+              df$EXP11 +
+              df$EXP12 +
+              df$EXP13 +
+              df$EXP14 +
+              df$EXP12_1 +
+              df$EXP12_2 
+
+# Replacing NA's with 0
+df$TOT_EXP[is.na(df$TOT_EXP)] <- 0
+```
+
+# Weights
+```{r}
+df <- rendell(df                = df,
+        Name_new_variable = "WEIGHT", 
+        Name_2009         = "weight_2009",
+        Name_2010         = "weight_2010", 
+        Name_2011         = "weight_2011", 
+        Name_2012         = "weight_2012", 
+        Name_2013         = "weight_2013", 
+        Name_2014         = "weight_2014", 
+        Name_2015         = "weight_2015", 
+        Name_2016         = "weight_2016",
+        Name_2017         = "weight_2017",
+        Name_2018         = "weight_2018"
+        )
+```
+
+# Applying the weight to Expenditures
+```{r}
+WEIGHTED_TOT_EXP <- sum(df$TOT_EXP*df$WEIGHT)
+```
+
+```{r}
+df$W_EXP1    <- df$EXP1 * df$WEIGHT
+df$W_EXP2    <- df$EXP2 * df$WEIGHT
+df$W_EXP3    <- df$EXP3 * df$WEIGHT
+df$W_EXP4    <- df$EXP4 * df$WEIGHT
+df$W_EXP5    <- df$EXP5 * df$WEIGHT
+df$W_EXP6    <- df$EXP6 * df$WEIGHT
+df$W_EXP7    <- df$EXP7 * df$WEIGHT
+df$W_EXP8    <- df$EXP8 * df$WEIGHT
+df$W_EXP9    <- df$EXP9 * df$WEIGHT
+df$W_EXP10   <- df$EXP10 * df$WEIGHT
+df$W_EXP11   <- df$EXP11 * df$WEIGHT
+df$W_EXP12   <- df$EXP12 * df$WEIGHT
+df$W_EXP13   <- df$EXP13 * df$WEIGHT
+df$W_EXP14   <- df$EXP14 * df$WEIGHT
+df$W_EXP12_1 <- df$EXP12_1 * df$WEIGHT
+df$W_EXP12_2 <- df$EXP12_1 * df$WEIGHT
+
+df$W_EXP1[is.na(df$W_EXP1)] <- 0
+df$W_EXP2[is.na(df$W_EXP2)] <- 0
+df$W_EXP3[is.na(df$W_EXP3)] <- 0
+df$W_EXP4[is.na(df$W_EXP4)] <- 0
+df$W_EXP5[is.na(df$W_EXP5)] <- 0
+df$W_EXP6[is.na(df$W_EXP6)] <- 0
+df$W_EXP7[is.na(df$W_EXP7)] <- 0
+df$W_EXP8[is.na(df$W_EXP8)] <- 0
+df$W_EXP9[is.na(df$W_EXP9)] <- 0
+df$W_EXP10[is.na(df$W_EXP10)] <- 0
+df$W_EXP11[is.na(df$W_EXP11)] <- 0
+df$W_EXP12[is.na(df$W_EXP12)] <- 0
+df$W_EXP13[is.na(df$W_EXP13)] <- 0
+df$W_EXP14[is.na(df$W_EXP14)] <- 0
+df$W_EXP12_1[is.na(df$W_EXP12_1)] <- 0
+df$W_EXP12_2[is.na(df$W_EXP12_2)] <- 0
+```
+# Creating a new total weighted
+```{r}
+df$W_TOT_EXP <- df$EXP1 +
+    df$W_EXP2 +
+    df$W_EXP3 +
+    df$W_EXP4 +
+    df$W_EXP5 +
+    df$W_EXP6 +
+    df$W_EXP7 +
+    df$W_EXP8 +
+    df$W_EXP9 +
+    df$W_EXP10 +
+    df$W_EXP11 +
+    df$W_EXP12 +
+    df$W_EXP13 +
+    df$W_EXP14 +
+    df$W_EXP12_1 +
+    df$W_EXP12_2
+```
+
+# Select right variables to keep
+```{r}
+data <- select(df,Year, 
+               Month, 
+               W_TOT_EXP,
+               W_EXP1,
+               W_EXP2,
+               W_EXP3,
+               W_EXP4,
+               W_EXP5,
+               W_EXP6,
+               W_EXP7,
+               W_EXP8,
+               W_EXP9,
+               W_EXP10,
+               W_EXP11,
+               W_EXP12,
+               W_EXP13,
+               W_EXP14,
+               W_EXP12_1,
+               W_EXP12_2,
+               Gender
+               )
+```
+
+# Group
+```{r}
+data<- data %>%
+  select(-c(Gender))%>%
+  group_by(Year,Month)%>%
+  summarize_all(list(sum))
+```
+
+```{r}
+dates <- seq(as.Date("2009/1/1"), by = "1 month", length.out = nrow(data)) 
+
+#Create quarter index
+date_Q <- quarters(dates)
+data$date_Q <- date_Q
+
+#Group by quarter
+data<- data %>%
+  select(-c(Year, Month))%>%
+  group_by(Year,date_Q)%>%
+  summarize_all(list(sum))
+##Needs fixing
+data <- xts(x = data, order.by = dates)
+
+rm(dates)
+
+
+
+quarters.map<-data.frame(month=1:12,quarter=rep(1:4,each=3))
+```
+
+```{r}
+dygraph(data$W_TOT_EXP)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # 5: Main purpose of visit                                                                  *pending*
 ```{r}
