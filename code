@@ -107,97 +107,6 @@ data_2017 <- read.spss("TES2017_ELE_final_agg2.sav", to.data.frame=TRUE)
 data_2018 <- read.spss("TES2018_ELE_final_agg2.sav", to.data.frame=TRUE)
 ```
 
-```{r}
-#Example, this was used for the quarterly files
-data_2018 <- bind_rows(select(data_2018_q1,
-  TOT_DEP_EXP1,
-  TOT_DEP_EXP2,
-  TOT_DEP_EXP3,
-  TOT_DEP_EXP4,
-  TOT_DEP_EXP5,
-  TOT_DEP_EXP6,
-  TOT_DEP_EXP7,
-  TOT_DEP_EXP8,
-  TOT_DEP_EXP9,
-  TOT_DEP_EXP10,
-  TOT_DEP_EXP11,
-  TOT_DEP_EXP12,
-  TOT_DEP_EXP13,
-  TOT_DEP_EXP14,
-  TOT_DEP_EXP12_1,
-  TOT_DEP_EXP12_2,
-  weight,
-  Q,
-  RESIDENCE_TSA2016_GRP
-),
-select(data_2018_q2,
-  TOT_DEP_EXP1,
-  TOT_DEP_EXP2,
-  TOT_DEP_EXP3,
-  TOT_DEP_EXP4,
-  TOT_DEP_EXP5,
-  TOT_DEP_EXP6,
-  TOT_DEP_EXP7,
-  TOT_DEP_EXP8,
-  TOT_DEP_EXP9,
-  TOT_DEP_EXP10,
-  TOT_DEP_EXP11,
-  TOT_DEP_EXP12,
-  TOT_DEP_EXP13,
-  TOT_DEP_EXP14,
-  TOT_DEP_EXP12_1,
-  TOT_DEP_EXP12_2,
-  weight,
-  Q,
-  RESIDENCE_TSA2016_GRP
-),
-select(data_2018_q3,
-  TOT_DEP_EXP1,
-  TOT_DEP_EXP2,
-  TOT_DEP_EXP3,
-  TOT_DEP_EXP4,
-  TOT_DEP_EXP5,
-  TOT_DEP_EXP6,
-  TOT_DEP_EXP7,
-  TOT_DEP_EXP8,
-  TOT_DEP_EXP9,
-  TOT_DEP_EXP10,
-  TOT_DEP_EXP11,
-  TOT_DEP_EXP12,
-  TOT_DEP_EXP13,
-  TOT_DEP_EXP14,
-  TOT_DEP_EXP12_1,
-  TOT_DEP_EXP12_2,
-  weight,
-  Q,
-  RESIDENCE_TSA2016_GRP
-),
-select(data_2018_q4,
-  TOT_DEP_EXP1,
-  TOT_DEP_EXP2,
-  TOT_DEP_EXP3,
-  TOT_DEP_EXP4,
-  TOT_DEP_EXP5,
-  TOT_DEP_EXP6,
-  TOT_DEP_EXP7,
-  TOT_DEP_EXP8,
-  TOT_DEP_EXP9,
-  TOT_DEP_EXP10,
-  TOT_DEP_EXP11,
-  TOT_DEP_EXP12,
-  TOT_DEP_EXP13,
-  TOT_DEP_EXP14,
-  TOT_DEP_EXP12_1,
-  TOT_DEP_EXP12_2,
-  weight,
-  Q,
-  RESIDENCE_TSA2016_GRP
-)
-)
-```
-
-
-
 Bind all datasets using their serial number to create a unique key.
 ```{r}
 colnames(data_2009) <- paste(colnames(data_2009), "2009", sep = "_")
@@ -327,12 +236,6 @@ rendell <-function(df, Name_new_variable,
 }
 ```
 
-
-Writing progress function
-```{r}
-progress <- round(1-length(df)/(343+494+495+494+494+505+526+511),2)
-```
-
 # 1: "Year"
 *Complete*
 ```{r}
@@ -402,6 +305,23 @@ df <- rendell(df                = df,
         Name_2016         = "MONTH_2016",
         Name_2017         = "MONTH_2017",
         Name_2018         = "MONTH_2018"
+        )
+```
+
+# Quarter
+```{r}
+df <- rendell(df                = df,
+        Name_new_variable = "Q", 
+        Name_2009         = "qtr_2009",
+        Name_2010         = "QTR_2010", 
+        Name_2011         = "QTR_2011", 
+        Name_2012         = "QTR_2012", 
+        Name_2013         = "QTR_2013", 
+        Name_2014         = "QTR_2014", 
+        Name_2015         = "QTR_2015", 
+        Name_2016         = "QTR_2016",
+        Name_2017         = "QTR_2017",
+        Name_2018         = "QTR_2018"
         )
 ```
 
@@ -748,7 +668,7 @@ df$W_EXP12   <- df$EXP12 * df$WEIGHT
 df$W_EXP13   <- df$EXP13 * df$WEIGHT
 df$W_EXP14   <- df$EXP14 * df$WEIGHT
 df$W_EXP12_1 <- df$EXP12_1 * df$WEIGHT
-df$W_EXP12_2 <- df$EXP12_1 * df$WEIGHT
+df$W_EXP12_2 <- df$EXP12_2 * df$WEIGHT
 
 df$W_EXP1[is.na(df$W_EXP1)] <- 0
 df$W_EXP2[is.na(df$W_EXP2)] <- 0
@@ -790,7 +710,7 @@ df$W_TOT_EXP <- df$EXP1 +
 # Select right variables to keep
 ```{r}
 data <- select(df,Year, 
-               Month, 
+               Q,
                W_TOT_EXP,
                W_EXP1,
                W_EXP2,
@@ -816,12 +736,12 @@ data <- select(df,Year,
 ```{r}
 data<- data %>%
   select(-c(Gender))%>%
-  group_by(Year,Month)%>%
+  group_by(Year,Q)%>%
   summarize_all(list(sum))
 ```
 
 ```{r}
-dates <- seq(as.Date("2009/1/1"), by = "1 month", length.out = nrow(data)) 
+
 
 #Create quarter index
 date_Q <- quarters(dates)
@@ -833,13 +753,12 @@ data<- data %>%
   group_by(Year,date_Q)%>%
   summarize_all(list(sum))
 ##Needs fixing
+dates <- seq(as.Date("2009/1/1"), by = "3 month", length.out = nrow(data)) 
 data <- xts(x = data, order.by = dates)
 
 rm(dates)
+rm(date_Q)
 
-
-
-quarters.map<-data.frame(month=1:12,quarter=rep(1:4,each=3))
 ```
 
 ```{r}
@@ -1182,4 +1101,3 @@ table_2018_TOT <- data_2018 %>%
 
 table_2018_TOT<- spread(table_2018_TOT, RESIDENCE_TSA2016_GRP, TOT_EXP_2018)
 ```
-
