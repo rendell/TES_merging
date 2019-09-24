@@ -653,20 +653,20 @@ WEIGHTED_TOT_EXP <- sum(df$TOT_EXP*df$WEIGHT)
 ```
 
 ```{r}
-df$W_EXP1    <- df$EXP1 * df$WEIGHT
-df$W_EXP2    <- df$EXP2 * df$WEIGHT
-df$W_EXP3    <- df$EXP3 * df$WEIGHT
-df$W_EXP4    <- df$EXP4 * df$WEIGHT
-df$W_EXP5    <- df$EXP5 * df$WEIGHT
-df$W_EXP6    <- df$EXP6 * df$WEIGHT
-df$W_EXP7    <- df$EXP7 * df$WEIGHT
-df$W_EXP8    <- df$EXP8 * df$WEIGHT
-df$W_EXP9    <- df$EXP9 * df$WEIGHT
-df$W_EXP10   <- df$EXP10 * df$WEIGHT
-df$W_EXP11   <- df$EXP11 * df$WEIGHT
-df$W_EXP12   <- df$EXP12 * df$WEIGHT
-df$W_EXP13   <- df$EXP13 * df$WEIGHT
-df$W_EXP14   <- df$EXP14 * df$WEIGHT
+df$W_EXP1    <- df$EXP1    * df$WEIGHT
+df$W_EXP2    <- df$EXP2    * df$WEIGHT
+df$W_EXP3    <- df$EXP3    * df$WEIGHT
+df$W_EXP4    <- df$EXP4    * df$WEIGHT
+df$W_EXP5    <- df$EXP5    * df$WEIGHT
+df$W_EXP6    <- df$EXP6    * df$WEIGHT
+df$W_EXP7    <- df$EXP7    * df$WEIGHT
+df$W_EXP8    <- df$EXP8    * df$WEIGHT
+df$W_EXP9    <- df$EXP9    * df$WEIGHT
+df$W_EXP10   <- df$EXP10   * df$WEIGHT
+df$W_EXP11   <- df$EXP11   * df$WEIGHT
+df$W_EXP12   <- df$EXP12   * df$WEIGHT
+df$W_EXP13   <- df$EXP13   * df$WEIGHT
+df$W_EXP14   <- df$EXP14   * df$WEIGHT
 df$W_EXP12_1 <- df$EXP12_1 * df$WEIGHT
 df$W_EXP12_2 <- df$EXP12_2 * df$WEIGHT
 
@@ -707,10 +707,27 @@ df$W_TOT_EXP <- df$EXP1 +
     df$W_EXP12_2
 ```
 
+```{r}
+df <- rendell(df                = df,
+        Name_new_variable = "Resident", 
+    Name_2009         = "RESIDENCE_TSA2016_GRP_2009",
+    Name_2010         = "RESIDENCE_TSA2016_GRP_2010", 
+    Name_2011         = "RESIDENCE_TSA2016_GRP_2011", 
+    Name_2012         = "RESIDENCE_TSA2016_GRP_2012", 
+    Name_2013         = "RESIDENCE_TSA2016_GRP_2013", 
+    Name_2014         = "RESIDENCE_TSA2016_GRP_2014", 
+    Name_2015         = "RESIDENCE_TSA2016_GRP_2015", 
+    Name_2016         = "RESIDENCE_TSA2016_GRP_2016",
+    Name_2017         = "RESIDENCE_TSA2016_GRP_2017",
+    Name_2018         = "RESIDENCE_TSA2016_GRP_2018"
+        )
+```
+
 # Select right variables to keep
 ```{r}
 data <- select(df,Year, 
                Q,
+               Resident,
                W_TOT_EXP,
                W_EXP1,
                W_EXP2,
@@ -741,8 +758,6 @@ data<- data %>%
 ```
 
 ```{r}
-
-
 #Create quarter index
 date_Q <- quarters(dates)
 data$date_Q <- date_Q
