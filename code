@@ -13,11 +13,17 @@ The following variables have been identified for analysis:
 *completed*
 1   Year
 2   Month
+3   Quarter
 3   Gender
+4   Residence
+5.  Expenditure (per component)
+6.  Expenditure (total)
+7.  Number of visits
+8.  Repeater
+9.  Place of stay
 
 
 *Pending*
-4   Etnic Background
 5   Main purpose of visit
 6   Other purpose of visit
 7   Place of residence
@@ -689,7 +695,7 @@ df$W_EXP12_2[is.na(df$W_EXP12_2)] <- 0
 ```
 # Creating a new total weighted
 ```{r}
-df$W_TOT_EXP <- df$EXP1 +
+df$W_TOT_EXP <- df$W_EXP1 +
     df$W_EXP2 +
     df$W_EXP3 +
     df$W_EXP4 +
@@ -723,9 +729,9 @@ df <- rendell(df                = df,
         )
 ```
 
-# Select right variables to keep
+# Table 1: Results 2009-2018 Total Expenditure per Source market.
 ```{r}
-data <- select(df,Year, 
+table_1 <- select(df,Year, 
                Q,
                Resident,
                W_TOT_EXP,
@@ -744,37 +750,49 @@ data <- select(df,Year,
                W_EXP13,
                W_EXP14,
                W_EXP12_1,
-               W_EXP12_2,
-               Gender
-               )
-```
-
-# Group
-```{r}
-data<- data %>%
-  select(-c(Gender))%>%
-  group_by(Year,Q)%>%
+               W_EXP12_2
+                )%>%
+  group_by(Year,Q, Resident)%>%
   summarize_all(list(sum))
+
+table_2 <- select(table_1,-c(Q))%>%
+group_by(Year, Resident)%>%
+  summarize_all(list(sum)) 
 ```
 
+# Number of visits
 ```{r}
-#Create quarter index
-date_Q <- quarters(dates)
-data$date_Q <- date_Q
+#Fix factor level in 2009 first:
+df$a3_2009<- fct_recode(df$a3_2009, " First time"="First")
+df$a3_2009<- fct_recode(df$a3_2009, " 2-5 times"="2-5 Times")
+df$a3_2009<- fct_recode(df$a3_2009, " 6 times and up"="6 times and up")
 
-#Group by quarter
-data<- data %>%
-  select(-c(Year, Month))%>%
-  group_by(Year,date_Q)%>%
-  summarize_all(list(sum))
-##Needs fixing
-dates <- seq(as.Date("2009/1/1"), by = "3 month", length.out = nrow(data)) 
-data <- xts(x = data, order.by = dates)
+# And 2017 and 2018:
+df$A3_2017<- fct_recode(df$A3_2017, " First time"="First time")
+df$A3_2017<- fct_recode(df$A3_2017, " 2-5 times"="2-5 times")
+df$A3_2017<- fct_recode(df$A3_2017, " 6 times and up"="6+ times")
 
-rm(dates)
-rm(date_Q)
+df$A3_2018<- fct_recode(df$A3_2018, " First time"="First time")
+df$A3_2018<- fct_recode(df$A3_2018, " 2-5 times"="2-5 times")
+df$A3_2018<- fct_recode(df$A3_2018, " 6 times and up"="6+ times")
 
+
+df <- rendell(df                = df,
+        Name_new_variable = "Repeater", 
+    Name_2009         = "a3_2009",
+    Name_2010         = "A3_2010", 
+    Name_2011         = "A3_2011", 
+    Name_2012         = "A3_2012", 
+    Name_2013         = "A3_2013", 
+    Name_2014         = "A3_2014", 
+    Name_2015         = "A3_2015", 
+    Name_2016         = "A3_2016",
+    Name_2017         = "A3_2017",
+    Name_2018         = "A3_2018"
+        )
 ```
+
+
 
 ```{r}
 dygraph(data$W_TOT_EXP)
@@ -792,7 +810,24 @@ dygraph(data$W_TOT_EXP)
 
 
 
+```{r}
 
+#Create quarter index
+date_Q <- quarters(dates)
+data$date_Q <- date_Q
+
+#Group by quarter
+data<- data %>%
+  select(-c(Year, Month))%>%
+  group_by(Year,date_Q)%>%
+  summarize_all(list(sum))
+##Needs fixing
+dates <- seq(as.Date("2009/1/1"), by = "3 month", length.out = nrow(data)) 
+data <- xts(x = data, order.by = dates)
+
+rm(dates)
+rm(date_Q)
+```
 
 # 5: Main purpose of visit                                                                  *pending*
 ```{r}
@@ -1116,3 +1151,4 @@ table_2018_TOT <- data_2018 %>%
 
 table_2018_TOT<- spread(table_2018_TOT, RESIDENCE_TSA2016_GRP, TOT_EXP_2018)
 ```
+
