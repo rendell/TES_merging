@@ -792,6 +792,13 @@ df <- rendell(df                = df,
         )
 ```
 
+# Place of stay
+```{r}
+
+```
+
+
+
 
 
 ```{r}
