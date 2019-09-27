@@ -96,6 +96,7 @@ library(SnowballC)
 library(forcats)
 library(xts)
 library(dygraphs)
+library(tsibble)
 ```
 
 # Reading in data
@@ -653,11 +654,6 @@ df <- rendell(df                = df,
         )
 ```
 
-# Applying the weight to Expenditures
-```{r}
-WEIGHTED_TOT_EXP <- sum(df$TOT_EXP*df$WEIGHT)
-```
-
 ```{r}
 df$W_EXP1    <- df$EXP1    * df$WEIGHT
 df$W_EXP2    <- df$EXP2    * df$WEIGHT
@@ -712,7 +708,7 @@ df$W_TOT_EXP <- df$W_EXP1 +
     df$W_EXP12_1 +
     df$W_EXP12_2
 ```
-
+# Country of Residence
 ```{r}
 df <- rendell(df                = df,
         Name_new_variable = "Resident", 
@@ -793,8 +789,123 @@ df <- rendell(df                = df,
 ```
 
 # Place of stay
+Unfortunatly considering there was quite a bit of difference between the naming convention used throughout the years, a complete wre-write o the factors was necesarry to enable the merging. 
 ```{r}
+df<- df%>%
+  mutate(a5_2009=fct_recode(a5_2009,
+  "Hotel"                ="Hotel",
+  "Guest house/apartment"="Guesthouse/Apartment/Villa",
+  "Friends/Relatives"    ="Friend/Relative",
+  "Other"                ="Other",
+  "Timeshare"            ="Timeshare",
+  "Own House"            ="Own House",
+  "Condominium"          ="Condominium"
+  ))
 
+df<- df%>%
+  mutate(A5_2010=fct_recode(A5_2010,
+  "Hotel"                ="Hotel",
+  "Guest house/apartment"="Guest house/apartment",
+  "Friends/Relatives"    ="Friends/relatives",
+  "Other"                ="other",
+  "Timeshare"            ="Timeshare resort",
+  "Own House"            ="Own house",
+  "Condominium"          ="Condominium"
+                             ))
+df <- df%>%
+  mutate(A5_2011=fct_recode(A5_2011,
+  "Hotel"                ="Hotel",
+  "Guest house/apartment"="Guest house/apartment",
+  "Friends/Relatives"    ="Friends/relatives",
+  "Other"                ="other",
+  "Timeshare"            ="Timeshare resort",
+  "Own House"            ="Own house",
+  "Condominium"          ="Condominium"
+                             ))
+df<- df%>%
+  mutate(A5_2012=fct_recode(A5_2012,
+  "Hotel"                ="Hotel",
+  "Guest house/apartment"="Guest house/apartment",
+  "Friends/Relatives"    ="Friends/relatives",
+  "Other"                ="other",
+  "Timeshare"            ="Timeshare resort",
+  "Own House"            ="Own house",
+  "Condominium"          ="Condominium"
+                             ))
+df<- df%>%
+  mutate(A5_2013=fct_recode(A5_2013,
+  "Hotel"                ="Hotel",
+  "Guest house/apartment"="Guest house/apartment",
+  "Friends/Relatives"    ="Friends/relatives",
+  "Other"                ="other",
+  "Timeshare"            ="Timeshare resort",
+  "Own House"            ="Own house",
+  "Condominium"          ="Condominium"
+                             ))
+df<- df%>%
+  mutate(A5_2014=fct_recode(A5_2014,
+  "Hotel"                ="Hotel",
+  "Guest house/apartment"="Guest house/apartment",
+  "Friends/Relatives"    ="Friends/relatives",
+  "Other"                ="other",
+  "Timeshare"            ="Timeshare resort",
+  "Own House"            ="Own house",
+  "Condominium"          ="Condominium"
+                             ))
+df<- df%>%
+  mutate(A5_2015=fct_recode(A5_2015,
+  "Hotel"                =" Hotel",
+  "Guest house/apartment"=" Guest house/apartment",
+  "Friends/Relatives"    =" Friends/relatives",
+  "Other"                =" other",
+  "Timeshare"            =" Timeshare resort",
+  "Own House"            =" Own house",
+  "Condominium"          =" Condominium"
+                             ))
+df<- df%>%
+  mutate(A5_2016=fct_recode(A5_2016,
+  "Hotel"                =" Hotel",
+  "Guest house/apartment"=" Guest house/apartment",
+  "Friends/Relatives"    =" Friends/relatives",
+  "Other"                =" other",
+  "Timeshare"            =" Timeshare resort",
+  "Own House"            =" Own house",
+  "Condominium"          =" Condominium"
+                             ))
+df<- df%>%
+  mutate(A5_2017=fct_recode(A5_2017,
+  "Hotel"                ="Hotel",
+  "Guest house/apartment"="Guest House/Apartment/Villa (specify the name)",
+  "Friends/Relatives"    ="Friends/Relatives",
+  "Other"                ="Other (specify)",
+  "Timeshare"            ="Timeshare Resort",
+  "Own House"            ="Own House",
+  "Condominium"          ="Condominium (specify the name)"
+                             ))
+df<- df%>%
+  mutate(A5_2018=fct_recode(A5_2018,
+  "Hotel"                ="Hotel",
+  "Guest house/apartment"="Guest House/Apartment/Villa (specify the name)",
+  "Friends/Relatives"    ="Friends/Relatives",
+  "Other"                ="Other (specify)",
+  "Timeshare"            ="Timeshare Resort",
+  "Own House"            ="Own House",
+  "Condominium"          ="Condominium (specify the name)"
+                             ))
+
+df <- rendell(df                = df,
+        Name_new_variable = "Place_stay", 
+    Name_2009         = "a5_2009",
+    Name_2010         = "A5_2010", 
+    Name_2011         = "A5_2011", 
+    Name_2012         = "A5_2012", 
+    Name_2013         = "A5_2013", 
+    Name_2014         = "A5_2014", 
+    Name_2015         = "A5_2015", 
+    Name_2016         = "A5_2016",
+    Name_2017         = "A5_2017",
+    Name_2018         = "A5_2018"
+        )
 ```
 
 
