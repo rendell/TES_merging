@@ -93,8 +93,6 @@ library(tm)
 library(wordcloud)
 library(RColorBrewer)
 library(SnowballC)
-library(forcats)
-library(xts)
 library(dygraphs)
 library(tsibble)
 ```
@@ -265,7 +263,7 @@ df <- rendell(df                = df,
 Noticed that 2009 variable October was names as Oktober. This was first corrected.
 Also, 2017 and 2018 were numerical and had to be converted to factors of the same type.
 ```{r}
-df$month_2009 <- revalue(df$month_2009, c("Oktober"="October"))
+df$month_2009 <- fct_recode(df$month_2009,"Oktober"="October")
 df$MONTH_2017<- as.factor(df$MONTH_2017)
 df$MONTH_2018<- as.factor(df$MONTH_2018)
 
@@ -725,37 +723,6 @@ df <- rendell(df                = df,
         )
 ```
 
-# Table 1: Results 2009-2018 Total Expenditure per Source market.
-```{r}
-table_1 <- select(df,Year, 
-               Q,
-               Resident,
-               W_TOT_EXP,
-               W_EXP1,
-               W_EXP2,
-               W_EXP3,
-               W_EXP4,
-               W_EXP5,
-               W_EXP6,
-               W_EXP7,
-               W_EXP8,
-               W_EXP9,
-               W_EXP10,
-               W_EXP11,
-               W_EXP12,
-               W_EXP13,
-               W_EXP14,
-               W_EXP12_1,
-               W_EXP12_2
-                )%>%
-  group_by(Year,Q, Resident)%>%
-  summarize_all(list(sum))
-
-table_2 <- select(table_1,-c(Q))%>%
-group_by(Year, Resident)%>%
-  summarize_all(list(sum)) 
-```
-
 # Number of visits
 ```{r}
 #Fix factor level in 2009 first:
@@ -908,15 +875,83 @@ df <- rendell(df                = df,
         )
 ```
 
-
-
-
-
+# Table 1: Results 2009-2018 Total Expenditure per Source market.
 ```{r}
-dygraph(data$W_TOT_EXP)
+table_1 <- select(df,Year, 
+               Q,
+               Resident,
+               W_TOT_EXP,
+               W_EXP1,
+               W_EXP2,
+               W_EXP3,
+               W_EXP4,
+               W_EXP5,
+               W_EXP6,
+               W_EXP7,
+               W_EXP8,
+               W_EXP9,
+               W_EXP10,
+               W_EXP11,
+               W_EXP12,
+               W_EXP13,
+               W_EXP14,
+               W_EXP12_1,
+               W_EXP12_2
+                )%>%
+  group_by(Year,Q, Resident)%>%
+  summarize_all(list(sum))
+
+table_2 <- select(table_1,-c(Q))%>%
+group_by(Year, Resident)%>%
+  summarize_all(list(sum)) 
+
+table_3 <-select(table_1,-c(Resident))%>%
+group_by(Year, Q)%>%
+  summarize_all(list(sum)) 
+
+
+date_tbl3 <- seq(as.Date("2009/1/1"), by = "3 month", length.out = nrow(table_3))
+
+
+table_3$index <- date_tbl3
+tsibble_3 <- table_3%>%
+  as_tsibble(index=index)
+select(tsibble_3,-c(index, Year, Q))%>%
+  dygraph() %>% 
+  dyRangeSelector()
+                  
+                
 ```
 
-
+# Creating table with only new merged variables
+This is the complete dataset. 
+```{r}
+ Merged <- select(df,Year, 
+               Q,
+               Resident,
+               Place_stay,
+               Repeater,
+               Gender,
+               WEIGHT,
+               W_TOT_EXP,
+               W_EXP1,
+               W_EXP2,
+               W_EXP3,
+               W_EXP4,
+               W_EXP5,
+               W_EXP6,
+               W_EXP7,
+               W_EXP8,
+               W_EXP9,
+               W_EXP10,
+               W_EXP11,
+               W_EXP12,
+               W_EXP13,
+               W_EXP14,
+               W_EXP12_1,
+               W_EXP12_2
+                )
+```
 
 
 
@@ -1269,4 +1304,3 @@ table_2018_TOT <- data_2018 %>%
 
 table_2018_TOT<- spread(table_2018_TOT, RESIDENCE_TSA2016_GRP, TOT_EXP_2018)
 ```
-
