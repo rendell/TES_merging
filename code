@@ -1,7 +1,11 @@
 ---
-title: "Tourism Expenditure Survey merging"
-output: html_notebook
+title: "TES"
+author: "Rendell E . de Kort"
+date: "11/14/2019"
+output: html_document
 ---
+
+
 ```{r}
 setwd("~/CBS TOUR/SPSS")
 ```
@@ -86,7 +90,7 @@ The following variables have been identified for analysis:
 57	Estimated total tourism expenditure
 
 
-```{r}
+```{r, echo=FALSE}
 library(foreign)
 library(tidyverse)
 library(tm)
@@ -187,7 +191,7 @@ df <- full_join(df,
 
 df <- df %>% select(-c(sernr_2009,TES_ID_SERIALNUMBER_2010,TES_ID_SERIALNUMBER_2011,TES_ID_SERIALNUMBER_2012,TES_ID_SERIALNUMBER_2013,TES_ID_SERIALNUMBER_2014,TES_ID_SERIALNUMBER_2015,TES_ID_SERIALNUMBER_2016,TES_ID_SERIALNUMBER_2017, TES_ID_SERIALNUMBER_2018))
 ```
-
+Remove redundant data files.
 ```{r}
 rm(data_2009)
 rm(data_2010)
@@ -263,7 +267,7 @@ df <- rendell(df                = df,
 Noticed that 2009 variable October was names as Oktober. This was first corrected.
 Also, 2017 and 2018 were numerical and had to be converted to factors of the same type.
 ```{r}
-df$month_2009 <- fct_recode(df$month_2009,"Oktober"="October")
+df$month_2009 <- fct_recode(df$month_2009,"October"="Oktober")
 df$MONTH_2017<- as.factor(df$MONTH_2017)
 df$MONTH_2018<- as.factor(df$MONTH_2018)
 
@@ -314,6 +318,7 @@ df <- rendell(df                = df,
 ```
 
 # Quarter
+*Complete*
 ```{r}
 df <- rendell(df                = df,
         Name_new_variable = "Q", 
@@ -385,6 +390,8 @@ df$TYPE_2013 <- NULL
 df$TYPE_2014 <- NULL
 df$TYPE_2015 <- NULL
 df$TYPE_2016 <- NULL
+df$TYPE_2017 <- NULL
+df$TYPE_2018 <- NULL
 ```
 
 # Tourism expenditure components
@@ -636,6 +643,7 @@ df$TOT_EXP[is.na(df$TOT_EXP)] <- 0
 ```
 
 # Weights
+*Complete*
 ```{r}
 df <- rendell(df                = df,
         Name_new_variable = "WEIGHT", 
@@ -688,6 +696,7 @@ df$W_EXP12_1[is.na(df$W_EXP12_1)] <- 0
 df$W_EXP12_2[is.na(df$W_EXP12_2)] <- 0
 ```
 # Creating a new total weighted
+*completed*
 ```{r}
 df$W_TOT_EXP <- df$W_EXP1 +
     df$W_EXP2 +
@@ -707,6 +716,7 @@ df$W_TOT_EXP <- df$W_EXP1 +
     df$W_EXP12_2
 ```
 # Country of Residence
+*Complete*
 ```{r}
 df <- rendell(df                = df,
         Name_new_variable = "Resident", 
@@ -724,6 +734,7 @@ df <- rendell(df                = df,
 ```
 
 # Number of visits
+*Completed*
 ```{r}
 #Fix factor level in 2009 first:
 df$a3_2009<- fct_recode(df$a3_2009, " First time"="First")
@@ -757,6 +768,7 @@ df <- rendell(df                = df,
 
 # Place of stay
 Unfortunatly considering there was quite a bit of difference between the naming convention used throughout the years, a complete wre-write o the factors was necesarry to enable the merging. 
+*Completed*
 ```{r}
 df<- df%>%
   mutate(a5_2009=fct_recode(a5_2009,
@@ -875,128 +887,51 @@ df <- rendell(df                = df,
         )
 ```
 
-# Table 1: Results 2009-2018 Total Expenditure per Source market.
+Creating a data frame that holds only the variables which are ready for manipulation.
 ```{r}
-table_1 <- select(df,Year, 
-               Q,
-               Resident,
-               W_TOT_EXP,
-               W_EXP1,
-               W_EXP2,
-               W_EXP3,
-               W_EXP4,
-               W_EXP5,
-               W_EXP6,
-               W_EXP7,
-               W_EXP8,
-               W_EXP9,
-               W_EXP10,
-               W_EXP11,
-               W_EXP12,
-               W_EXP13,
-               W_EXP14,
-               W_EXP12_1,
-               W_EXP12_2
-                )%>%
-  group_by(Year,Q, Resident)%>%
-  summarize_all(list(sum))
-
-table_2 <- select(table_1,-c(Q))%>%
-group_by(Year, Resident)%>%
-  summarize_all(list(sum)) 
-
-table_3 <-select(table_1,-c(Resident))%>%
-group_by(Year, Q)%>%
-  summarize_all(list(sum)) 
-
-
-date_tbl3 <- seq(as.Date("2009/1/1"), by = "3 month", length.out = nrow(table_3))
-
-
-table_3$index <- date_tbl3
-tsibble_3 <- table_3%>%
-  as_tsibble(index=index)
-select(tsibble_3,-c(index, Year, Q))%>%
-  dygraph() %>% 
-  dyRangeSelector()
-                  
-                
+Merged <- select(df, Year,
+                    Month,
+                    Q,
+                    Gender,
+                    WEIGHT,
+                    W_EXP1,
+                    W_EXP2,
+                    W_EXP3,
+                    W_EXP4,
+                    W_EXP5,
+                    W_EXP6,
+                    W_EXP7,
+                    W_EXP8,
+                    W_EXP9,
+                    W_EXP10,
+                    W_EXP11,
+                    W_EXP12,
+                    W_EXP13,
+                    W_EXP14,
+                    W_EXP12_1,
+                    W_EXP12_2,
+                    W_TOT_EXP,
+                    Resident,
+                    Repeater,
+                    Place_stay
+                    )
 ```
 
-# Creating table with only new merged variables
-This is the complete dataset. 
+# Main purpose of visit                                                                  *pending*
 ```{r}
- Merged <- select(df,Year, 
-               Q,
-               Resident,
-               Place_stay,
-               Repeater,
-               Gender,
-               WEIGHT,
-               W_TOT_EXP,
-               W_EXP1,
-               W_EXP2,
-               W_EXP3,
-               W_EXP4,
-               W_EXP5,
-               W_EXP6,
-               W_EXP7,
-               W_EXP8,
-               W_EXP9,
-               W_EXP10,
-               W_EXP11,
-               W_EXP12,
-               W_EXP13,
-               W_EXP14,
-               W_EXP12_1,
-               W_EXP12_2
-                )
-```
-
-
-
-
-
-
-
-
-
-
-
-```{r}
-
-#Create quarter index
-date_Q <- quarters(dates)
-data$date_Q <- date_Q
-
-#Group by quarter
-data<- data %>%
-  select(-c(Year, Month))%>%
-  group_by(Year,date_Q)%>%
-  summarize_all(list(sum))
-##Needs fixing
-dates <- seq(as.Date("2009/1/1"), by = "3 month", length.out = nrow(data)) 
-data <- xts(x = data, order.by = dates)
-
-rm(dates)
-rm(date_Q)
-```
-
-# 5: Main purpose of visit                                                                  *pending*
-```{r}
-df$a1_2009 <- revalue(df$a1_2009, c(
-  "Vacation"=" Vacation",
-  "Honeymoon"=" Honeymoon",
-  "Incentive award"= " Incentive award",
-  "Visit friends/relatives"=" Visit friends/relatives",
-  "Golf"=" Golf",
-  "Business and leisure"=" Business and leisure",
-  "Business only/ Convention/ Conference"=" Business only/ Convention/ Conference",
-  "Wedding"=" Wedding",
-  "Get married"=" Get married",
-  "Events/ Festival"=" Events/ Festival",
-  "Other"=" Other"
-  ))
+df$a1_2009 <- fct_recode(df$a1_2009,
+  "Vacation"="Vacation",
+  "Honeymoon"="Honeymoon",
+  "Incentive award"= "Incentive",
+  "Visit friends/relatives"="Visit Friend/Relative",
+  "Golf"="Golf",
+  "Business and leisure"="Business & Leisure",
+  "Business only/ Convention/ Conference"="Business Only/Convention",
+  "Wedding"="Wedding",
+  "Get married"="Get Married",
+  "Events/ Festival"="Events/Festivals",
+  "Other"="Other"
+  )
 
 df <- rendell(df                = df,
         Name_new_variable = "A1_MAIN_PURPOSE_VISIT", 
@@ -1012,8 +947,20 @@ df <- rendell(df                = df,
         Name_2018         = "A1_MAIN_PURPOSE_VISIT_2018"
         )
 summary(df$A1_MAIN_PURPOSE_VISIT)
-
 ```
+
+
+
+
+*********************************
+
+
+
+
+
+
+
+
 
 # 6: Other purpose of visit
 Can this one be left out of the analysis? Yes it can.                                       *pending*
@@ -1103,15 +1050,6 @@ Y.2015 <- filter(df, Year == "2015")
 Y.2016 <- filter(df, Year == "2016")
 
 ```
-
-
-
-
-
-
-
-
-
 
 
 # *Kypa example*
@@ -1303,4 +1241,5 @@ table_2018_TOT <- data_2018 %>%
   summarise(TOT_EXP_2018=sum(TOT_EXP_2018))
 
 table_2018_TOT<- spread(table_2018_TOT, RESIDENCE_TSA2016_GRP, TOT_EXP_2018)
+```
 ```
