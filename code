@@ -90,7 +90,7 @@ The following variables have been identified for analysis:
 57	Estimated total tourism expenditure
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE}
 library(foreign)
 library(tidyverse)
 library(tm)
@@ -887,6 +887,65 @@ df <- rendell(df                = df,
         )
 ```
 
+
+
+# Main purpose of visit                                                                  *2018 needs fixing*
+```{r}
+df$a1_2009 <- fct_recode(df$a1_2009,
+  " Vacation"="Vacation",
+  " Honeymoon"="Honeymoon",
+  " Incentive award"= "Incentive",
+  " Visit friends/relatives"="Visit Friend/Relative",
+  " Golf"="Golf",
+  " Business and leisure"="Business & Leisure",
+  " Business only/ Convention/ Conference"="Business Only/Convention",
+  " Wedding"="Wedding",
+  " Get married"="Get Married",
+  " Events/ Festival"="Events/Festivals",
+  " Other"="Other"
+  ) %>%
+  fct_relevel(c(" Vacation", 
+                   " Honeymoon", 
+                   " Incentive award",
+                   " Visit friends/relatives",
+                   " Golf",
+                   " Business and leisure",
+                   " Business only/ Convention/ Conference",
+                   " Wedding",
+                   " Get married",
+                   " Events/ Festival",
+                   " Other"
+                   )) 
+
+df$A1_MAIN_PURPOSE_2018 <- fct_relevel(df$A1_MAIN_PURPOSE_2018, c(" Vacation", 
+                   " Honeymoon", 
+                   " Incentive award",
+                   " Visit friends/relatives",
+                   " Golf",
+                   " Business and leisure",
+                   " Business only/ Convention/ Conference",
+                   " Wedding",
+                   " Get married",
+                   " Events/ Festival",
+                   " Other"
+                   ))
+
+df <- rendell(df                = df,
+        Name_new_variable = "A1_MAIN_PURPOSE_VISIT", 
+        Name_2009         = "a1_2009",
+        Name_2010         = "A1_MAIN_PURPOSE_VISIT_2010", 
+        Name_2011         = "A1_MAIN_PURPOSE_VISIT_2011", 
+        Name_2012         = "A1_MAIN_PURPOSE_VISIT_2012", 
+        Name_2013         = "A1_MAIN_PURPOSE_VISIT_2013", 
+        Name_2014         = "A1_MAIN_PURPOSE_VISIT_2014", 
+        Name_2015         = "A1_MAIN_PURPOSE_VISIT_2015", 
+        Name_2016         = "A1_MAIN_PURPOSE_VISIT_2016",
+        Name_2017         = "A1_MAIN_PURPOSE_VISIT_2017",
+        Name_2018         = "A1_MAIN_PURPOSE_VISIT_2018"
+        )
+summary(df$A1_MAIN_PURPOSE_VISIT)
+```
+
 Creating a data frame that holds only the variables which are ready for manipulation.
 ```{r}
 Merged <- select(df, Year,
@@ -913,43 +972,10 @@ Merged <- select(df, Year,
                     W_TOT_EXP,
                     Resident,
                     Repeater,
-                    Place_stay
+                    Place_stay,
+                 A1_MAIN_PURPOSE_VISIT
                     )
 ```
-
-# Main purpose of visit                                                                  *pending*
-```{r}
-df$a1_2009 <- fct_recode(df$a1_2009,
-  "Vacation"="Vacation",
-  "Honeymoon"="Honeymoon",
-  "Incentive award"= "Incentive",
-  "Visit friends/relatives"="Visit Friend/Relative",
-  "Golf"="Golf",
-  "Business and leisure"="Business & Leisure",
-  "Business only/ Convention/ Conference"="Business Only/Convention",
-  "Wedding"="Wedding",
-  "Get married"="Get Married",
-  "Events/ Festival"="Events/Festivals",
-  "Other"="Other"
-  )
-
-df <- rendell(df                = df,
-        Name_new_variable = "A1_MAIN_PURPOSE_VISIT", 
-        Name_2009         = "a1_2009",
-        Name_2010         = "A1_MAIN_PURPOSE_VISIT_2010", 
-        Name_2011         = "A1_MAIN_PURPOSE_VISIT_2011", 
-        Name_2012         = "A1_MAIN_PURPOSE_VISIT_2012", 
-        Name_2013         = "A1_MAIN_PURPOSE_VISIT_2013", 
-        Name_2014         = "A1_MAIN_PURPOSE_VISIT_2014", 
-        Name_2015         = "A1_MAIN_PURPOSE_VISIT_2015", 
-        Name_2016         = "A1_MAIN_PURPOSE_VISIT_2016",
-        Name_2017         = "A1_MAIN_PURPOSE_VISIT_2017",
-        Name_2018         = "A1_MAIN_PURPOSE_VISIT_2018"
-        )
-summary(df$A1_MAIN_PURPOSE_VISIT)
-```
-
-
 
 
 *********************************
@@ -1241,5 +1267,4 @@ table_2018_TOT <- data_2018 %>%
   summarise(TOT_EXP_2018=sum(TOT_EXP_2018))
 
 table_2018_TOT<- spread(table_2018_TOT, RESIDENCE_TSA2016_GRP, TOT_EXP_2018)
-```
 ```
