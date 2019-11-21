@@ -407,4 +407,3 @@ table_2018_TOT <- data_2018 %>%
 
 table_2018_TOT<- spread(table_2018_TOT, RESIDENCE_TSA2016_GRP, TOT_EXP_2018)
 ```
-```
