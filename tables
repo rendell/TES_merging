@@ -3,6 +3,20 @@ title: "TES tables"
 output: html_notebook
 ---
 
+# Number of nights
+```{r}
+p<- ggplot(Merged,aes(x=Nights))+
+  geom_density(color="blue", fill="lightblue")
+p+ geom_vline(aes(xintercept=median(Nights)),
+            color="blue", linetype="dashed", size=1)+
+  xlim(0,15)
+ 
+```
+
+
+
+
+
 # Table 1: Results 2009-2018 Total Expenditure per Source market.
 ```{r}
 table_1 <- select(df,Year, 
