@@ -1097,6 +1097,68 @@ str_replace_all("[[:punct:]]", "")%>%
                        "Wisconsin"="Wi",
                        "Wyoming"="Wy"
 )
+
+# To finalize, there were some observations that did not correspond to actual states. For some the nearest option was chosen, others were disregarded.
+%>% 
+fct_recode("Georgia"="Go",
+           "Delaware"="Da",
+           "Iowa"="Iw",
+           "Kentucky"="Kt",
+           "Tennessee"="Te",
+           
+           
+           
+                       "Alaska"="Ak",
+                       "Arizona"="Az",
+                       "Arkansas"="Ar",
+                       "California"="Ca",
+                       "Colorado"="Co",
+                       "Connecticut"="Ct",
+                       
+                       "Florida"="Fl",
+                       
+                       "Hawaii"="Hi",
+                       "Idaho"="Id",
+                       "Illinois"="Il",
+                       "Indiana"="In",
+                       
+                       "Kansas"="Ks",
+                       
+                       "Louisiana"="La",
+                       "Maine"="Me",
+                       "Maryland"="Md",
+                       "Massachusetts"="Ma",
+                       "Michigan"="Mi",
+                       "Minnesota"="Mn",
+                       "Mississippi"="Ms",
+                       "Missouri"="Mo",
+                       "Montana"="Mt",
+                       "Nebraska"="Ne",
+                       "Nevada"="Nv",
+                       "New Hampshire"="Nh",
+                       "New Jersey"="Nj",
+                       "New Mexico"="Nm",
+                       "New York"="Ny",
+                       "North Carolina"="Nc",
+                       "North Dakota"="Nd",
+                       "Ohio"="Oh",
+                       "Oklahoma"="Ok",
+                       "Oregon"="Or",
+                       "Pennsylvania"="Pa",
+                       "Rhode Island"="Ri",
+                       "South Carolina"="Sc",
+                       "South Dakota"="Sd",
+                       
+                       "Texas"="Tx",
+                       "Utah"="Ut",
+                       "Vermont"="Vt",
+                       "Virginia"="Va",
+                       "Washington"="Wa",
+                       "West Virginia"="Wv",
+                       "Wisconsin"="Wi",
+                       "Wyoming"="Wy"
+)
+
 ```
 
 # Household income *Incomplete*
