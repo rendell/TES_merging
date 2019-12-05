@@ -14,6 +14,28 @@ p+ geom_vline(aes(xintercept=median(Nights)),
 ```
 
 
+# Map US states
+*This data is yet to be proven to be correct.*
+```{r}
+# Use map_data() to create state
+library(maps)
+library(mapproj)
+state <- map_data("state")
+ggplot(state, aes(x = long, y = lat, fill = group, group = group)) +
+  geom_polygon(col = "white") +
+  coord_map()
+
+state_exp <- Merged %>%
+  group_by(State) %>%
+  summarise(W_TOT_EXP =sum(W_TOT_EXP))
+
+state2 <- merge(state, state_exp)
+
+ggplot(state2, aes(x = long, y = lat, fill = W_TOT_EXP, group = group)) +
+  geom_polygon(col = "white") +
+  coord_map()
+
+```
 
 
 
