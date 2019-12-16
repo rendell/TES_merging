@@ -32,27 +32,27 @@ setwd("~/CBS TOUR/SPSS")
 # Variables
 The following variables have been identified for analysis:
 
-Nr.           | Variable                              | Code            | Status 
-------------- | ------------------------------------- | --------------- | -------------
-1             | Year                                  | Year            | Completed
-2             | Month                                 | Month           | Completed
-3             | Quarter                               | Q               | Completed
-4             | Gender                                | Gender          | Completed
-5             | Residence                             | Month           | Completed
-6             | Expenditure (16 components)           | EXP_1 to EXP_14 | Completed
-7             | Weights                               | WEIGHT          | Completed
-8             | Weighted expenditures (13 components) | Month           | Completed
-9             | Weighted Expenditure (total)          | Month           | Completed
-10            | Resident                              | Month           | Completed
-11            | Repeater                              | Month           | Completed
-11            | Place of stay                         | Month           | Completed
-11            | Main purpose of visit                 | Month           | Completed
-11            | Number of nights                      | Month           | Completed
-11            | State (U.S.A)                         | Month           | Completed
-11            | Month                                 | Month           | Completed
-11            | Month                                 | Month           | Completed
-11            | Month                                 | Month           | Completed
-11            | Month                                 | Month           | Completed
+Nr.           | Variable                              | Code                  | Status 
+------------- | ------------------------------------- | --------------------- | -------------
+1             | Year                                  | Year                  | Completed
+2             | Month                                 | Month                 | Completed
+3             | Quarter                               | Q                     | Completed
+4             | Gender                                | Gender                | Completed
+5             | Residence                             | Month                 | Completed
+6             | Expenditure (16 components)           | EXP_1 to EXP_14       | Completed
+7             | Weights                               | WEIGHT                | Completed
+8             | Weighted expenditures (13 components) | W_EXP1 to W_EXP14     | Completed
+9             | Weighted Expenditure (total)          | W_EXP_TOT             | Completed
+10            | Resident                              | Resident              | Completed
+11            | Repeater                              | Repeater              | Completed
+11            | Place of stay                         | Place_stay            | Completed
+11            | Main purpose of visit                 | A1_MAIN_PURPOSE_VISIT | Completed
+11            | Number of nights                      | Nights                | Completed
+11            | State (U.S.A)                         | State                 | Completed
+11            | Household Income                      | Household_Income      | In progress
+11            | Month                                 | Month                 | Completed
+11            | Month                                 | Month                 | Completed
+11            | Month                                 | Month                 | Completed
 
 
 
@@ -1238,5 +1238,3 @@ Conta gewogen hende nan multipliy by gewogen placa.
 
 *need to include B9 (how many persons does this expenditure cover)
 B9 total, adult and children (A & C)
-
-
