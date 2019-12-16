@@ -2,7 +2,9 @@
 title: "TES"
 author: "Rendell E . de Kort"
 date: "11/14/2019"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 
@@ -13,6 +15,11 @@ Merging data files from 2009 to 2018.
 
 # Variables
 The following variables have been identified for analysis:
+
+Nr.           | Variable      | Code
+------------- | ------------- | -------------
+1             | Year          | Year
+2             | Month         | Month
 
 *completed*
 1   Year
@@ -972,7 +979,7 @@ df <- rendell(df                = df,
 ## 14. State (U.S.A)
 Merging of this variable resulted in te realization that 2018, the states are indicated by a number rather than a word. A list was obtained from CBS to standardize. 
 
-It should be noted that this variable needs to be used with cuation since it contains a significant number of observations that are missing.
+Provides useful relative proportions. Though it should be noted that it contains "missing" observations which are believed to be atributed to arrivals from destinations other than frpm the U.S.
 ```{r}
 df$a2a_2009 <-as.character(df$a2a_2009)
 df$A2A_2010 <-as.character(df$A2A_2010)
@@ -1144,7 +1151,6 @@ df <- rendell(df                = df,
 )
 ```
 
-
 # Creating a new dataframe only of the merged variables
 
 Creating a data frame that holds only the variables which are ready for manipulation.
@@ -1174,9 +1180,9 @@ Merged <- select(df, Year,
                     Resident,
                     Repeater,
                     Place_stay,
-                 A1_MAIN_PURPOSE_VISIT,
-                 Nights,
-                 State
+                    A1_MAIN_PURPOSE_VISIT,
+                    Nights,
+                    State
                     )
 ```
 **************
@@ -1184,3 +1190,19 @@ Merged <- select(df, Year,
 ```{r}
 merged_data.csv<-write.csv(Merged)
 ```
+
+# notes meeting with CBS staff
+The focus is on finalizing the income bracket questions.
+A_11A
+A_11b
+Other calculated currency
+
+Important: Income bracket Mid point multiplica cu currency (esaki ta valido cu 2017-2018).
+
+Average daily rate calculation:
+Conta gewogen hende nan multipliy by gewogen placa.
+
+*need to include B9 (how many persons does this expenditure cover)
+B9 total, adult and children (A & C)
+
+
