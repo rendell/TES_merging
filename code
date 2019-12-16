@@ -20,14 +20,20 @@ The following variables have been identified for analysis:
 3   Quarter
 3   Gender
 4   Residence
-5.  Expenditure (per component)
-6.  Expenditure (total)
-7.  Number of visits
-8.  Repeater
-9.  Place of stay
-
+5.  Expenditure (13 components)
+6.  Weights
+7.  Weighted expenditures (13 components)
+8.  Weighted Expenditure (total)
+9.  Resident
+10. Repeater
+11. Place of stay
+12. Main purpose of visit
+13. Number of nights
+14. State (U.S.A)
 
 *Pending*
+15. Household income
+
 5   Main purpose of visit
 6   Other purpose of visit
 7   Place of residence
@@ -159,6 +165,7 @@ data_2009$a2_2009 <- factor(data_2009$a2_2009, levels = c("United States",
                                                           ))
 ```
 Combining the seperate data sets in to one integrated dataframe. 
+Redundant serialnumber variables are removed.
 ```{r}
 df <- full_join(data_2009,
                          data_2010,
@@ -191,7 +198,8 @@ df <- full_join(df,
 
 df <- df %>% select(-c(sernr_2009,TES_ID_SERIALNUMBER_2010,TES_ID_SERIALNUMBER_2011,TES_ID_SERIALNUMBER_2012,TES_ID_SERIALNUMBER_2013,TES_ID_SERIALNUMBER_2014,TES_ID_SERIALNUMBER_2015,TES_ID_SERIALNUMBER_2016,TES_ID_SERIALNUMBER_2017, TES_ID_SERIALNUMBER_2018))
 ```
-Remove redundant data files.
+
+Remove redundant individual year data files.
 ```{r}
 rm(data_2009)
 rm(data_2010)
@@ -394,7 +402,7 @@ df$TYPE_2017 <- NULL
 df$TYPE_2018 <- NULL
 ```
 
-# Tourism expenditure components
+## 6. Tourism expenditure components
 This closely follows the example that was supplied by Kepa.
 ```{r}
 df <- rendell(df                = df,
@@ -642,7 +650,7 @@ df$TOT_EXP <- df$EXP1 +
 df$TOT_EXP[is.na(df$TOT_EXP)] <- 0
 ```
 
-# Weights
+# 7. Weights
 *Complete*
 ```{r}
 df <- rendell(df                = df,
@@ -695,7 +703,7 @@ df$W_EXP14[is.na(df$W_EXP14)] <- 0
 df$W_EXP12_1[is.na(df$W_EXP12_1)] <- 0
 df$W_EXP12_2[is.na(df$W_EXP12_2)] <- 0
 ```
-# Creating a new total weighted
+## 8. Creating a new total weighted
 *completed*
 ```{r}
 df$W_TOT_EXP <- df$W_EXP1 +
@@ -715,7 +723,7 @@ df$W_TOT_EXP <- df$W_EXP1 +
     df$W_EXP12_1 +
     df$W_EXP12_2
 ```
-# Country of Residence
+## 9. Country of Residence
 *Complete*
 ```{r}
 df <- rendell(df                = df,
@@ -733,7 +741,7 @@ df <- rendell(df                = df,
         )
 ```
 
-# Number of visits
+## 10. Number of visits
 *Completed*
 ```{r}
 #Fix factor level in 2009 first:
@@ -766,7 +774,7 @@ df <- rendell(df                = df,
         )
 ```
 
-# Place of stay
+## 11. Place of stay
 Unfortunatly considering there was quite a bit of difference between the naming convention used throughout the years, a complete wre-write o the factors was necesarry to enable the merging. 
 *Completed*
 ```{r}
@@ -887,9 +895,7 @@ df <- rendell(df                = df,
         )
 ```
 
-
-
-# Main purpose of visit                                                                  *2018 needs fixing*
+## 12. Main purpose of visit                                                                  *2018 needs fixing*
 ```{r}
 df$a1_2009 <- fct_recode(df$a1_2009,
   " Vacation"="Vacation",
@@ -946,7 +952,7 @@ df <- rendell(df                = df,
 summary(df$A1_MAIN_PURPOSE_VISIT)
 ```
 
-# Number of nights
+## 13. Number of nights
 ```{r}
 df <- rendell(df                = df,
         Name_new_variable = "Nights", 
@@ -962,8 +968,11 @@ df <- rendell(df                = df,
     Name_2018         = "A7_2018"
         )
 ```
-# State (U.S.A)
-Merging of this variable resulted in te realization that 2018, the states are indicated by a number rather than a word.A list was obtained from CBS to standardize. 
+
+## 14. State (U.S.A)
+Merging of this variable resulted in te realization that 2018, the states are indicated by a number rather than a word. A list was obtained from CBS to standardize. 
+
+It should be noted that this variable needs to be used with cuation since it contains a significant number of observations that are missing.
 ```{r}
 df$a2a_2009 <-as.character(df$a2a_2009)
 df$A2A_2010 <-as.character(df$A2A_2010)
@@ -1118,7 +1127,7 @@ df$State <- fct_recode(df$State,
 
 ```
 
-# Household income *Incomplete*
+## 15. Household income                                                                               *Incomplete*
 ```{r}
 df <- rendell(df                = df,
         Name_new_variable = "Household_Income", 
@@ -1171,7 +1180,7 @@ Merged <- select(df, Year,
                     )
 ```
 **************
+
 ```{r}
 merged_data.csv<-write.csv(Merged)
 ```
-
