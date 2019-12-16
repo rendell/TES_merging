@@ -3,15 +3,23 @@ title: "Tourism Expenditure Survey unification"
 author: "Rendell E . de Kort"
 date: "12/16/2019"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
-image: ![](~/CBS TOUR/SPSS/cbs_logo.png) 
+
 
 ```{r, include=FALSE}
 options(tinytex.verbose = TRUE)
 ```
+
+<center>
+
+![](C:/Users/RendelldeKort/Documents/CBS TOUR/SPSS/cbslogo2.jpg)
+
+</center>
+
+
 
 # Introduction
 The following document provides the syntax as well as explanatory notes that describe manipulations to tourism survey data sets from 2009 to 2018. Individual data files were merged and standardized to produce a single comprehensive data set that can be queried.
