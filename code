@@ -45,33 +45,19 @@ Nr.           | Variable                              | Code                  | 
 9             | Weighted Expenditure (total)          | W_EXP_TOT             | Completed
 10            | Resident                              | Resident              | Completed
 11            | Repeater                              | Repeater              | Completed
-11            | Place of stay                         | Place_stay            | Completed
-11            | Main purpose of visit                 | A1_MAIN_PURPOSE_VISIT | Completed
-11            | Number of nights                      | Nights                | Completed
-11            | State (U.S.A)                         | State                 | Completed
-11            | Household Income                      | Household_Income      | In progress
-11            | Month                                 | Month                 | Completed
-11            | Month                                 | Month                 | Completed
-11            | Month                                 | Month                 | Completed
+12            | Place of stay                         | Place_stay            | Completed
+13            | Main purpose of visit                 | A1_MAIN_PURPOSE_VISIT | In progress
+14            | Number of nights                      | Nights                | Completed
+15            | State (U.S.A)                         | State                 | Completed
+16            | Household Income                      | Household_Income      | In progress
+17            | B9 How many persons does exp. cover   | B9                    | Pending
+18            | A_11_household_income                 | A_11                  | Pending
+18            | A_11A_income_in_other_currency        | A_11A                 | Pending
+19            | A_11B_curency                         | A_11B                 | Pending
+20            | Q_29_S                                | Q_29_S                | Pending
+21            | CALCULATED_INCOME_IN_OTHER_CURRENCY   | Calc                  | Pending
 
 
-
-*completed*
-1   Year
-2   Month
-3   Quarter
-3   Gender
-4   Residence
-5  Expenditure (13 components)
-6  Weights
-7  Weighted expenditures (13 components)
-8  Weighted Expenditure (total)
-9  Resident
-10 Repeater
-11 Place of stay
-12 Main purpose of visit
-13 Number of nights
-14 State (U.S.A)
 
 *Pending*
 15. Household income
@@ -140,14 +126,7 @@ Nr.           | Variable                              | Code                  | 
 # Packages
 At various stages, various packages are utilized. 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
-library(foreign)
 library(tidyverse)
-library(tm)
-library(wordcloud)
-library(RColorBrewer)
-library(SnowballC)
-library(dygraphs)
-library(tsibble)
 ```
 
 # Reading in data
@@ -1238,3 +1217,5 @@ Conta gewogen hende nan multipliy by gewogen placa.
 
 *need to include B9 (how many persons does this expenditure cover)
 B9 total, adult and children (A & C)
+
+
