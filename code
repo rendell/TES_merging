@@ -127,6 +127,7 @@ Nr.           | Variable                              | Code                  | 
 At various stages, various packages are utilized. 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 library(tidyverse)
+library(foreign)
 ```
 
 # Reading in data
@@ -172,7 +173,7 @@ data_2018$key <- 201800000+data_2018$TES_ID_SERIALNUMBER_2018
 
 Prior to joining I want to take care of the variables who's names are not consistent
 ```{r,eval=FALSE}
-# Variable 7: Place of Residence
+# Variable: Place of Residence
 levels(data_2009$a2_2009) <- c(levels(data_2009$a2_2009), "The Netherlands")
 data_2009$a2_2009[data_2009$a2_2009=="Netherlands"]  <- "The Netherlands" 
 data_2009$a2_2009 <- factor(data_2009$a2_2009)
@@ -218,7 +219,17 @@ df <- full_join(df,
                          data_2018,
                          by="key")
 
-df <- df %>% select(-c(sernr_2009,TES_ID_SERIALNUMBER_2010,TES_ID_SERIALNUMBER_2011,TES_ID_SERIALNUMBER_2012,TES_ID_SERIALNUMBER_2013,TES_ID_SERIALNUMBER_2014,TES_ID_SERIALNUMBER_2015,TES_ID_SERIALNUMBER_2016,TES_ID_SERIALNUMBER_2017, TES_ID_SERIALNUMBER_2018))
+df <- df %>% select(-c(sernr_2009,
+                       TES_ID_SERIALNUMBER_2010,
+                       TES_ID_SERIALNUMBER_2011,
+                       TES_ID_SERIALNUMBER_2012,
+                       TES_ID_SERIALNUMBER_2013,
+                       TES_ID_SERIALNUMBER_2014,
+                       TES_ID_SERIALNUMBER_2015,
+                       TES_ID_SERIALNUMBER_2016,
+                       TES_ID_SERIALNUMBER_2017, 
+                       TES_ID_SERIALNUMBER_2018
+                       ))
 ```
 
 Remove redundant individual year data files.
@@ -1150,6 +1161,110 @@ df$State <- fct_recode(df$State,
 
 ## 15. Household income                                                                               *Incomplete*
 ```{r,eval=FALSE}
+df$a11_2009 <- fct_recode(df$a11_2009,
+                          "10000"="Less than US$ 20,000",
+                          "25000"="US$ 20,001-US$ 30,000",
+                          "40000"="US$ 30,001-US$ 50,000",
+                          "62500"="US$ 50,001-US$ 75,000",
+                          "87500"="US$ 75,001-US$ 100,000",
+                          "112500"="US$ 100,001 and over"
+                          )
+
+df$A11_HOUSEHOLD_INCOME_2010 <- fct_recode(df$A11_HOUSEHOLD_INCOME_2010,
+                          "10000"="Less than 20,000 US$",
+                          "25000"="US$ 20,001 - US$ 30.000",
+                          "40000"="US$ 30.001- US$ 50.000",
+                          "62500"="US$ 50,001- US$ 75,000",
+                          "87500"="US$ 75,001- US$ 100,000",
+                          "112500"="US$ 100,001 and over",
+                          "0"="Income is given in other currency"
+                          )
+
+df$A11_HOUSEHOLD_INCOME_2011 <- fct_recode(df$A11_HOUSEHOLD_INCOME_2011,
+                          "10000"="Less than 20,000 US$",
+                          "25000"="US$ 20,001 - US$ 30.000",
+                          "40000"="US$ 30.001- US$ 50.000",
+                          "62500"="US$ 50,001- US$ 75,000",
+                          "87500"="US$ 75,001- US$ 100,000",
+                          "112500"="US$ 100,001 and over",
+                          "0"="Income is given in other currency"
+                          )
+
+df$A11_HOUSEHOLD_INCOME_2012 <- fct_recode(df$A11_HOUSEHOLD_INCOME_2012,
+                          "10000"="Less than 20,000 US$",
+                          "25000"="US$ 20,001 - US$ 30.000",
+                          "40000"="US$ 30.001- US$ 50.000",
+                          "62500"="US$ 50,001- US$ 75,000",
+                          "87500"="US$ 75,001- US$ 100,000",
+                          "112500"="US$ 100,001 and over",
+                          "0"="Income is given in other currency"
+                          )
+
+df$A11_HOUSEHOLD_INCOME_2013 <- fct_recode(df$A11_HOUSEHOLD_INCOME_2013,
+                          "10000"="Less than 20,000 US$",
+                          "25000"="US$ 20,001 - US$ 30.000",
+                          "40000"="US$ 30.001- US$ 50.000",
+                          "62500"="US$ 50,001- US$ 75,000",
+                          "87500"="US$ 75,001- US$ 100,000",
+                          "112500"="US$ 100,001 and over",
+                          "0"="Income is given in other currency"
+                          )
+
+df$A11_HOUSEHOLD_INCOME_2014 <- fct_recode(df$A11_HOUSEHOLD_INCOME_2014,
+                          "10000"=" Less than 20,000 US$",
+                          "25000"=" US$ 20,001 - US$ 30.000",
+                          "40000"=" US$ 30.001- US$ 50.000",
+                          "62500"=" US$ 50,001- US$ 75,000",
+                          "87500"=" US$ 75,001- US$ 100,000",
+                          "112500"=" US$ 100,001 and over",
+                          "0"="Income is given in other currency"
+                          )
+
+df$A11_HOUSEHOLD_INCOME_2015 <- fct_recode(df$A11_HOUSEHOLD_INCOME_2015,
+                          "10000"=" Less than 20,000 US$",
+                          "25000"=" US$ 20,001 - US$ 30.000",
+                          "40000"=" US$ 30.001- US$ 50.000",
+                          "62500"=" US$ 50,001- US$ 75,000",
+                          "87500"=" US$ 75,001- US$ 100,000",
+                          "112500"=" US$ 100,001 and over",
+                          "0"="Income is given in other currency"
+                          )
+
+df$A11_HOUSEHOLD_INCOME_2016 <- fct_recode(df$A11_HOUSEHOLD_INCOME_2016,
+                          "10000"="Less than 20,000 US$",
+                          "25000"="US$ 20,001 - US$ 30.000",
+                          "40000"="US$ 30.001- US$ 50.000",
+                          "62500"="US$ 50,001- US$ 75,000",
+                          "87500"="US$ 75,001- US$ 100,000",
+                          "112500"="US$ 100,001 and over",
+                          "0"="Income is given in other currency"
+                          )
+
+df$A11_HOUSEHOLD_INCOME_2017 <- fct_recode(df$A11_HOUSEHOLD_INCOME_2017,
+                          "10000"="Less than US$ 20,000",
+                          "25000"="US$ 20,001 - US$ 30,000",
+                          "40000"="US$ 30,001 - US$ 50,000",
+                          "62500"="USS 50,001 - US$ 75,000",
+                          "87500"="US$ 75,001 - US$ 100,000",
+                          "112500"="US$ 100,001 and over",
+                          "0"="Income is given in other currency",
+                          "0"="Not reported",
+                          "0"="9"
+                          )
+
+df$A11_HOUSEHOLD_INCOME_2018 <- fct_recode(df$A11_HOUSEHOLD_INCOME_2018,
+                          "10000"="Less than US$ 20,000",
+                          "25000"="US$ 20,001 - US$ 30,000",
+                          "40000"="US$ 30,001 - US$ 50,000",
+                          "62500"="USS 50,001 - US$ 75,000",
+                          "87500"="US$ 75,001 - US$ 100,000",
+                          "112500"="US$ 100,001 and over",
+                          "0"="Income is given in other currency",
+                          "0"="Not reported"
+                          )
+
+
+
 df <- rendell(df                = df,
         Name_new_variable = "Household_Income", 
     Name_2009         = "a11_2009",
@@ -1163,6 +1278,10 @@ df <- rendell(df                = df,
     Name_2017         = "A11_HOUSEHOLD_INCOME_2017",
     Name_2018         = "A11_HOUSEHOLD_INCOME_2018"
 )
+
+
+
+
 ```
 
 # Creating a new dataframe only of the merged variables
@@ -1200,9 +1319,13 @@ Merged <- select(df, Year,
                     )
 ```
 
+# Write csv. file
 ```{r,eval=FALSE}
-merged_data.csv<-write.csv(Merged)
+
+write.csv(Merged, file="Merged.csv")
+
 ```
+
 
 # notes meeting with CBS staff
 The focus is on finalizing the income bracket questions.
@@ -1217,5 +1340,14 @@ Conta gewogen hende nan multipliy by gewogen placa.
 
 *need to include B9 (how many persons does this expenditure cover)
 B9 total, adult and children (A & C)
+
+According to the picture taken from SPSS on Desiree's screen:
+
+A11_HOUSEHOLD_INCOME
+A11A_INCOME_IN_OTHER_CURRENCY
+A11B_CURRENCY
+Q_29_S
+CALCULATED_INCOME_IN_OTHER_CURRENCY
+
 
 
