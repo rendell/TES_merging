@@ -38,20 +38,18 @@ Nr.           | Variable                              | Code                  | 
 2             | Month                                 | Month                 | Completed
 3             | Quarter                               | Q                     | Completed
 4             | Gender                                | Gender                | Completed
-5             | Residence                             | Month                 | Completed
-6             | Expenditure (16 components)           | EXP_1 to EXP_14       | Completed
-7             | Weights                               | WEIGHT                | Completed
-8             | Weighted expenditures (13 components) | W_EXP1 to W_EXP14     | Completed
-9             | Weighted Expenditure (total)          | W_EXP_TOT             | Completed
-10            | Resident                              | Resident              | Completed
-11            | Repeater                              | Repeater              | Completed
-12            | Place of stay                         | Place_stay            | Completed
+5             | Expenditure (16 components)           | EXP_1 to EXP_14       | Completed
+6             | Weights                               | WEIGHT                | Completed
+7             | Weighted expenditures (16 components) | W_EXP1 to W_EXP14     | Completed
+8             | Weighted Expenditure (total)          | W_EXP_TOT             | Completed
+9             | Resident                              | Resident              | Completed
+10            | Repeater                              | Repeater              | Completed
+11            | Place of stay                         | Place_stay            | Completed
 13            | Main purpose of visit                 | A1_MAIN_PURPOSE_VISIT | In progress
 14            | Number of nights                      | Nights                | Completed
 15            | State (U.S.A)                         | State                 | Completed
 16            | Household Income                      | Household_Income      | In progress
 17            | B9 How many persons does exp. cover   | B9                    | Pending
-18            | A_11_household_income                 | A_11                  | Pending
 18            | A_11A_income_in_other_currency        | A_11A                 | Pending
 19            | A_11B_curency                         | A_11B                 | Pending
 20            | Q_29_S                                | Q_29_S                | Pending
@@ -234,16 +232,17 @@ df <- df %>% select(-c(sernr_2009,
 
 Remove redundant individual year data files.
 ```{r,eval=FALSE}
-rm(data_2009)
-rm(data_2010)
-rm(data_2011)
-rm(data_2012)
-rm(data_2013)
-rm(data_2014)
-rm(data_2015)
-rm(data_2016)
-rm(data_2017)
-rm(data_2018)
+rm(data_2009,
+   data_2010,
+   data_2011,
+   data_2012,
+   data_2013,
+   data_2014,
+   data_2015,
+   data_2016,
+   data_2017,
+   data_2018
+   )
 ```
 
 Writing  "Rendell" function to automate merging of variables
@@ -435,7 +434,7 @@ df$TYPE_2018 <- NULL
 ```
 
 ## 5. Tourism expenditure components
-This closely follows the example that was supplied by Kepa.
+This follows the example that was supplied by Kepa.
 ```{r,eval=FALSE}
 df <- rendell(df                = df,
         Name_new_variable = "EXP1", 
@@ -682,7 +681,7 @@ df$TOT_EXP <- df$EXP1 +
 df$TOT_EXP[is.na(df$TOT_EXP)] <- 0
 ```
 
-# 7. Weights
+# 6. Weights
 *Complete*
 ```{r,eval=FALSE}
 df <- rendell(df                = df,
@@ -806,7 +805,7 @@ df <- rendell(df                = df,
         )
 ```
 
-## 11. Place of stay
+## 10. Place of stay
 Unfortunatly considering there was quite a bit of difference between the naming convention used throughout the years, a complete wre-write o the factors was necesarry to enable the merging. 
 *Completed*
 ```{r,eval=FALSE}
@@ -927,7 +926,7 @@ df <- rendell(df                = df,
         )
 ```
 
-## 12. Main purpose of visit                                                                  *2018 needs fixing*
+## 11. Main purpose of visit                                                                  *2018 needs fixing*
 ```{r,eval=FALSE}
 df$a1_2009 <- fct_recode(df$a1_2009,
   " Vacation"="Vacation",
