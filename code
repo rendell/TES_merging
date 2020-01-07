@@ -1316,6 +1316,11 @@ Merged <- select(df, Year,
 # Write csv. file
 To finalize, a CSV file can be generated which contains only the variables we will tabulate. 
 ```{r, eval=FALSE}
+currentDate <- Sys.Date()
+Merged_dataset <- paste(data,currentDate,".csv",sep="")
+write.csv(Merged, file=Merged_dataset)
+
+
 write.csv(Merged, file="Merged.csv")
 ```
 
@@ -1347,3 +1352,6 @@ Person per night per party. The observation are part of the sample that are rege
 Need to use N_PERNOC_2009
 Travelling party in number of people:
 B9T how many persons does this expenditure cover.(the T stands for total, rather than children and adults seperate, which are also included in the data set)
+
+
+
