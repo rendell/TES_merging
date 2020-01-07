@@ -1,7 +1,7 @@
 ---
 title: "Tourism Expenditure Survey unification"
 author: "Rendell E . de Kort"
-date: "12/16/2019"
+date: "1/7/2020"
 output:
   html_document: default
   pdf_document: default
@@ -22,7 +22,10 @@ options(tinytex.verbose = TRUE)
 
 
 # Introduction
-The following document provides the syntax as well as explanatory notes that describe manipulations to tourism survey data sets from 2009 to 2018. Individual data files were merged and standardized to produce a single comprehensive data set that can be queried.
+The following document provides the syntax as well as explanatory notes that describe manipulations to tourism survey data sets from 2009 to 2018. Individual data files were merged and standardized to produce a single comprehensive data set that can be queried for the years 2009-2018.
+
+Tabunlations and vizualizations are included in a seperate file. 
+
 
 To reproduce the code it is necesary to change the working directory. This can be done in the "Session" tabe, "Set Working DIrectory". 
 ```{r}
@@ -32,98 +35,31 @@ setwd("~/CBS TOUR/SPSS")
 # Variables
 The following variables have been identified for analysis:
 
-Nr.           | Variable                              | Code                  | Status 
-------------- | ------------------------------------- | --------------------- | -------------
-1             | Year                                  | Year                  | Completed
-2             | Month                                 | Month                 | Completed
-3             | Quarter                               | Q                     | Completed
-4             | Gender                                | Gender                | Completed
-5             | Expenditure (16 components)           | EXP_1 to EXP_14       | Completed
-6             | Weights                               | WEIGHT                | Completed
-7             | Weighted expenditures (16 components) | W_EXP1 to W_EXP14     | Completed
-8             | Weighted Expenditure (total)          | W_EXP_TOT             | Completed
-9             | Resident                              | Resident              | Completed
-10            | Repeater                              | Repeater              | Completed
-11            | Place of stay                         | Place_stay            | Completed
-13            | Main purpose of visit                 | A1_MAIN_PURPOSE_VISIT | In progress
-14            | Number of nights                      | Nights                | Completed
-15            | State (U.S.A)                         | State                 | Completed
-16            | Household Income                      | Household_Income      | In progress
-17            | B9 How many persons does exp. cover   | B9T                   | Pending
-18            | A_11A_income_in_other_currency        | A_11A                 | Pending
-19            | A_11B_curency                         | A_11B                 | Pending
-20            | Q_29_S                                | Q_29_S                | Pending
-21            | CALCULATED_INCOME_IN_OTHER_CURRENCY   | Calc                  | Pending
+Nr.  | Variable                              | Code                  | Status        | Comment 
+---- | ------------------------------------- | --------------------- | ---------- | ------------------
+1    | Year                                  | Year                  | Completed  |
+2    | Month                                 | Month                 | Completed  |
+3    | Quarter                               | Q                     | Completed  |
+4    | Gender                                | Gender                | Completed  |
+5    | Expenditure (16 components)           | EXP_1 to EXP_14       | Completed  |
+6    | Weights                               | WEIGHT                | Completed  |
+7    | Weighted expenditures (16 components) | W_EXP1 to W_EXP14     | Completed  |
+8    | Weighted Expenditure (total)          | W_EXP_TOT             | Completed  |
+9    | Resident                              | Resident              | Completed  |
+10   | Repeater                              | Repeater              | Completed  |
+11   | Place of stay                         | Place_stay            | Completed  |
+13   | Main purpose of visit                 | A1_MAIN_PURPOSE_VISIT | In progress|
+14   | Number of nights                      | Nights                | Completed  |
+15   | State (U.S.A)                         | State                 | Completed  |
+16   | Household Income                      | Household_Income      | Completed  | Valid 2014 to 2018
+17   | B9 How many persons does exp. cover   | B9T                   | Pending    |
+18   | Nights per observation                | N_PERNOC              | Pending    |
 
 
-
-*Pending*
-15. Household income
-
-5   Main purpose of visit
-6   Other purpose of visit
-7   Place of residence
-3	  Daily expenditure
-5	  Number of visits
-6	  income level 
-7 	Method visitors used to book a trip
-8	  Type of accomodation
-9	  important source of information visitors used
-10	travel arragenment
-11	lenght of stay
-12	age group visitors
-13	yearly household income
-14	Occupation
-15	visiotrs that have been to aruba by cruise prior to visit
-16	visitors that have been to the caribbean prior
-17	purpose of visit
-18	users of timeshare property
-19	type of flight used by the visitor
-20	united states state
-21	statement 1
-22	statement 2
-23	statement 3
-24	statement 4
-25	statement 5
-26	statement 6
-27	statement 7
-28	statement 8
-29	statement 9
-30	Rating service accomodation
-31	Rating rservice meals & drinks
-32	Rating service Local transportation
-33	Rating service Shopping
-34	Rating service entertainment / recreation
-35	Rating service quality of service
-36	Rating overall visit Aruba
-37	Rating value for money accomodation
-38	Rating value for money meals & drinks
-39	Rating value for money local transportation
-40	Rating value for money shopping
-41	Rating value for money entertainment/ recreation
-42	Rating value for money quality of service
-
-
-# *These are temporary variables in the files*
-43	Average daily expenditure Accomodation
-44	Average daily expenditure Food & Beverage
-45	Average daily expenditure Groceries/sundries
-46	Average daily expenditure Entertainment/Recreation
-47	Average daily expenditure Taxis
-48	Average daily expenditure Car rental
-49	Average daily expenditure Public transportation
-50	Average daily expenditure Tax free shopping
-51	Average daily expenditure shopping
-52	Average daily expenditure Casinos
-53	Average daily expenditure Internet/Telephone
-54	Average daily expenditure Other
-55	Average daily expenditure Total
-56	Persons the expenditure covers
-57	Estimated total tourism expenditure
 
 # Packages
-At various stages, various packages are utilized. 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
+To complete the manipulations necesary, only two packages were utilized: 'tidyverse' and 'foreign'. 
+```{r, eval=FALSE}
 library(tidyverse)
 library(foreign)
 ```
@@ -230,7 +166,7 @@ df <- df %>% select(-c(sernr_2009,
                        ))
 ```
 
-Remove redundant individual year data files.
+Since we now have a comprehensive dataset, we can go ahead and remove redundant individual year data files.
 ```{r,eval=FALSE}
 rm(data_2009,
    data_2010,
@@ -245,6 +181,7 @@ rm(data_2009,
    )
 ```
 
+# Merging function
 Writing  "Rendell" function to automate merging of variables
 Stackoverflow suggestion:
 ```{r,eval=FALSE}
@@ -1160,117 +1097,118 @@ df$State <- fct_recode(df$State,
 
 ## 15. Household income                                                                               *Incomplete*
 
-The variables consisted of intervals. This was changed and standardized to the middle number of the interval. Also the earlier factors did not have the same levels, so this needed to be standardized as well.
+The variables consist of intervals. The earlier factors did not have the same levels, so this needed to be standardized.
+An earlier version of this provided the option to change the interval to a specific number. This would allow for calculations using numbers.
+However, for analysis it was decided that it would suffice to report intervals. The infrastructure to change each label to a number was still maintained just in case for easy switching in the future should the need arise to use numbers. 
 
-The first variable is the categorical variable A11 which is used for US$. Respondents answering in other currencies are provided in variable"A11A_INCOME_IN_OTHER_CURRENCY".However, these have to be converted from numerical and included in the categorical variable.
+The first variable is the categorical variable A11 which is used for US$. Respondents answering in other currencies are provided in variable"A11A_INCOME_IN_OTHER_CURRENCY".However, these have to be converted from numerical and included in the categorical variable for 2017 and 2018. For 2014 to 2016 this data processing was completed manually.
 
-
+*The implaction is that this variable needs to be used with cuation as it is incomplete (exlcudes 'other' answers) for the years preceding 2014.*
 
 ```{r,eval=FALSE}
 df$a11_2009 <- fct_recode(df$a11_2009,
-                          "10000"="Less than US$ 20,000",
-                          "25000"="US$ 20,001-US$ 30,000",
-                          "40000"="US$ 30,001-US$ 50,000",
-                          "62500"="US$ 50,001-US$ 75,000",
-                          "87500"="US$ 75,001-US$ 100,000",
-                          "112500"="US$ 100,001 and over"
+                          "Less than US$ 20,000"="Less than US$ 20,000",
+                          "US$ 20,001 - US$ 30,000"="US$ 20,001-US$ 30,000",
+                          "US$ 30,001 - US$ 50,000"="US$ 30,001-US$ 50,000",
+                          "USS 50,001 - US$ 75,000"="US$ 50,001-US$ 75,000",
+                          "US$ 75,001 - US$ 100,000"="US$ 75,001-US$ 100,000",
+                          "US$ 100,001 and over"="US$ 100,001 and over"
                           )
 
 df$A11_HOUSEHOLD_INCOME_2010 <- fct_recode(df$A11_HOUSEHOLD_INCOME_2010,
-                          "10000"="Less than 20,000 US$",
-                          "25000"="US$ 20,001 - US$ 30.000",
-                          "40000"="US$ 30.001- US$ 50.000",
-                          "62500"="US$ 50,001- US$ 75,000",
-                          "87500"="US$ 75,001- US$ 100,000",
-                          "112500"="US$ 100,001 and over",
+                          "Less than US$ 20,000"="Less than 20,000 US$",
+                          "US$ 20,001 - US$ 30,000"="US$ 20,001 - US$ 30.000",
+                          "US$ 30,001 - US$ 50,000"="US$ 30.001- US$ 50.000",
+                          "USS 50,001 - US$ 75,000"="US$ 50,001- US$ 75,000",
+                          "US$ 75,001 - US$ 100,000"="US$ 75,001- US$ 100,000",
+                          "US$ 100,001 and over"="US$ 100,001 and over",
                           NULL="Income is given in other currency"
                           )
 
 df$A11_HOUSEHOLD_INCOME_2011 <- fct_recode(df$A11_HOUSEHOLD_INCOME_2011,
-                          "10000"="Less than 20,000 US$",
-                          "25000"="US$ 20,001 - US$ 30.000",
-                          "40000"="US$ 30.001- US$ 50.000",
-                          "62500"="US$ 50,001- US$ 75,000",
-                          "87500"="US$ 75,001- US$ 100,000",
-                          "112500"="US$ 100,001 and over",
+                          "Less than US$ 20,000"="Less than 20,000 US$",
+                          "US$ 20,001 - US$ 30,000"="US$ 20,001 - US$ 30.000",
+                          "US$ 30,001 - US$ 50,000"="US$ 30.001- US$ 50.000",
+                          "USS 50,001 - US$ 75,000"="US$ 50,001- US$ 75,000",
+                          "US$ 75,001 - US$ 100,000"="US$ 75,001- US$ 100,000",
+                          "US$ 100,001 and over"="US$ 100,001 and over",
                           NULL="Income is given in other currency"
                           )
 
 df$A11_HOUSEHOLD_INCOME_2012 <- fct_recode(df$A11_HOUSEHOLD_INCOME_2012,
-                          "10000"="Less than 20,000 US$",
-                          "25000"="US$ 20,001 - US$ 30.000",
-                          "40000"="US$ 30.001- US$ 50.000",
-                          "62500"="US$ 50,001- US$ 75,000",
-                          "87500"="US$ 75,001- US$ 100,000",
-                          "112500"="US$ 100,001 and over",
+                          "Less than US$ 20,000"="Less than 20,000 US$",
+                          "US$ 20,001 - US$ 30,000"="US$ 20,001 - US$ 30.000",
+                          "US$ 30,001 - US$ 50,000"="US$ 30.001- US$ 50.000",
+                          "USS 50,001 - US$ 75,000"="US$ 50,001- US$ 75,000",
+                          "US$ 75,001 - US$ 100,000"="US$ 75,001- US$ 100,000",
+                          "US$ 100,001 and over"="US$ 100,001 and over",
                           NULL="Income is given in other currency"
                           )
 
 df$A11_HOUSEHOLD_INCOME_2013 <- fct_recode(df$A11_HOUSEHOLD_INCOME_2013,
-                          "10000"="Less than 20,000 US$",
-                          "25000"="US$ 20,001 - US$ 30.000",
-                          "40000"="US$ 30.001- US$ 50.000",
-                          "62500"="US$ 50,001- US$ 75,000",
-                          "87500"="US$ 75,001- US$ 100,000",
-                          "112500"="US$ 100,001 and over",
+                          "Less than US$ 20,000"="Less than 20,000 US$",
+                          "US$ 20,001 - US$ 30,000"="US$ 20,001 - US$ 30.000",
+                          "US$ 30,001 - US$ 50,000"="US$ 30.001- US$ 50.000",
+                          "USS 50,001 - US$ 75,000"="US$ 50,001- US$ 75,000",
+                          "US$ 75,001 - US$ 100,000"="US$ 75,001- US$ 100,000",
+                          "US$ 100,001 and over"="US$ 100,001 and over",
                           NULL="Income is given in other currency"
                           )
 
 df$A11_HOUSEHOLD_INCOME_2014 <- fct_recode(df$A11_HOUSEHOLD_INCOME_2014,
-                          "10000"=" Less than 20,000 US$",
-                          "25000"=" US$ 20,001 - US$ 30.000",
-                          "40000"=" US$ 30.001- US$ 50.000",
-                          "62500"=" US$ 50,001- US$ 75,000",
-                          "87500"=" US$ 75,001- US$ 100,000",
-                          "112500"=" US$ 100,001 and over",
+                          "Less than US$ 20,000"=" Less than 20,000 US$",
+                          "US$ 20,001 - US$ 30,000"=" US$ 20,001 - US$ 30.000",
+                          "US$ 30,001 - US$ 50,000"=" US$ 30.001- US$ 50.000",
+                          "USS 50,001 - US$ 75,000"=" US$ 50,001- US$ 75,000",
+                          "US$ 75,001 - US$ 100,000"=" US$ 75,001- US$ 100,000",
+                          "US$ 100,001 and over"=" US$ 100,001 and over",
                           NULL="Income is given in other currency"
                           )
 
 df$A11_HOUSEHOLD_INCOME_2015 <- fct_recode(df$A11_HOUSEHOLD_INCOME_2015,
-                          "10000"=" Less than 20,000 US$",
-                          "25000"=" US$ 20,001 - US$ 30.000",
-                          "40000"=" US$ 30.001- US$ 50.000",
-                          "62500"=" US$ 50,001- US$ 75,000",
-                          "87500"=" US$ 75,001- US$ 100,000",
-                          "112500"=" US$ 100,001 and over",
+                          "Less than US$ 20,000"=" Less than 20,000 US$",
+                          "US$ 20,001 - US$ 30,000"=" US$ 20,001 - US$ 30.000",
+                          "US$ 30,001 - US$ 50,000"=" US$ 30.001- US$ 50.000",
+                          "USS 50,001 - US$ 75,000"=" US$ 50,001- US$ 75,000",
+                          "US$ 75,001 - US$ 100,000"=" US$ 75,001- US$ 100,000",
+                          "US$ 100,001 and over"=" US$ 100,001 and over",
                           NULL="Income is given in other currency"
                           )
 
 df$A11_HOUSEHOLD_INCOME_2016 <- fct_recode(df$A11_HOUSEHOLD_INCOME_2016,
                                            
-                          "10000"="Less than 20,000 US$",
-                          "25000"="US$ 20,001 - US$ 30.000",
-                          "40000"="US$ 30.001- US$ 50.000",
-                          "62500"="US$ 50,001- US$ 75,000",
-                          "87500"="US$ 75,001- US$ 100,000",
-                          "112500"="US$ 100,001 and over",
+                          "Less than US$ 20,000"="Less than 20,000 US$",
+                          "US$ 20,001 - US$ 30,000"="US$ 20,001 - US$ 30.000",
+                          "US$ 30,001 - US$ 50,000"="US$ 30.001- US$ 50.000",
+                          "USS 50,001 - US$ 75,000"="US$ 50,001- US$ 75,000",
+                          "US$ 75,001 - US$ 100,000"="US$ 75,001- US$ 100,000",
+                          "US$ 100,001 and over"="US$ 100,001 and over",
                           NULL="Income is given in other currency"
                           )
 
 df$A11_HOUSEHOLD_INCOME_2017 <- fct_recode(df$A11_HOUSEHOLD_INCOME_2017,
-                          "10000"="Less than US$ 20,000",
-                          "25000"="US$ 20,001 - US$ 30,000",
-                          "40000"="US$ 30,001 - US$ 50,000",
-                          "62500"="USS 50,001 - US$ 75,000",
-                          "87500"="US$ 75,001 - US$ 100,000",
-                          "112500"="US$ 100,001 and over",
+                          "Less than US$ 20,000"="Less than US$ 20,000",
+                          "US$ 20,001 - US$ 30,000"="US$ 20,001 - US$ 30,000",
+                          "US$ 30,001 - US$ 50,000"="US$ 30,001 - US$ 50,000",
+                          "USS 50,001 - US$ 75,000"="USS 50,001 - US$ 75,000",
+                          "US$ 75,001 - US$ 100,000"="US$ 75,001 - US$ 100,000",
+                          "US$ 100,001 and over"="US$ 100,001 and over",
                           NULL="Income is given in other currency",
                           NULL="Not reported",
                           NULL="9"
                           )
 
 df$A11_HOUSEHOLD_INCOME_2018 <- fct_recode(df$A11_HOUSEHOLD_INCOME_2018,
-                          "10000"="Less than US$ 20,000",
-                          "25000"="US$ 20,001 - US$ 30,000",
-                          "40000"="US$ 30,001 - US$ 50,000",
-                          "62500"="USS 50,001 - US$ 75,000",
-                          "87500"="US$ 75,001 - US$ 100,000",
-                          "112500"="US$ 100,001 and over",
+                          "Less than US$ 20,000"="Less than US$ 20,000",
+                          "US$ 20,001 - US$ 30,000"="US$ 20,001 - US$ 30,000",
+                          "US$ 30,001 - US$ 50,000"="US$ 30,001 - US$ 50,000",
+                          "USS 50,001 - US$ 75,000"="USS 50,001 - US$ 75,000",
+                          "US$ 75,001 - US$ 100,000"="US$ 75,001 - US$ 100,000",
+                          "US$ 100,001 and over"="US$ 100,001 and over",
                           NULL="Income is given in other currency",
                           NULL="Not reported"
                           )
 
-df_temp<-df
 
 df <- rendell(df                = df,
         Name_new_variable = "Household_Income", 
@@ -1296,7 +1234,7 @@ df <- rendell(df                = df,
 # 2017 and 2018 need to be passed over from A11A_INCOME_IN_OTHER_CURRENCY to A11.
 # mydata$Agecat1<-cut(mydata$Age, c(0,5,10,15,20,25,30))
 
-df$A11A_INCOME_IN_OTHER_CURRENCY_2017r <-cut(df$A11A_INCOME_IN_OTHER_CURRENCY_2017,
+df$A11A_INCOME_IN_OTHER_CURRENCY_2017 <-cut(df$A11A_INCOME_IN_OTHER_CURRENCY_2017,
                                              c(0,
                                                20000,
                                                30000,
@@ -1306,7 +1244,7 @@ df$A11A_INCOME_IN_OTHER_CURRENCY_2017r <-cut(df$A11A_INCOME_IN_OTHER_CURRENCY_20
                                                500000
                                                ))
 
-df$A11A_INCOME_IN_OTHER_CURRENCY_2018r <-cut(df$A11A_INCOME_IN_OTHER_CURRENCY_2018,
+df$A11A_INCOME_IN_OTHER_CURRENCY_2018 <-cut(df$A11A_INCOME_IN_OTHER_CURRENCY_2018,
                                              c(0,
                                                20000,
                                                30000,
@@ -1316,7 +1254,7 @@ df$A11A_INCOME_IN_OTHER_CURRENCY_2018r <-cut(df$A11A_INCOME_IN_OTHER_CURRENCY_20
                                                500000
                                                ))
 
-df$A11A_INCOME_IN_OTHER_CURRENCY_2017r <- fct_recode(df$A11A_INCOME_IN_OTHER_CURRENCY_2017r,
+df$A11A_INCOME_IN_OTHER_CURRENCY_2017 <- fct_recode(df$A11A_INCOME_IN_OTHER_CURRENCY_2017,
                           "Less than US$ 20,000"="(0,2e+04]",
                           "US$ 20,001 - US$ 30,000"="(2e+04,3e+04]",
                           "US$ 30,001 - US$ 50,000"="(3e+04,5e+04]",
@@ -1325,7 +1263,7 @@ df$A11A_INCOME_IN_OTHER_CURRENCY_2017r <- fct_recode(df$A11A_INCOME_IN_OTHER_CUR
                           "US$ 100,001 and over"="(1e+05,5e+05]"
                           )
 
-df$A11A_INCOME_IN_OTHER_CURRENCY_2018r <- fct_recode(df$A11A_INCOME_IN_OTHER_CURRENCY_2018r,
+df$A11A_INCOME_IN_OTHER_CURRENCY_2018 <- fct_recode(df$A11A_INCOME_IN_OTHER_CURRENCY_2018,
                           "Less than US$ 20,000"="(0,2e+04]",
                           "US$ 20,001 - US$ 30,000"="(2e+04,3e+04]",
                           "US$ 30,001 - US$ 50,000"="(3e+04,5e+04]",
@@ -1334,7 +1272,9 @@ df$A11A_INCOME_IN_OTHER_CURRENCY_2018r <- fct_recode(df$A11A_INCOME_IN_OTHER_CUR
                           "US$ 100,001 and over"="(1e+05,5e+05]"
                           )
 
-
+# This is to add the factor columns for the values that are 'NA' but there are observations in other currency to the household income
+df$Household_Income[is.na(df$Household_Income)] <- df$A11A_INCOME_IN_OTHER_CURRENCY_2017[is.na(df$Household_Income)]
+df$Household_Income[is.na(df$Household_Income)] <- df$A11A_INCOME_IN_OTHER_CURRENCY_2018[is.na(df$Household_Income)]
 ```
 
 # Creating a new dataframe only of the merged variables
@@ -1368,25 +1308,20 @@ Merged <- select(df, Year,
                     Place_stay,
                     A1_MAIN_PURPOSE_VISIT,
                     Nights,
-                    State
+                    State,
+                    Household_Income
                     )
 ```
 
 # Write csv. file
-```{r,eval=FALSE}
-
+To finalize, a CSV file can be generated which contains only the variables we will tabulate. 
+```{r, eval=FALSE}
 write.csv(Merged, file="Merged.csv")
-
 ```
 
 
-# notes meeting with CBS staff
-The focus is on finalizing the income bracket questions.
-A_11A
-A_11b
-Other calculated currency
 
-Important: Income bracket Mid point multiplica cu currency (esaki ta valido cu 2017-2018).
+# Notes
 
 Average daily rate calculation:
 Conta gewogen hende nan multipliy by gewogen placa.
@@ -1412,7 +1347,3 @@ Person per night per party. The observation are part of the sample that are rege
 Need to use N_PERNOC_2009
 Travelling party in number of people:
 B9T how many persons does this expenditure cover.(the T stands for total, rather than children and adults seperate, which are also included in the data set)
-
-
-
-
