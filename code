@@ -24,7 +24,7 @@ options(tinytex.verbose = TRUE)
 # Introduction
 The following document provides the syntax as well as explanatory notes that describe manipulations to tourism survey data sets from 2009 to 2018. Individual data files were merged and standardized to produce a single comprehensive data set that can be queried for the years 2009-2018.
 
-Tabunlations and vizualizations are included in a seperate file. 
+Tabulations and vizualizations are included in a seperate file. 
 
 
 To reproduce the code it is necesary to change the working directory. This can be done in the "Session" tabe, "Set Working DIrectory". 
@@ -59,6 +59,12 @@ Nr.  | Variable                              | Code                  | Status   
 
 # Packages
 To complete the manipulations necesary, only two packages were utilized: 'tidyverse' and 'foreign'. 
+Within the tidyverse, the functions are mostly from dplyr and forecats. More information on the functions from these pacakges are available on:
+
+https://resources.rstudio.com/rstudio-developed/factors
+
+https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf
+
 ```{r, eval=FALSE}
 library(tidyverse)
 library(foreign)
@@ -182,8 +188,9 @@ rm(data_2009,
 ```
 
 # Merging function
-Writing  "Rendell" function to automate merging of variables
-Stackoverflow suggestion:
+To automate some of the process of merging variables, it was necesarry to specify a custom function that once provdided the files per year would merge all of them in a single variable and then delete the redundant year variables from the dataset.
+
+For simplicity we called it the 'rendell function'.
 ```{r,eval=FALSE}
 rendell <-function(df, Name_new_variable, 
                    Name_2009, 
@@ -222,8 +229,7 @@ rendell <-function(df, Name_new_variable,
 }
 ```
 
-# 1: "Year"
-*Complete*
+## 1: "Year"
 ```{r,eval=FALSE}
 df <- rendell(df                = df,
         Name_new_variable = "Year", 
@@ -239,8 +245,7 @@ df <- rendell(df                = df,
         Name_2018         = "YEAR_2018")
 ```
 
-# 2: "Month"
-*Complete*
+## 2: "Month"
 Noticed that 2009 variable October was names as Oktober. This was first corrected.
 Also, 2017 and 2018 were numerical and had to be converted to factors of the same type.
 ```{r,eval=FALSE}
@@ -295,7 +300,6 @@ df <- rendell(df                = df,
 ```
 
 ## 3. Quarter
-*Complete*
 ```{r,eval=FALSE}
 df <- rendell(df                = df,
         Name_new_variable = "Q", 
@@ -313,7 +317,6 @@ df <- rendell(df                = df,
 ```
 
 ## 4. Gender
-*Complete*
 ```{r,eval=FALSE}
 df <- rendell(df                = df,
         Name_new_variable = "Gender", 
@@ -331,7 +334,6 @@ df <- rendell(df                = df,
 #Note: there are 5 NA's.
 ``` 
 
-*Complete*
 ## Ethnic background (refered to as "Type")
 *Not included at the moment*
 The choice was taken by CBS to drop this variable since it was unlikely to be included in further analysis. 
@@ -618,8 +620,7 @@ df$TOT_EXP <- df$EXP1 +
 df$TOT_EXP[is.na(df$TOT_EXP)] <- 0
 ```
 
-# 6. Weights
-*Complete*
+## 6. Weights
 ```{r,eval=FALSE}
 df <- rendell(df                = df,
         Name_new_variable = "WEIGHT", 
@@ -671,8 +672,9 @@ df$W_EXP14[is.na(df$W_EXP14)] <- 0
 df$W_EXP12_1[is.na(df$W_EXP12_1)] <- 0
 df$W_EXP12_2[is.na(df$W_EXP12_2)] <- 0
 ```
+
+
 ## 8. Creating a new total weighted
-*completed*
 ```{r,eval=FALSE}
 df$W_TOT_EXP <- df$W_EXP1 +
     df$W_EXP2 +
@@ -692,7 +694,6 @@ df$W_TOT_EXP <- df$W_EXP1 +
     df$W_EXP12_2
 ```
 ## 9. Country of Residence
-*Complete*
 ```{r,eval=FALSE}
 df <- rendell(df                = df,
         Name_new_variable = "Resident", 
@@ -710,7 +711,6 @@ df <- rendell(df                = df,
 ```
 
 ## 10. Number of visits
-*Completed*
 ```{r,eval=FALSE}
 #Fix factor level in 2009 first:
 df$a3_2009<- fct_recode(df$a3_2009, " First time"="First")
@@ -744,7 +744,6 @@ df <- rendell(df                = df,
 
 ## 10. Place of stay
 Unfortunatly considering there was quite a bit of difference between the naming convention used throughout the years, a complete wre-write o the factors was necesarry to enable the merging. 
-*Completed*
 ```{r,eval=FALSE}
 df<- df%>%
   mutate(a5_2009=fct_recode(a5_2009,
@@ -1320,38 +1319,32 @@ currentDate <- Sys.Date()
 Merged_dataset <- paste(data,currentDate,".csv",sep="")
 write.csv(Merged, file=Merged_dataset)
 
-
 write.csv(Merged, file="Merged.csv")
 ```
 
-
-
 # Notes
+```{r, echo=FALSE, eval=FALSE}
+##Average daily rate calculation:
+#Conta gewogen hende nan multipliy by gewogen placa.
 
-Average daily rate calculation:
-Conta gewogen hende nan multipliy by gewogen placa.
+#*need to include B9 (how many persons does this expenditure cover)
+#B9 total, adult and children (A & C)
 
-*need to include B9 (how many persons does this expenditure cover)
-B9 total, adult and children (A & C)
+#According to the picture taken from SPSS on Desiree's screen:
 
-According to the picture taken from SPSS on Desiree's screen:
-
-A11_HOUSEHOLD_INCOME
-A11A_INCOME_IN_OTHER_CURRENCY
-A11B_CURRENCY
-Q_29_S
-CALCULATED_INCOME_IN_OTHER_CURRENCY
-
-
-A11A_INCOME_IN_OTHER_CURRENCY / other_currency_A11B
-
-A11B_CURRENCY
+#A11_HOUSEHOLD_INCOME
+#A11A_INCOME_IN_OTHER_CURRENCY
+#A11B_CURRENCY
+#Q_29_S
+#CALCULATED_INCOME_IN_OTHER_CURRENCY
 
 
-Person per night per party. The observation are part of the sample that are regestiered per party. 
-Need to use N_PERNOC_2009
-Travelling party in number of people:
-B9T how many persons does this expenditure cover.(the T stands for total, rather than children and adults seperate, which are also included in the data set)
+#A11A_INCOME_IN_OTHER_CURRENCY / other_currency_A11B
 
+#A11B_CURRENCY
 
-
+#Person per night per party. The observation are part of the sample that are regestiered per party. 
+#Need to use N_PERNOC_2009
+#Travelling party in number of people:
+#B9T how many persons does this expenditure cover.(the T stands for total, rather than children and adults seperate, which are #also included in the data set)
+```
