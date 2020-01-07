@@ -49,7 +49,7 @@ Nr.           | Variable                              | Code                  | 
 14            | Number of nights                      | Nights                | Completed
 15            | State (U.S.A)                         | State                 | Completed
 16            | Household Income                      | Household_Income      | In progress
-17            | B9 How many persons does exp. cover   | B9                    | Pending
+17            | B9 How many persons does exp. cover   | B9T                   | Pending
 18            | A_11A_income_in_other_currency        | A_11A                 | Pending
 19            | A_11B_curency                         | A_11B                 | Pending
 20            | Q_29_S                                | Q_29_S                | Pending
@@ -1162,6 +1162,10 @@ df$State <- fct_recode(df$State,
 
 The variables consisted of intervals. This was changed and standardized to the middle number of the interval. Also the earlier factors did not have the same levels, so this needed to be standardized as well.
 
+The first variable is the categorical variable A11 which is used for US$. Respondents answering in other currencies are provided in variable"A11A_INCOME_IN_OTHER_CURRENCY".However, these have to be converted from numerical and included in the categorical variable.
+
+
+
 ```{r,eval=FALSE}
 df$a11_2009 <- fct_recode(df$a11_2009,
                           "10000"="Less than US$ 20,000",
@@ -1281,6 +1285,56 @@ df <- rendell(df                = df,
     Name_2017         = "A11_HOUSEHOLD_INCOME_2017",
     Name_2018         = "A11_HOUSEHOLD_INCOME_2018"
 )
+
+
+
+# For 2016 A11 is complete, including the observations that are in other currency.
+# For 2015 A11 is complete, including the observations that are in other currency.
+
+
+
+# 2017 and 2018 need to be passed over from A11A_INCOME_IN_OTHER_CURRENCY to A11.
+# mydata$Agecat1<-cut(mydata$Age, c(0,5,10,15,20,25,30))
+
+df$A11A_INCOME_IN_OTHER_CURRENCY_2017r <-cut(df$A11A_INCOME_IN_OTHER_CURRENCY_2017,
+                                             c(0,
+                                               20000,
+                                               30000,
+                                               50000,
+                                               75000,
+                                               100000,
+                                               500000
+                                               ))
+
+df$A11A_INCOME_IN_OTHER_CURRENCY_2018r <-cut(df$A11A_INCOME_IN_OTHER_CURRENCY_2018,
+                                             c(0,
+                                               20000,
+                                               30000,
+                                               50000,
+                                               75000,
+                                               100000,
+                                               500000
+                                               ))
+
+df$A11A_INCOME_IN_OTHER_CURRENCY_2017r <- fct_recode(df$A11A_INCOME_IN_OTHER_CURRENCY_2017r,
+                          "Less than US$ 20,000"="(0,2e+04]",
+                          "US$ 20,001 - US$ 30,000"="(2e+04,3e+04]",
+                          "US$ 30,001 - US$ 50,000"="(3e+04,5e+04]",
+                          "USS 50,001 - US$ 75,000"="(5e+04,7.5e+04]",
+                          "US$ 75,001 - US$ 100,000"="(7.5e+04,1e+05]",
+                          "US$ 100,001 and over"="(1e+05,5e+05]"
+                          )
+
+df$A11A_INCOME_IN_OTHER_CURRENCY_2018r <- fct_recode(df$A11A_INCOME_IN_OTHER_CURRENCY_2018r,
+                          "Less than US$ 20,000"="(0,2e+04]",
+                          "US$ 20,001 - US$ 30,000"="(2e+04,3e+04]",
+                          "US$ 30,001 - US$ 50,000"="(3e+04,5e+04]",
+                          "USS 50,001 - US$ 75,000"="(5e+04,7.5e+04]",
+                          "US$ 75,001 - US$ 100,000"="(7.5e+04,1e+05]",
+                          "US$ 100,001 and over"="(1e+05,5e+05]"
+                          )
+
+
 ```
 
 # Creating a new dataframe only of the merged variables
@@ -1348,6 +1402,16 @@ A11B_CURRENCY
 Q_29_S
 CALCULATED_INCOME_IN_OTHER_CURRENCY
 
+
+A11A_INCOME_IN_OTHER_CURRENCY / other_currency_A11B
+
+A11B_CURRENCY
+
+
+Person per night per party. The observation are part of the sample that are regestiered per party. 
+Need to use N_PERNOC_2009
+Travelling party in number of people:
+B9T how many persons does this expenditure cover.(the T stands for total, rather than children and adults seperate, which are also included in the data set)
 
 
 
