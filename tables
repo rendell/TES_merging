@@ -3,15 +3,120 @@ title: "TES tables"
 output: html_notebook
 ---
 
-# Number of nights
 ```{r}
-p<- ggplot(Merged,aes(x=Nights))+
-  geom_density(color="blue", fill="lightblue")
-p+ geom_vline(aes(xintercept=median(Nights)),
-            color="blue", linetype="dashed", size=1)+
-  xlim(0,15)
- 
+library(tsibble)
+library(ggplot2) 
+library(tsibble) 
+library(feasts)
 ```
+
+
+
+# table_visitor nights
+```{r}
+Merged$W_PERNOC <- Merged$N_PERNOC* Merged$WEIGHT
+
+table_nights <- Merged %>%
+  group_by(Year,Q)%>%
+  summarise(W_PERNOC=sum(W_PERNOC))
+
+table_nights <- ts(table_nights$W_PERNOC, start=2009, frequency=4)
+table_nights <- as_tsibble(table_nights)
+
+autoplot(table_nights)
+```
+
+
+## Average daily expenditure in Aruba per person (stayover visitor) per day *Need to double check if this is correct*
+```{r}
+Merged$ADE <- Merged$W_TOT_EXP / Merged$N_PERNOC / Merged$WEIGHT
+```
+
+
+##  Average daily expenditure by number of visits
+```{r}
+
+```
+
+##  AVERAGE DAILY EXPENDITURE SPENT IN ARUBA PER CATEGORY 1) ( In US$ )
+```{r}
+
+```
+
+## Average daily expenditure by place of residence ( In US$ )
+```{r}
+
+```
+
+## AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY PURPOSE OF VISIT ( In US$ )
+```{r}
+
+```
+
+##  AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY NUMBER OF VISITS TO ARUBA ( In US$) 
+```{r}
+
+```
+
+## AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY YEARLY HOUSEHOLD INCOME LEVEL ( In US$ )
+```{r}
+
+```
+
+## AVERAGE EXPENDITURE PER PERSON PER TRIP BY THE MAJOR MARKETS ( In US$ )
+```{r}
+
+```
+
+##  TOURISM EXPENDITURE IN ARUBA BY THE MAJOR MARKETS ( In 1,000 US dollars )
+```{r}
+
+```
+
+## Total Tourism expenditure in Aruba by country
+```{r}
+
+```
+
+## TOURISM EXPENDITURE IN ARUBA BY YEARLY HOUSEHOLD INCOME LEVEL OF THE VISITORS1) ( In 1,000 US dollars )
+```{r}
+
+```
+
+
+## Yearly Household Income of visitors (in Percentages)
+```{r}
+
+```
+
+##  Number of visits to Aruba (in Percentages)
+```{r}
+
+```
+
+## NUMBER OF VISITS OF VISITORS FROM THE UNITED STATES TO ARUBA ( In Percentages )
+```{r}
+
+```
+
+
+
+## Type of accommodation visitors used (in Percentages)
+```{r}
+
+```
+
+## Visitor by the major States of the USA
+```{r}
+
+```
+
+
+##  AVERAGE LENGTH OF STAY BY PLACE OF RESIDENCE OF VISITORS TO ARUBA ( In days )
+```{r}
+
+```
+
 
 
 # Map US states
