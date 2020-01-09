@@ -913,7 +913,9 @@ df %>%mutate(A1_MAIN_PURPOSE_VISIT_2017=fct_recode(A1_MAIN_PURPOSE_VISIT_2017,
                                          " Events/ Festival"="Events/ Festival",
                                          " Other"="Other"
                                          ))
-  %>%
+
+
+df  %>%
   mutate(A1_MAIN_PURPOSE_VISIT_2018=fct_recode(A1_MAIN_PURPOSE_VISIT_2018,
                                          " Vacation"="Vacation",
                                          " Honeymoon"="Honeymoon",
