@@ -1,7 +1,7 @@
 ---
 title: "Tourism Expenditure Survey unification"
 author: "Rendell E . de Kort"
-date: "1/9/2020"
+date: "1/10/2020"
 output:
   html_document: default
   pdf_document: default
@@ -33,7 +33,7 @@ setwd("~/CBS TOUR/SPSS")
 ```
 
 # Variables
-The following variables have been identified for analysis:
+The following variables were identified amd analysed:
 
 Nr.  | Variable                              | Code                  | Status        | Comment 
 ---- | ------------------------------------- | --------------------- | ---------- | ------------------
@@ -48,23 +48,24 @@ Nr.  | Variable                              | Code                  | Status   
 9    | Resident                              | Resident              | Completed  |
 10   | Repeater                              | Repeater              | Completed  |
 11   | Place of stay                         | Place_stay            | Completed  |
-12   | Main purpose of visit                 | A1_MAIN_PURPOSE_VISIT | In progress|
+12   | Main purpose of visit                 | A1_MAIN_PURPOSE_VISIT | Completed  | Verification CBS
 13   | Number of nights                      | Nights                | Completed  |
 14   | State (U.S.A)                         | State                 | Completed  |
 15   | Household Income                      | Household_Income      | Completed  | Valid 2014 to 2018
 16   | B9 How many persons does exp. cover   | B9T                   | Completed  |
 17   | Nights per observation                | N_PERNOC              | Completed  |
+18   | Weighted Nights per observation       | W_PERNOC              | Completed  |
+19   | Average Daily Expenditure             | ADE                   | Completed  | Verification CBS 
 
-
-
-# Packages
-To complete the manipulations necesary, only two packages were utilized: 'tidyverse' and 'foreign'. 
+# Data preparation
+To complete the manipulations necesary, only two packages were utilized for ths syntax: 'tidyverse' and 'foreign'. 
 Within the tidyverse, the functions are mostly from dplyr and forecats. More information on the functions from these pacakges are available on:
 
 https://resources.rstudio.com/rstudio-developed/factors
 
 https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf
 
+## Packages
 ```{r, eval=FALSE}
 library(tidyverse)
 library(foreign)
@@ -73,14 +74,14 @@ library(foreign)
 # Reading in data
 Data files obtained from the Tourism Department and were processed in SPSS by Kepa.
 ```{r, echo=FALSE, warning=FALSE, message=FALSE,eval=FALSE}
-data_2009 <- read.spss("TES2009_ELE_final_agg.sav", to.data.frame=TRUE)
-data_2010 <- read.spss("TES2010_ELE_final_agg.sav", to.data.frame=TRUE)
-data_2011 <- read.spss("TES2011_ELE_final_agg.sav", to.data.frame=TRUE)
-data_2012 <- read.spss("TES2012_ELE_final_agg.sav", to.data.frame=TRUE)
-data_2013 <- read.spss("TES2013_ELE_final_agg.sav", to.data.frame=TRUE)
-data_2014 <- read.spss("TES2014_ELE_final_agg.sav", to.data.frame=TRUE)
-data_2015 <- read.spss("TES2015_ELE_final_agg.sav", to.data.frame=TRUE)
-data_2016 <- read.spss("TES2016_ELE_final_agg.sav", to.data.frame=TRUE)
+data_2009 <- read.spss("TES2009_ELE_final_agg.sav",  to.data.frame=TRUE)
+data_2010 <- read.spss("TES2010_ELE_final_agg.sav",  to.data.frame=TRUE)
+data_2011 <- read.spss("TES2011_ELE_final_agg.sav",  to.data.frame=TRUE)
+data_2012 <- read.spss("TES2012_ELE_final_agg.sav",  to.data.frame=TRUE)
+data_2013 <- read.spss("TES2013_ELE_final_agg.sav",  to.data.frame=TRUE)
+data_2014 <- read.spss("TES2014_ELE_final_agg.sav",  to.data.frame=TRUE)
+data_2015 <- read.spss("TES2015_ELE_final_agg.sav",  to.data.frame=TRUE)
+data_2016 <- read.spss("TES2016_ELE_final_agg.sav",  to.data.frame=TRUE)
 data_2017 <- read.spss("TES2017_ELE_final_agg2.sav", to.data.frame=TRUE)
 data_2018 <- read.spss("TES2018_ELE_final_agg2.sav", to.data.frame=TRUE)
 ```
@@ -97,7 +98,6 @@ colnames(data_2015) <- paste(colnames(data_2015), "2015", sep = "_")
 colnames(data_2016) <- paste(colnames(data_2016), "2016", sep = "_")
 colnames(data_2017) <- paste(colnames(data_2017), "2017", sep = "_")
 colnames(data_2018) <- paste(colnames(data_2018), "2018", sep = "_")
-
 
 data_2009$key <- 200900000+data_2009$sernr_2009
 data_2010$key <- 201000000+data_2010$TES_ID_SERIALNUMBER_2010
@@ -127,7 +127,7 @@ data_2009$a2_2009 <- factor(data_2009$a2_2009, levels = c("United States",
                                                           "Other"
                                                           ))
 ```
-Combining the seperate data sets in to one integrated dataframe. 
+Appending (joining) the seperate data sets in to one integrated dataframe. 
 Redundant serialnumber variables are removed.
 ```{r,eval=FALSE}
 df <- full_join(data_2009,
@@ -172,7 +172,7 @@ df <- df %>% select(-c(sernr_2009,
                        ))
 ```
 
-Since we now have a comprehensive dataset, we can go ahead and remove redundant individual year data files.
+Since we now have a comprehensive dataset, we can go ahead and tidy the workspace a little bit by removing redundant individual year data files.
 ```{r,eval=FALSE}
 rm(data_2009,
    data_2010,
@@ -188,9 +188,9 @@ rm(data_2009,
 ```
 
 # Merging function
-To automate some of the process of merging variables, it was necesarry to specify a custom function that once provdided the files per year would merge all of them in a single variable and then delete the redundant year variables from the dataset.
+To automate some of the process of merging variables, it was necesarry to specify a custom function, which merges all the seperate year variables into a single variable and then deletes the redundant year variables from the dataset.
 
-For simplicity we called it the 'rendell function'.
+For ease we called it the 'rendell function' and after processing we apply it to all the variables of interest.
 ```{r,eval=FALSE}
 rendell <-function(df, Name_new_variable, 
                    Name_2009, 
@@ -229,7 +229,10 @@ rendell <-function(df, Name_new_variable,
 }
 ```
 
+# Variables
+
 ## 1: "Year"
+Since its numeric and completly clean we can at once apply the Rendell function.
 ```{r,eval=FALSE}
 df <- rendell(df                = df,
         Name_new_variable = "Year", 
@@ -246,7 +249,7 @@ df <- rendell(df                = df,
 ```
 
 ## 2: "Month"
-Noticed that 2009 variable October was names as Oktober. This was first corrected.
+Noticed that 2009 variable October was named as Oktober. This was first corrected.
 Also, 2017 and 2018 were numerical and had to be converted to factors of the same type.
 ```{r,eval=FALSE}
 df$month_2009 <- fct_recode(df$month_2009,"October"="Oktober")
@@ -282,7 +285,6 @@ df$MONTH_2017 <- fct_recode(df$MONTH_2017,
                             November="11", 
                             December="12" 
                             )
-
 
 df <- rendell(df                = df,
         Name_new_variable = "Month", 
@@ -331,7 +333,7 @@ df <- rendell(df                = df,
         Name_2017         = "A9_SEX_2017",
         Name_2018         = "A9_SEX_2018"
         )
-#Note: there are 5 NA's.
+#Note: there are 5 NA's appearing.
 ``` 
 
 ## Ethnic background (refered to as "Type")
@@ -358,7 +360,7 @@ The choice was taken by CBS to drop this variable since it was unlikely to be in
 #        Name_2015         = "TYPE_2015", 
 #        Name_2016         = "TYPE_2016" )
 #summary(df$Type)
-#Note: coalesce not working aparantly unequal factor levels perhaps. 
+#Note: coalesce not working aparantly unequal factor levels. 
 
 df$type_2009 <- NULL
 df$TYPE_2010 <- NULL
@@ -373,7 +375,7 @@ df$TYPE_2018 <- NULL
 ```
 
 ## 5. Tourism expenditure components
-This follows the example that was supplied by Kepa.
+This follows the example that was supplied by Kepa. It's the procesing of all 16 tourism expenditure categories that are first merged with the Rendell function. NA's are then converted to 0.
 ```{r,eval=FALSE}
 df <- rendell(df                = df,
         Name_new_variable = "EXP1", 
@@ -621,6 +623,7 @@ df$TOT_EXP[is.na(df$TOT_EXP)] <- 0
 ```
 
 ## 6. Weights
+Weights are then created. 
 ```{r,eval=FALSE}
 df <- rendell(df                = df,
         Name_new_variable = "WEIGHT", 
@@ -638,6 +641,7 @@ df <- rendell(df                = df,
 ```
 
 ## 7. Weighted expenditures
+The weights are applied to the individual expense components so that we transition from sample to population. 
 ```{r,eval=FALSE}
 df$W_EXP1    <- df$EXP1    * df$WEIGHT
 df$W_EXP2    <- df$EXP2    * df$WEIGHT
@@ -674,27 +678,28 @@ df$W_EXP12_1[is.na(df$W_EXP12_1)] <- 0
 df$W_EXP12_2[is.na(df$W_EXP12_2)] <- 0
 ```
 
-
 ## 8. Creating a new total weighted
 ```{r,eval=FALSE}
 df$W_TOT_EXP <- df$W_EXP1 +
-    df$W_EXP2 +
-    df$W_EXP3 +
-    df$W_EXP4 +
-    df$W_EXP5 +
-    df$W_EXP6 +
-    df$W_EXP7 +
-    df$W_EXP8 +
-    df$W_EXP9 +
-    df$W_EXP10 +
-    df$W_EXP11 +
-    df$W_EXP12 +
-    df$W_EXP13 +
-    df$W_EXP14 +
-    df$W_EXP12_1 +
-    df$W_EXP12_2
+                df$W_EXP2 +
+                df$W_EXP3 +
+                df$W_EXP4 +
+                df$W_EXP5 +
+                df$W_EXP6 +
+                df$W_EXP7 +
+                df$W_EXP8 +
+                df$W_EXP9 +
+                df$W_EXP10 +
+                df$W_EXP11 +
+                df$W_EXP12 +
+                df$W_EXP13 +
+                df$W_EXP14 +
+                df$W_EXP12_1 +
+                df$W_EXP12_2
 ```
+
 ## 9. Country of Residence
+This variable creates a grouping that is limited to the main source markets to Aruba. 
 ```{r,eval=FALSE}
 df <- rendell(df                = df,
         Name_new_variable = "Resident", 
@@ -863,8 +868,7 @@ df <- rendell(df                = df,
         )
 ```
 
-## 12. Main purpose of visit                         *Needs fixing*                                          
-
+## 12. Main purpose of visit                         
 When processing the data it was noted that for some reason, in 2018 there were many missing observations. This led to the discovery that both for 2017 and 2018 there are two variables that appear for the same question, namely:
 - main_purpose
 - main_purpose_visit.
@@ -914,7 +918,6 @@ df %>%mutate(A1_MAIN_PURPOSE_VISIT_2017=fct_recode(A1_MAIN_PURPOSE_VISIT_2017,
                                          " Other"="Other"
                                          ))
 
-
 df  %>%
   mutate(A1_MAIN_PURPOSE_VISIT_2018=fct_recode(A1_MAIN_PURPOSE_VISIT_2018,
                                          " Vacation"="Vacation",
@@ -929,7 +932,6 @@ df  %>%
                                          " Events/ Festival"="Events/Festivals",
                                          " Other"="Other (specify)"
                                          ))
-
 
 df <- rendell(df                = df,
         Name_new_variable = "A1_MAIN_PURPOSE_VISIT", 
@@ -1128,9 +1130,9 @@ The variables consist of intervals. The earlier factors did not have the same le
 An earlier version of this provided the option to change the interval to a specific number. This would allow for calculations using numbers.
 However, for analysis it was decided that it would suffice to report intervals. The infrastructure to change each label to a number was still maintained just in case for easy switching in the future should the need arise to use numbers. 
 
-The first variable is the categorical variable A11 which is used for US$. Respondents answering in other currencies are provided in variable"A11A_INCOME_IN_OTHER_CURRENCY".However, these have to be converted from numerical and included in the categorical variable for 2017 and 2018. For 2014 to 2018 this data processing was completed manually.
+The first variable is the categorical variable A11 which is used for US$. Respondents answering in other currencies are provided in variable"A11A_INCOME_IN_OTHER_CURRENCY". However, these have to be converted from numerical and included in the categorical variable for 2017 and 2018. For 2014 to 2018 this data processing was completed manually.
 
-*The implaction is that this variable needs to be used with cuation as it is incomplete (exlcudes 'other' answers) for the years preceding 2014.However, it can be used for the U.S. market only, since those answers are in US dollars.* 
+*The implaction is that this variable needs to be used with cuation as it is incomplete (exlcudes 'other' answers) for the years preceding 2014.However, it can be used for the U.S. market only, since those answers are in US dollars anyway.* 
 
 ```{r,eval=FALSE}
 df$a11_2009 <- fct_recode(df$a11_2009,
@@ -1236,7 +1238,6 @@ df$A11_HOUSEHOLD_INCOME_2018 <- fct_recode(df$A11_HOUSEHOLD_INCOME_2018,
                           NULL="Not reported"
                           )
 
-
 df <- rendell(df                = df,
         Name_new_variable = "Household_Income", 
     Name_2009         = "a11_2009",
@@ -1251,12 +1252,8 @@ df <- rendell(df                = df,
     Name_2018         = "A11_HOUSEHOLD_INCOME_2018"
 )
 
-
-
 # For 2016 A11 is complete, including the observations that are in other currency.
 # For 2015 A11 is complete, including the observations that are in other currency.
-
-
 
 # 2017 and 2018 need to be passed over from A11A_INCOME_IN_OTHER_CURRENCY to A11.
 # mydata$Agecat1<-cut(mydata$Age, c(0,5,10,15,20,25,30))
@@ -1341,9 +1338,7 @@ df <- rendell(df                = df,
 
 ```
 
-
 # Creating a new dataframe only of the merged variables
-
 Creating a data frame that holds only the variables which are ready for manipulation.
 ```{r,eval=FALSE}
 Merged <- select(df, Year,
@@ -1376,44 +1371,19 @@ Merged <- select(df, Year,
                     State,
                     Household_Income,
                     B9T,
-                    N_PERNOC
-                    )
+                    N_PERNOC,
+                     )
 ```
+
+# Construct Nights weighting variable
+```{reval=FALSE}
+Merged$W_PERNOC <- Merged$N_PERNOC* Merged$WEIGHT
+Merged$ADE <- Merged$W_TOT_EXP / Merged$N_PERNOC / Merged$WEIGHT
+```
+
 
 # Write csv. file
 To finalize, a CSV file can be generated which contains only the variables we will tabulate. 
 ```{r, eval=FALSE}
-currentDate <- Sys.Date()
-Merged_dataset <- paste(data,currentDate,".csv",sep="")
-write.csv(Merged, file=Merged_dataset)
-
 write.csv(Merged, file="Merged.csv")
 ```
-
-# Notes
-```{r, echo=FALSE, eval=FALSE}
-##Average daily rate calculation:
-#Conta gewogen hende nan multipliy by gewogen placa.
-
-#*need to include B9 (how many persons does this expenditure cover)
-#B9 total, adult and children (A & C)
-
-#According to the picture taken from SPSS on Desiree's screen:
-
-#A11_HOUSEHOLD_INCOME
-#A11A_INCOME_IN_OTHER_CURRENCY
-#A11B_CURRENCY
-#Q_29_S
-#CALCULATED_INCOME_IN_OTHER_CURRENCY
-
-
-#A11A_INCOME_IN_OTHER_CURRENCY / other_currency_A11B
-
-#A11B_CURRENCY
-
-#Person per night per party. The observation are part of the sample that are regestiered per party. 
-#Need to use N_PERNOC_2009
-#Travelling party in number of people:
-#B9T how many persons does this expenditure cover.(the T stands for total, rather than children and adults seperate, which are #also included in the data set)
-```
-
