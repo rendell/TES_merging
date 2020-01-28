@@ -1,0 +1,25 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+Merged <- read.csv("Merged.csv")
+```
+
+```{r}
+Merged <- Merged%>%
+  select(-Month)%>%
+  unite(YD,Year:Q,sep = " ")%>%  
+  mutate(Quarter = yearquarter(YD))%>%
+  select(-YD)%>%
+  as_tsibble(index=Quarter,
+             key=c(Gender,
+                   X,
+                   Resident,
+                   Repeater,
+                   Place_stay,
+                   A1_MAIN_PURPOSE_VISIT,
+                   State,
+                   Household_Income))
+```
