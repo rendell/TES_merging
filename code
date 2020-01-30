@@ -69,6 +69,7 @@ https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf
 ```{r, eval=FALSE}
 library(tidyverse)
 library(foreign)
+library(rlang)
 ```
 
 # Reading in data
@@ -1376,7 +1377,7 @@ Merged <- select(df, Year,
 ```
 
 # Construct Nights weighting variable
-```{reval=FALSE}
+```{r, eval=FALSE}
 Merged$W_PERNOC <- Merged$N_PERNOC* Merged$WEIGHT
 Merged$ADE <- Merged$W_TOT_EXP / Merged$N_PERNOC / Merged$WEIGHT
 ```
