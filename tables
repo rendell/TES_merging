@@ -8,6 +8,7 @@ library(tsibble)
 library(ggplot2) 
 library(tsibble) 
 library(feasts)
+library(tidyverse)
 ```
 
 
@@ -16,14 +17,12 @@ library(feasts)
 ```{r}
 Merged$W_PERNOC <- Merged$N_PERNOC* Merged$WEIGHT
 
-table_nights <- Merged %>%
+table_nights <- Merged%>%
   group_by(Year,Q)%>%
   summarise(W_PERNOC=sum(W_PERNOC))
 
 table_nights <- ts(table_nights$W_PERNOC, start=2009, frequency=4)
 table_nights <- as_tsibble(table_nights)
-
-autoplot(table_nights)
 ```
 
 
