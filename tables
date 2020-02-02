@@ -11,18 +11,19 @@ library(feasts)
 library(tidyverse)
 ```
 
-
-
-# table_visitor nights
-```{r}
+# Pre-processing
+```{r, eval=FALSE}
+Merged$year_q = paste(Merged$Year,Merged$Q, sep="-")
 Merged$W_PERNOC <- Merged$N_PERNOC* Merged$WEIGHT
+```
 
+
+# table_visitor nights *completed*
+```{r, eval=FALSE}
 table_nights <- Merged%>%
-  group_by(Year,Q)%>%
-  summarise(W_PERNOC=sum(W_PERNOC))
-
-table_nights <- ts(table_nights$W_PERNOC, start=2009, frequency=4)
-table_nights <- as_tsibble(table_nights)
+  group_by(year_q, Resident)%>%
+  summarise(W_PERNOC=sum(W_PERNOC))%>%
+  spread(year_q,W_PERNOC)
 ```
 
 
@@ -34,6 +35,30 @@ Merged$ADE <- Merged$W_TOT_EXP / Merged$N_PERNOC / Merged$WEIGHT
 
 ##  Average daily expenditure by number of visits
 ```{r}
+table_repeater <- Merged%>%
+  group_by(year_q, Repeater)%>%
+  summarise(ADE=mean(ADE))%>%
+  spread(year_q,ADE)
+
+Merged$Repeater <- fct_explicit_na(Merged$Repeater, na_level = "NA")
+
+#convert to Tsibble
+ts_repeater <- Merged %>%
+  mutate(year_q = yearquarter(year_q))%>%
+  select(c(year_q, ADE, Repeater))%>%
+  group_by(Repeater, year_q)%>%
+  summarise(ADE=mean(ADE))
+
+
+
+ts_repeater<- ts_repeater%>%
+  as_tsibble(index=year_q,
+             key=Repeater)
+         
+         
+  gather(year_q,Repeater, ADE)
+
+
 
 ```
 
