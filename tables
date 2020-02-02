@@ -20,10 +20,17 @@ Merged$W_PERNOC <- Merged$N_PERNOC* Merged$WEIGHT
 
 # table_visitor nights *completed*
 ```{r, eval=FALSE}
-table_nights <- Merged%>%
+table_wide_nights <- Merged%>%
   group_by(year_q, Resident)%>%
   summarise(W_PERNOC=sum(W_PERNOC))%>%
   spread(year_q,W_PERNOC)
+
+table_long_nights <- Merged%>%  
+  mutate(year_q = yearquarter(year_q))%>%
+  group_by(year_q, Resident)%>%
+  summarise(W_PERNOC=sum(W_PERNOC))%>%
+  as_tsibble(index = year_q,
+             key=Resident)
 ```
 
 
@@ -34,6 +41,7 @@ Merged$ADE <- Merged$W_TOT_EXP / Merged$N_PERNOC / Merged$WEIGHT
 
 
 ##  Average daily expenditure by number of visits
+Need to figure out why the columns aren;t all unique. 
 ```{r}
 table_repeater <- Merged%>%
   group_by(year_q, Repeater)%>%
@@ -50,7 +58,7 @@ ts_repeater <- Merged %>%
   summarise(ADE=mean(ADE))
 
 
-
+### not working
 ts_repeater<- ts_repeater%>%
   as_tsibble(index=year_q,
              key=Repeater)
@@ -558,3 +566,9 @@ table_2018_TOT <- data_2018 %>%
 
 table_2018_TOT<- spread(table_2018_TOT, RESIDENCE_TSA2016_GRP, TOT_EXP_2018)
 ```
+
+# Output tables in excel
+```{r, eval=FALSE}
+
+```
+
