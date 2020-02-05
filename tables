@@ -1,574 +1,592 @@
 ---
 title: "TES tables"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
-```{r}
-library(tsibble)
-library(ggplot2) 
-library(tsibble) 
-library(feasts)
-library(tidyverse)
+
+
+```{r, include=FALSE}
+options(tinytex.verbose = TRUE)
 ```
 
-# Pre-processing
-```{r, eval=FALSE}
-Merged$year_q = paste(Merged$Year,Merged$Q, sep="-")
+<center>
+
+![](C:/Users/RendelldeKort/Documents/CBS TOUR/SPSS/cbslogo2.jpg)
+
+</center>
+
+# Introduction
+The script takes as point of departure the "Merged.csv" file and the notebook "Tourism Expenditure Survey unification". 
+After the latter lays out the process of merging individual year files, this script converts the data in various tables for publication purposes, both in quarterly and yearly frequencies. 
+
+Examples of these tables can be found at: http://cbs.aw/wp/wp-content/uploads/2014/12/TOURISM-PROFILE-YEAR-REPORT-2013.pdf
+(From page 25 onwards)
+
+To reproduce the code it is necesary to change the working directory. This can be done in the "Session" tabe, "Set Working Directory". For tidyness we also clear the console and workspace. 
+```{r}
+setwd("~/CBS TOUR/SPSS")
+# clear workspace and console
+rm(list = ls())
+cat("\014")
+
+library(tsibble)
+library(ggplot2) 
+library(feasts)
+library(tidyverse)
+library(zoo)
+```
+
+
+# Tables
+The following tables are created:
+
+Nr.  | Table                                 | Quarterly             | Yearly     | Comment 
+---- | ------------------------------------- | --------------------- | ---------- | ------------------
+1    | table_visitor nights                  | Year                  | Completed  |
+2    | Month                                 | Month                 | Completed  |
+3    | Quarter                               | Q                     | Completed  |
+4    | Gender                                | Gender                | Completed  |
+5    | Expenditure (16 components)           | EXP_1 to EXP_14       | Completed  |
+6    | Weights                               | WEIGHT                | Completed  |
+7    | Weighted expenditures (16 components) | W_EXP1 to W_EXP14     | Completed  |
+8    | Weighted Expenditure (total)          | W_EXP_TOT             | Completed  |
+9    | Resident                              | Resident              | Completed  |
+10   | Repeater                              | Repeater              | Completed  |
+11   | Place of stay                         | Place_stay            | Completed  |
+12   | Main purpose of visit                 | A1_MAIN_PURPOSE_VISIT | Completed  | Verification CBS
+13   | Number of nights                      | Nights                | Completed  |
+14   | State (U.S.A)                         | State                 | Completed  |
+15   | Household Income                      | Household_Income      | Completed  | Valid 2014 to 2018
+16   | B9 How many persons does exp. cover   | B9T                   | Completed  |
+17   | Nights per observation                | N_PERNOC              | Completed  |
+18   | Weighted Nights per observation       | W_PERNOC              | Completed  |
+19   | Average Daily Expenditure             | ADE                   | Completed  | Verification CBS 
+
+
+
+```{r}
+
+
+Merged <- read.csv("Merged.csv")
+
+num_toQuarter <- function(v){
+  v[which(v == 1)] <- "01"
+  v[which(v == 2)] <- "04"
+  v[which(v == 3)] <- "07"
+  v[which(v == 4)] <- "10"
+  return(v)
+}
+
+
+Merged$year_q = as.yearqtr(paste(Merged$Year,num_toQuarter(Merged$Q),"01", sep="-"),
+                           format= "%Y-%m-%d")
+
+# A new variable 'W_PERNOC' was created that is a multiplication of the number of nights per observaton times the number of individuals per observation times a weight variable. This should lead us to the entire population.
 Merged$W_PERNOC <- Merged$N_PERNOC* Merged$WEIGHT
 ```
 
 
-# table_visitor nights *completed*
-```{r, eval=FALSE}
-table_wide_nights <- Merged%>%
-  group_by(year_q, Resident)%>%
+```{r}
+str(Merged)
+```
+
+
+## 1. table_visitor nights
+```{r}
+# By quarter:
+visitors_by_residence.Q <- Merged%>%
+  group_by(year_q,Resident)%>%
   summarise(W_PERNOC=sum(W_PERNOC))%>%
-  spread(year_q,W_PERNOC)
+  spread(year_q,W_PERNOC)%>%
+  as_tibble()
 
-table_long_nights <- Merged%>%  
-  mutate(year_q = yearquarter(year_q))%>%
-  group_by(year_q, Resident)%>%
+write.csv(visitors_by_residence.Q, file = "visitors_by_residence_Q.csv")
+
+# By Year:
+visitors_by_residence.Y <- Merged%>%
+  group_by(Year, Resident)%>%
   summarise(W_PERNOC=sum(W_PERNOC))%>%
-  as_tsibble(index = year_q,
-             key=Resident)
+  spread(Year,W_PERNOC)%>%
+  as_tibble()
+
+write.csv(visitors_by_residence.Y, file = "visitors_by_residence_Y.csv")
 ```
 
 
-## Average daily expenditure in Aruba per person (stayover visitor) per day *Need to double check if this is correct*
+## 2. Average daily expenditure in Aruba per person (stayover visitor) per day *Need to double check if this is correct*
 ```{r}
-Merged$ADE <- Merged$W_TOT_EXP / Merged$N_PERNOC / Merged$WEIGHT
+# Correct
+Merged$ADE <- (Merged$W_TOT_EXP / Merged$WEIGHT)/Merged$N_PERNOC
 ```
 
 
-##  Average daily expenditure by number of visits
-Need to figure out why the columns aren;t all unique. 
+## 3. Average daily expenditure by number of visits
 ```{r}
-table_repeater <- Merged%>%
-  group_by(year_q, Repeater)%>%
-  summarise(ADE=mean(ADE))%>%
-  spread(year_q,ADE)
+na_s <- which(is.na(Merged$Repeater))# Only one missing value, we just drop it.
+Merged_Nvisits <- Merged[-na_s,]
 
-Merged$Repeater <- fct_explicit_na(Merged$Repeater, na_level = "NA")
+# Average daily expenditure by number of visits Quarterly
+av_expt_Nvisits.Q <-Merged_Nvisits%>%
+  group_by(Repeater,year_q)%>%
+  summarize(ADE = mean(ADE))%>%
+  spread(year_q,ADE)%>%
+  as_tibble()
 
-#convert to Tsibble
-ts_repeater <- Merged %>%
-  mutate(year_q = yearquarter(year_q))%>%
-  select(c(year_q, ADE, Repeater))%>%
-  group_by(Repeater, year_q)%>%
-  summarise(ADE=mean(ADE))
+write.csv(av_expt_Nvisits.Q, file = "av_expt_Nvisits_Q.csv")
+# Average daily expenditure by number of visits Yearly
+av_expt_Nvisits.Y <-Merged_Nvisits%>%
+  group_by(Repeater,Year)%>%
+  summarize(ADE = mean(ADE))%>%
+  spread(Year,ADE)%>%
+  as_tibble()
 
+write.csv(av_expt_Nvisits.Y, file = "av_expt_Nvisits_Y.csv")
 
-### not working
-ts_repeater<- ts_repeater%>%
-  as_tsibble(index=year_q,
-             key=Repeater)
-         
-         
-  gather(year_q,Repeater, ADE)
+```
 
+## 4. AVERAGE DAILY EXPENDITURE SPENT IN ARUBA PER CATEGORY 1) ( In US$ )
+```{r}
+df_categ = cbind(Merged[,7:22],Merged$WEIGHT, Merged$N_PERNOC)
+colnames(df_categ)[(ncol(df_categ)-1):ncol(df_categ)] = c("WEIGHT","N_PERNOC")
+str(df_categ)
+
+df_categ = df_categ[-which(df_categ$N_PERNOC == 0),]
+average_exp_Categ <- df_categ%>%
+  mutate(W_EXP1 = (W_EXP1/WEIGHT)/N_PERNOC,
+         W_EXP2 = (W_EXP2/WEIGHT)/N_PERNOC,
+         W_EXP3 = (W_EXP3/WEIGHT)/N_PERNOC,
+         W_EXP4 = (W_EXP4/WEIGHT)/N_PERNOC,
+         W_EXP5 = (W_EXP5/WEIGHT)/N_PERNOC,
+         W_EXP6 = (W_EXP6/WEIGHT)/N_PERNOC,
+         W_EXP7 = (W_EXP7/WEIGHT)/N_PERNOC,
+         W_EXP8 = (W_EXP8/WEIGHT)/N_PERNOC,
+         W_EXP9 = (W_EXP9/WEIGHT)/N_PERNOC,
+         W_EXP10 = (W_EXP10/WEIGHT)/N_PERNOC,
+         W_EXP11 = (W_EXP11/WEIGHT)/N_PERNOC,
+         W_EXP12 = (W_EXP12/WEIGHT)/N_PERNOC,
+         W_EXP13 = (W_EXP13/WEIGHT)/N_PERNOC,
+         W_EXP14 = (W_EXP14/WEIGHT)/N_PERNOC,
+         W_EXP12_1 = (W_EXP12_1/WEIGHT)/N_PERNOC,
+         W_EXP12_2 = (W_EXP12_2/WEIGHT)/N_PERNOC)%>%
+  select(-WEIGHT)
+
+average_exp_Categ <- sapply(average_exp_Categ, mean)
+average_exp_Categ <- as.data.frame(average_exp_Categ)
+
+index <- rownames(average_exp_Categ)
+av_exp_cat <- average_exp_Categ$average_exp_Categ
+average_exp_Categ <- as.data.frame(matrix(av_exp_cat, ncol = length(av_exp_cat)))
+colnames(average_exp_Categ) <- index
+
+write.csv(average_exp_Categ, file = "average_exp_Categ.csv")
 
 
 ```
 
-##  AVERAGE DAILY EXPENDITURE SPENT IN ARUBA PER CATEGORY 1) ( In US$ )
+## 5. Average daily expenditure by place of residence ( In US$ )
 ```{r}
 
+na_s <- which(is.na(Merged$Resident))# No missing value
+
+# Quarterly
+av_expt_R.Q <-Merged%>%
+  group_by(Resident,year_q)%>%
+  summarize(ADE = mean(ADE))%>%
+  spread(year_q,ADE)%>%
+  as_tibble()
+
+write.csv(av_expt_R.Q, file = "av_expt_R_Q.csv")
+# Yearly
+av_expt_R.Y <-Merged%>%
+  group_by(Resident,Year)%>%
+  summarize(ADE = mean(ADE))%>%
+  spread(Year,ADE)%>%
+  as_tibble()
+
+write.csv(av_expt_R.Y, file = "av_expt_R_Y.csv")
 ```
 
-## Average daily expenditure by place of residence ( In US$ )
+## 6. AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY PURPOSE OF VISIT ( In US$ )
 ```{r}
 
-```
+na_s <- which(is.na(Merged$A1_MAIN_PURPOSE_VISIT))# 4546 values that are NA
+Merged_Purp <- Merged[-na_s,]
 
-## AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY PURPOSE OF VISIT ( In US$ )
-```{r}
+
+# Quarterly
+av_expt_Purpose.Q <-Merged_Purp%>%
+  group_by(A1_MAIN_PURPOSE_VISIT,year_q)%>%
+  summarize(ADE = mean(ADE))%>%
+  spread(year_q,ADE)%>%
+  as_tibble()
+
+write.csv(av_expt_Purpose.Q , file = "av_expt_Purpose_Q.csv")
+
+# Yearly
+av_expt_Purpose.Y <-Merged_Purp%>%
+  group_by(A1_MAIN_PURPOSE_VISIT,Year)%>%
+  summarize(ADE = mean(ADE))%>%
+  spread(Year,ADE)%>%
+  as_tibble()
+
+write.csv(av_expt_Purpose.Y , file = "av_expt_Purpose_Y.csv")
 
 ```
 
 ##  AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY NUMBER OF VISITS TO ARUBA ( In US$) 
 ```{r}
-
+# This is the same as 3.
 ```
 
-## AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY YEARLY HOUSEHOLD INCOME LEVEL ( In US$ )
+## 7. AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY YEARLY HOUSEHOLD INCOME LEVEL ( In US$ )
 ```{r}
 
+na_s <- which(is.na(Merged$Household_Income))# 6575 values that are NA
+Merged_HouseIn <- Merged[-na_s,]
+
+
+# Quarterly
+av_expt_HouseIn.Q <-Merged_HouseIn%>%
+  group_by(Household_Income,year_q)%>%
+  summarize(ADE = mean(ADE))%>%
+  spread(year_q,ADE)%>%
+  as_tibble()
+
+write.csv(av_expt_HouseIn.Q, file = "av_expt_HouseIn_Q.csv")
+# Yearly
+av_expt_HouseIn.Y <-Merged_HouseIn%>%
+  group_by(Household_Income,Year)%>%
+  summarize(ADE = mean(ADE))%>%
+  spread(Year,ADE)%>%
+  as_tibble()
+
+write.csv(av_expt_HouseIn.Y, file = "av_expt_HouseIn_Y.csv")
 ```
 
 ## AVERAGE EXPENDITURE PER PERSON PER TRIP BY THE MAJOR MARKETS ( In US$ )
 ```{r}
 
+na_s <- which(Merged$State == "(missing)" | Merged$State == "0"| Merged$State == "")# 18484 missing values
+Merged_market <- Merged[-na_s,]
+
+str(Merged_market)
+# Quarterly
+av_expt_market.Q <-Merged%>%
+  group_by(Resident,year_q)%>%
+  summarize(ADE = mean(ADE))%>%
+  spread(year_q,ADE)%>%
+  as_tibble()
+write.csv(av_expt_market.Q, file = "av_expt_market_Q.csv")
+# Yearly
+av_expt_market.Y <-Merged%>%
+  group_by(Resident,Year)%>%
+  summarize(ADE = mean(ADE))%>%
+  spread(Year,ADE)%>%
+  as_tibble()
+
+write.csv(av_expt_market.Y, file = "av_expt_market_Y.csv")
 ```
 
-##  TOURISM EXPENDITURE IN ARUBA BY THE MAJOR MARKETS ( In 1,000 US dollars )
+##  8. TOURISM EXPENDITURE IN ARUBA BY THE MAJOR MARKETS ( In 1,000 US dollars )
+```{r}
+# Quarterly
+T_expt_market.Q <-Merged%>%
+  mutate(
+    total_exp_1000 = (W_TOT_EXP/WEIGHT)/1000
+  )%>%
+  group_by(Resident,year_q)%>%
+  summarize(total_exp_1000 = sum(total_exp_1000))%>%
+  spread(year_q,total_exp_1000)%>%
+  as_tibble()
+
+write.csv(T_expt_market.Q, file = "T_expt_market_Q.csv")
+# Yearly
+T_expt_market.Y <-Merged%>%
+  mutate(
+    total_exp_1000 = (W_TOT_EXP/WEIGHT)/1000
+  )%>%
+  group_by(Resident,Year)%>%
+  summarize(total_exp_1000 = sum(total_exp_1000))%>%
+  spread(Year,total_exp_1000)%>%
+  as_tibble()
+
+write.csv(T_expt_market.Y, file = "T_expt_market_Y.csv")
+```
+
+## 9. Total Tourism expenditure in Aruba by country
+```{r}
+# Quarterly
+T_expt_country.Q <-Merged%>%
+  mutate(
+    total_exp = (W_TOT_EXP/WEIGHT)
+  )%>%
+  group_by(Resident,year_q)%>%
+  summarize(total_exp = sum(total_exp))%>%
+  spread(year_q,total_exp)%>%
+  as_tibble()
+
+write.csv(T_expt_country.Q, file = "T_expt_country_Q.csv")
+# Yearly
+T_expt_country.Y <-Merged%>%
+  mutate(
+    total_exp = (W_TOT_EXP/WEIGHT)
+  )%>%
+  group_by(Resident,Year)%>%
+  summarize(total_exp = sum(total_exp))%>%
+  spread(Year,total_exp)%>%
+  as_tibble()
+write.csv(T_expt_country.Y, file = "T_expt_country_Y.csv")
+
+```
+
+## 10. TOURISM EXPENDITURE IN ARUBA BY YEARLY HOUSEHOLD INCOME LEVEL OF THE VISITORS1) ( In 1,000 US dollars )
 ```{r}
 
+T_expt_HouseIn.Q <-Merged_HouseIn%>%
+  mutate(
+    total_exp = (W_TOT_EXP/WEIGHT)
+  )%>%
+  group_by(Household_Income,year_q)%>%
+  summarize(total_exp = mean(total_exp))%>%
+  spread(year_q,total_exp)%>%
+  as_tibble()
+
+write.csv(T_expt_HouseIn.Q, file = "T_expt_HouseIn_Q.csv")
+# Yearly
+T_expt_HouseIn.Y <-Merged_HouseIn%>%
+  mutate(
+    total_exp = (W_TOT_EXP/WEIGHT)
+  )%>%
+  group_by(Household_Income,Year)%>%
+  summarize(total_exp = mean(total_exp))%>%
+  spread(Year,total_exp)%>%
+  as_tibble()
+write.csv(T_expt_HouseIn.Y, file = "T_expt_HouseIn_Y.csv")
+
 ```
 
-## Total Tourism expenditure in Aruba by country
+
+## 11. Yearly Household Income of visitors (in Percentages)
 ```{r}
 
+# Quarterly
+HouseIn_visit_perc.Q <-Merged_HouseIn%>%
+  group_by(Household_Income, year_q)%>%
+  add_tally()%>%
+  summarize(n = sum(n))%>%
+  spread(year_q, n)
+
+p = length(colnames(HouseIn_visit_perc.Q))
+for(i in seq(2,p)){
+  HouseIn_visit_perc.Q[,i] = HouseIn_visit_perc.Q[,i]/sum(HouseIn_visit_perc.Q[,i])
+}
+
+HouseIn_visit_perc.Q <- HouseIn_visit_perc.Q %>%
+  as_tibble()
+
+write.csv(HouseIn_visit_perc.Q, file = "HouseIn_visit_perc_Q.csv")
+
+# Yearly
+HouseIn_visit_perc.Y <-Merged_HouseIn%>%
+  group_by(Household_Income, Year)%>%
+  add_tally()%>%
+  summarize(n = sum(n))%>%
+  spread(Year, n)
+
+p = length(colnames(HouseIn_visit_perc.Y))
+for(i in seq(2,p)){
+  HouseIn_visit_perc.Y[,i] = HouseIn_visit_perc.Y[,i]/sum(HouseIn_visit_perc.Y[,i])
+}
+
+HouseIn_visit_perc.Y <- HouseIn_visit_perc.Y%>%
+  as_tibble()
+
+write.csv(HouseIn_visit_perc.Y, file = "HouseIn_visit_perc_Y.csv")
+
 ```
 
-## TOURISM EXPENDITURE IN ARUBA BY YEARLY HOUSEHOLD INCOME LEVEL OF THE VISITORS1) ( In 1,000 US dollars )
+##  12. Number of visits to Aruba (in Percentages)
 ```{r}
 
+# Quarterly
+repeat_visit_perc.Q <-Merged_Nvisits%>%
+  group_by(Repeater, year_q)%>%
+  add_tally()%>%
+  summarize(n = sum(n))%>%
+  spread(year_q, n)
+
+p = length(colnames(repeat_visit_perc.Q))
+for(i in seq(2,p)){
+  repeat_visit_perc.Q[,i] = repeat_visit_perc.Q[,i]/sum(repeat_visit_perc.Q[,i])
+}
+
+repeat_visit_perc.Q <- repeat_visit_perc.Q %>%
+  as_tibble()
+
+write.csv(HouseIn_visit_perc.Q, file = "HouseIn_visit_perc_Q.csv")
+
+# Yearly
+repeat_visit_perc.Y <-Merged_Nvisits%>%
+  group_by(Repeater, Year)%>%
+  add_tally()%>%
+  summarize(n = sum(n))%>%
+  spread(Year, n)
+
+p = length(colnames(repeat_visit_perc.Y))
+for(i in seq(2,p)){
+  repeat_visit_perc.Y[,i] = repeat_visit_perc.Y[,i]/sum(repeat_visit_perc.Y[,i])
+}
+
+repeat_visit_perc.Y <- repeat_visit_perc.Y%>%
+  as_tibble()
+
+write.csv(HouseIn_visit_perc.Y, file = "HouseIn_visit_perc_Y.csv")
+```
+
+## 13. NUMBER OF VISITS OF VISITORS FROM THE UNITED STATES TO ARUBA ( In Percentages )
+```{r}
+# Quarterly
+state_visit_perc.Q <-Merged_market%>%
+  group_by(State, year_q)%>%
+  add_tally()%>%
+  summarize(n = sum(n))%>%
+  spread(year_q, n)
+
+state_visit_perc.Q[is.na(state_visit_perc.Q)] <- 0
+
+p = length(colnames(state_visit_perc.Q))
+for(i in seq(2,p)){
+  state_visit_perc.Q[,i] = state_visit_perc.Q[,i]/sum(state_visit_perc.Q[,i])
+}
+
+state_visit_perc.Q <- state_visit_perc.Q %>%
+  as_tibble()
+
+write.csv(state_visit_perc.Q, file = "state_visit_perc_Q.csv")
+
+# Yearly
+state_visit_perc.Y <-Merged_market%>%
+  group_by(State, Year)%>%
+  add_tally()%>%
+  summarize(n = sum(n))%>%
+  spread(Year, n)
+
+state_visit_perc.Y[is.na(state_visit_perc.Y)] <- 0
+
+p = length(colnames(state_visit_perc.Y))
+for(i in seq(2,p)){
+  state_visit_perc.Y[,i] = state_visit_perc.Y[,i]/sum(state_visit_perc.Y[,i])
+}
+
+state_visit_perc.Y <- state_visit_perc.Y%>%
+  as_tibble()
+
+write.csv(state_visit_perc.Y, file = "state_visit_perc_Y.csv")
+
 ```
 
 
-## Yearly Household Income of visitors (in Percentages)
+
+## 14. Type of accommodation visitors used (in Percentages)
 ```{r}
 
+# Quarterly
+accomodation_visit_perc.Q <-Merged_market%>%
+  group_by(Place_stay, year_q)%>%
+  add_tally()%>%
+  summarize(n = sum(n))%>%
+  spread(year_q, n)
+
+accomodation_visit_perc.Q[is.na(accomodation_visit_perc.Q)] <- 0
+
+p = length(colnames(accomodation_visit_perc.Q))
+for(i in seq(2,p)){
+  accomodation_visit_perc.Q[,i] = accomodation_visit_perc.Q[,i]/sum(accomodation_visit_perc.Q[,i])
+}
+
+accomodation_visit_perc.Q <- accomodation_visit_perc.Q %>%
+  as_tibble()
+
+write.csv(accomodation_visit_perc.Q, file = "accomodation_visit_perc_Q.csv")
+
+# Yearly
+accomodation_visit_perc.Y <-Merged_market%>%
+  group_by(Place_stay, Year)%>%
+  add_tally()%>%
+  summarize(n = sum(n))%>%
+  spread(Year, n)
+
+accomodation_visit_perc.Y[is.na(accomodation_visit_perc.Y)] <- 0
+
+p = length(colnames(accomodation_visit_perc.Y))
+for(i in seq(2,p)){
+  accomodation_visit_perc.Y[,i] = accomodation_visit_perc.Y[,i]/sum(accomodation_visit_perc.Y[,i])
+}
+
+accomodation_visit_perc.Y <- accomodation_visit_perc.Y%>%
+  as_tibble()
+
+write.csv(accomodation_visit_perc.Y, file = "accomodation_visit_perc_Y.csv")
+
 ```
 
-##  Number of visits to Aruba (in Percentages)
+## 15. Visitor by the major States of the USA
 ```{r}
+# Quarterly
+state_visit.Q <-Merged_market%>%
+  group_by(State, year_q)%>%
+  add_tally()%>%
+  summarize(n = sum(n))%>%
+  spread(year_q, n)
 
+state_visit.Q[is.na(state_visit.Q)] <- 0
+
+
+state_visit.Q <- state_visit.Q %>%
+  as_tibble()
+
+write.csv(state_visit.Q, file = "state_visit_Q.csv")
+
+# Yearly
+state_visit.Y <-Merged_market%>%
+  group_by(State, Year)%>%
+  add_tally()%>%
+  summarize(n = sum(n))%>%
+  spread(Year, n)
+
+state_visit.Y[is.na(state_visit.Y)] <- 0
+
+p = length(colnames(state_visit.Y))
+for(i in seq(2,p)){
+  state_visit.Y[,i] = state_visit.Y[,i]/sum(state_visit.Y[,i])
+}
+
+state_visit.Y <- state_visit.Y%>%
+  as_tibble()
+
+
+write.csv(state_visit.Y, file = "state_visit_Y.csv")
 ```
 
-## NUMBER OF VISITS OF VISITORS FROM THE UNITED STATES TO ARUBA ( In Percentages )
+
+##  16. AVERAGE LENGTH OF STAY BY PLACE OF RESIDENCE OF VISITORS TO ARUBA (In days)
+"N_PERNOC" variable combined with "Resident". 
 ```{r}
+average_stay <- Merged %>%
+  group_by(Resident)%>%
+  summarize(N_PERNOC = mean(N_PERNOC))
 
+countries <- average_stay$Resident
+number <- average_stay$N_PERNOC
+average_stay <- as.data.frame(matrix(number, ncol = length(number)))
+colnames(average_stay) <- countries
+
+
+average_stay
+average_stay <- average_stay%>%
+  as_tibble()
+
+write.csv(average_stay, file = "average_stay.csv")
 ```
-
-
-
-## Type of accommodation visitors used (in Percentages)
-```{r}
-
-```
-
-## Visitor by the major States of the USA
-```{r}
-
-```
-
-
-##  AVERAGE LENGTH OF STAY BY PLACE OF RESIDENCE OF VISITORS TO ARUBA ( In days )
-```{r}
-
-```
-
-
-
-# Map US states
-*This data is yet to be proven to be correct.*
-```{r}
-# Use map_data() to create state
-library(maps)
-library(mapproj)
-state <- map_data("state")
-ggplot(state, aes(x = long, y = lat, fill = group, group = group)) +
-  geom_polygon(col = "white") +
-  coord_map()
-
-state_exp <- Merged %>%
-  group_by(State) %>%
-  summarise(W_TOT_EXP =sum(W_TOT_EXP))
-
-state2 <- merge(state, state_exp)
-
-ggplot(state2, aes(x = long, y = lat, fill = W_TOT_EXP, group = group)) +
-  geom_polygon(col = "white") +
-  coord_map()
-
-```
-
-
-
-# Table 1: Results 2009-2018 Total Expenditure per Source market.
-```{r}
-table_1 <- select(df,Year, 
-               Q,
-               Resident,
-               W_TOT_EXP,
-               W_EXP1,
-               W_EXP2,
-               W_EXP3,
-               W_EXP4,
-               W_EXP5,
-               W_EXP6,
-               W_EXP7,
-               W_EXP8,
-               W_EXP9,
-               W_EXP10,
-               W_EXP11,
-               W_EXP12,
-               W_EXP13,
-               W_EXP14,
-               W_EXP12_1,
-               W_EXP12_2
-                )%>%
-  group_by(Year,Q, Resident)%>%
-  summarize_all(list(sum))
-
-table_2 <- select(table_1,-c(Q))%>%
-group_by(Year, Resident)%>%
-  summarize_all(list(sum)) 
-
-table_3 <-select(table_1,-c(Resident))%>%
-group_by(Year, Q)%>%
-  summarize_all(list(sum)) 
-
-
-date_tbl3 <- seq(as.Date("2009/1/1"), by = "3 month", length.out = nrow(table_3))
-
-
-table_3$index <- date_tbl3
-tsibble_3 <- table_3%>%
-  as_tsibble(index=index)
-select(tsibble_3,-c(index, Year, Q))%>%
-  dygraph() %>% 
-  dyRangeSelector()
-                  
-                
-```
-
-
-```{r}
-
-#Create quarter index
-date_Q <- quarters(dates)
-data$date_Q <- date_Q
-
-#Group by quarter
-data<- data %>%
-  select(-c(Year, Month))%>%
-  group_by(Year,date_Q)%>%
-  summarize_all(list(sum))
-##Needs fixing
-dates <- seq(as.Date("2009/1/1"), by = "3 month", length.out = nrow(data)) 
-data <- xts(x = data, order.by = dates)
-
-rm(dates)
-rm(date_Q)
-```
-
-# 5: Main purpose of visit                                                                  *pending*
-```{r}
-df$a1_2009 <- revalue(df$a1_2009, c(
-  "Vacation"=" Vacation",
-  "Honeymoon"=" Honeymoon",
-  "Incentive award"= " Incentive award",
-  "Visit friends/relatives"=" Visit friends/relatives",
-  "Golf"=" Golf",
-  "Business and leisure"=" Business and leisure",
-  "Business only/ Convention/ Conference"=" Business only/ Convention/ Conference",
-  "Wedding"=" Wedding",
-  "Get married"=" Get married",
-  "Events/ Festival"=" Events/ Festival",
-  "Other"=" Other"
-  ))
-
-df <- rendell(df                = df,
-        Name_new_variable = "A1_MAIN_PURPOSE_VISIT", 
-        Name_2009         = "a1_2009",
-        Name_2010         = "A1_MAIN_PURPOSE_VISIT_2010", 
-        Name_2011         = "A1_MAIN_PURPOSE_VISIT_2011", 
-        Name_2012         = "A1_MAIN_PURPOSE_VISIT_2012", 
-        Name_2013         = "A1_MAIN_PURPOSE_VISIT_2013", 
-        Name_2014         = "A1_MAIN_PURPOSE_VISIT_2014", 
-        Name_2015         = "A1_MAIN_PURPOSE_VISIT_2015", 
-        Name_2016         = "A1_MAIN_PURPOSE_VISIT_2016",
-        Name_2017         = "A1_MAIN_PURPOSE_VISIT_2017",
-        Name_2018         = "A1_MAIN_PURPOSE_VISIT_2018"
-        )
-summary(df$A1_MAIN_PURPOSE_VISIT)
-
-```
-
-# 6: Other purpose of visit
-Can this one be left out of the analysis? Yes it can.                                       *pending*
-```{r}
-df <- rendell(df                = df,
-        Name_new_variable = "OTHER_PURPOSE_VISIT", 
-        Name_2009         = "a1a_2009",
-        Name_2010         = "OTHER_PURPOSE_OF_VISIT_2010", 
-        Name_2011         = "OTHER_PURPOSE_OF_VISIT_2011", 
-        Name_2012         = "OTHER_PURPOSE_OF_VISIT_2012", 
-        Name_2013         = "OTHER_PURPOSE_OF_VISIT_2013", 
-        Name_2014         = "OTHER_PURPOSE_OF_VISIT_2014", 
-        Name_2015         = "OTHER_PURPOSE_OF_VISIT_2015", 
-        Name_2016         = "OTHER_PURPOSE_OF_VISIT_2016" )
-summary(df$OTHER_PURPOSE_VISIT)
-
-corpus <- Corpus(VectorSource(df$OTHER_PURPOSE_VISIT))
-
-##Data Cleaning and Wrangling
-corpus.clean<-tm_map(corpus, PlainTextDocument)
-corpus.clean<-tm_map(corpus.clean,tolower)
-corpus.clean<-tm_map(corpus.clean,removeNumbers)
-corpus.clean<-tm_map(corpus.clean,removePunctuation)
-corpus.clean<-tm_map(corpus.clean,stripWhitespace)
-corpus.clean = tm_map(corpus.clean, removeWords, stopwords())
-# Remove your own stop word
-# specify your stopwords as a character vector
-corpus.clean <- tm_map(corpus.clean, removeWords, c("cont", "conocer","los")) 
-
-dtm <- TermDocumentMatrix(corpus.clean)
-m <- as.matrix(dtm)
-v <- sort(rowSums(m),decreasing=TRUE)
-other.purpose <- data.frame(word = names(v),freq=v)
-head(other.purpose, 10)
-
-set.seed(1234)
-wordcloud(words = other.purpose$word, freq = other.purpose$freq, min.freq = 1,
-          max.words=200, random.order=FALSE, rot.per=0.35, 
-          colors=brewer.pal(8, "Dark2"))
-
-
-rm(corpus.clean)
-rm(corpus)
-rm(dtm)
-rm(m)
-rm(v)
-```
-
-# 7: Place of Residence
-```{r}
-df$a2_2009 <- as.character(df$a2_2009)
-df$A2_2010 <- as.character(df$A2_2010)
-df$A2_2011 <- as.character(df$A2_2011)
-df$A2_2012 <- as.character(df$A2_2012)
-df$A2_2013 <- as.character(df$A2_2013)
-df$A2_2014 <- as.character(df$A2_2014)
-df$A2_2015 <- as.character(df$A2_2015)
-df$A2_2016 <- as.character(df$A2_2016)
-
-
-
-
-df <- rendell(df                = df,
-        Name_new_variable = "PLACE_RESIDENCE", 
-        Name_2009         = "a2_2009",
-        Name_2010         = "A2_2010", 
-        Name_2011         = "A2_2011", 
-        Name_2012         = "A2_2012", 
-        Name_2013         = "A2_2013", 
-        Name_2014         = "A2_2014", 
-        Name_2015         = "A2_2015", 
-        Name_2016         = "A2_2016" )
-df$PLACE_RESIDENCE <- as.factor(df$PLACE_RESIDENCE)
-summary(df$PLACE_RESIDENCE)
-#Note: Not finsihed yet. There are NA's appearing
-```
-
-# Analysis
-```{r}
-Y.2009 <- filter(df, Year == "2009")
-Y.2010 <- filter(df, Year == "2010")
-Y.2011 <- filter(df, Year == "2011")
-Y.2012 <- filter(df, Year == "2012")
-Y.2013 <- filter(df, Year == "2013")
-Y.2014 <- filter(df, Year == "2014")
-Y.2015 <- filter(df, Year == "2015")
-Y.2016 <- filter(df, Year == "2016")
-
-```
-
-
-
-
-
-
-
-
-
-
-
-# *Kypa example*
-Kypa 2014 step one: replace NA's with 0.
-```{r}
-data_2014[is.na(data_2014)] <- 0
-```
-Create total expenditure variable
-```{r}
-data_2014$TOT_EXP_2014 <- data_2014$TOT_DEP_EXP1 + 
-  data_2014$TOT_DEP_EXP2 +
-  data_2014$TOT_DEP_EXP3 +
-  data_2014$TOT_DEP_EXP4 +
-  data_2014$TOT_DEP_EXP5 +
-  data_2014$TOT_DEP_EXP6 +
-  data_2014$TOT_DEP_EXP7 +
-  data_2014$TOT_DEP_EXP8 +
-  data_2014$TOT_DEP_EXP9 +
-  data_2014$TOT_DEP_EXP10 +
-  data_2014$TOT_DEP_EXP11 +
-  data_2014$TOT_DEP_EXP12 +
-  data_2014$TOT_DEP_EXP13 +
-  data_2014$TOT_DEP_EXP14 +
-  data_2014$TOT_DEP_EXP12_1 +
-  data_2014$TOT_DEP_EXP12_2
-```
-Total expenditure by weight
-```{r}
-total_exp_2014 <- sum(data_2014$TOT_EXP_2014*data_2014$weight)
-```
-
-#Total 2018
-```{r}
-data_2018[is.na(data_2018)] <- 0
-
-data_2018$TOT_DEP_EXP1    <- data_2018$TOT_DEP_EXP1    * data_2018$weight
-data_2018$TOT_DEP_EXP2    <- data_2018$TOT_DEP_EXP2    * data_2018$weight
-data_2018$TOT_DEP_EXP3    <- data_2018$TOT_DEP_EXP3    * data_2018$weight
-data_2018$TOT_DEP_EXP4    <- data_2018$TOT_DEP_EXP4    * data_2018$weight
-data_2018$TOT_DEP_EXP5    <- data_2018$TOT_DEP_EXP5    * data_2018$weight
-data_2018$TOT_DEP_EXP6    <- data_2018$TOT_DEP_EXP6    * data_2018$weight
-data_2018$TOT_DEP_EXP7    <- data_2018$TOT_DEP_EXP7    * data_2018$weight
-data_2018$TOT_DEP_EXP8    <- data_2018$TOT_DEP_EXP8    * data_2018$weight
-data_2018$TOT_DEP_EXP9    <- data_2018$TOT_DEP_EXP9    * data_2018$weight
-data_2018$TOT_DEP_EXP10   <- data_2018$TOT_DEP_EXP10   * data_2018$weight
-data_2018$TOT_DEP_EXP11   <- data_2018$TOT_DEP_EXP11   * data_2018$weight
-data_2018$TOT_DEP_EXP12   <- data_2018$TOT_DEP_EXP12   * data_2018$weight
-data_2018$TOT_DEP_EXP13   <- data_2018$TOT_DEP_EXP13   * data_2018$weight
-data_2018$TOT_DEP_EXP14   <- data_2018$TOT_DEP_EXP14   * data_2018$weight
-data_2018$TOT_DEP_EXP12_1 <- data_2018$TOT_DEP_EXP12_1 * data_2018$weight
-data_2018$TOT_DEP_EXP12_2 <- data_2018$TOT_DEP_EXP12_2 * data_2018$weight
-
-rm(data_2018_q1)
-rm(data_2018_q2)
-rm(data_2018_q3)
-rm(data_2018_q4)
-
-data_2018$TOT_EXP_2018 <- data_2018$TOT_DEP_EXP1 + 
-  data_2018$TOT_DEP_EXP2 +
-  data_2018$TOT_DEP_EXP3 +
-  data_2018$TOT_DEP_EXP4 +
-  data_2018$TOT_DEP_EXP5 +
-  data_2018$TOT_DEP_EXP6 +
-  data_2018$TOT_DEP_EXP7 +
-  data_2018$TOT_DEP_EXP8 +
-  data_2018$TOT_DEP_EXP9 +
-  data_2018$TOT_DEP_EXP10 +
-  data_2018$TOT_DEP_EXP11 +
-  data_2018$TOT_DEP_EXP12 +
-  data_2018$TOT_DEP_EXP13 +
-  data_2018$TOT_DEP_EXP14 +
-  data_2018$TOT_DEP_EXP12_1 +
-  data_2018$TOT_DEP_EXP12_2
-
-table_2018_TOT_DEP_EXP1     <- data_2018 %>%
-  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
-  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP1))
-  
-table_2018_TOT_DEP_EXP2     <- data_2018 %>%
-  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
-  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP2))
-
-table_2018_TOT_DEP_EXP3     <- data_2018 %>%
-  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
-  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP3))
-
-table_2018_TOT_DEP_EXP4     <- data_2018 %>%
-  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
-  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP4))
-
-table_2018_TOT_DEP_EXP5     <- data_2018 %>%
-  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
-  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP5))
-
-table_2018_TOT_DEP_EXP6     <- data_2018 %>%
-  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
-  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP6))
-
-table_2018_TOT_DEP_EXP7     <- data_2018 %>%
-  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
-  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP7))
-
-table_2018_TOT_DEP_EXP8     <- data_2018 %>%
-  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
-  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP8))
-
-table_2018_TOT_DEP_EXP9     <- data_2018 %>%
-  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
-  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP9))
-
-table_2018_TOT_DEP_EXP10    <- data_2018 %>%
-  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
-  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP10))
-
-table_2018_TOT_DEP_EXP11    <- data_2018 %>%
-  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
-  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP11))
-
-table_2018_TOT_DEP_EXP12    <- data_2018 %>%
-  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
-  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP12))
-
-table_2018_TOT_DEP_EXP13    <- data_2018 %>%
-  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
-  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP13))
-
-table_2018_TOT_DEP_EXP14    <- data_2018 %>%
-  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
-  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP14))
-
-table_2018_TOT_DEP_EXP12_1  <- data_2018 %>%
-  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
-  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP12_1))
-
-table_2018_TOT_DEP_EXP12_2  <- data_2018 %>%
-  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
-  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP12_2))
-
-table_2018_TOT_DEP_EXP1$exp      <-"EXP1"
-table_2018_TOT_DEP_EXP2$exp      <-"EXP2"
-table_2018_TOT_DEP_EXP3$exp      <-"EXP3"
-table_2018_TOT_DEP_EXP4$exp      <-"EXP4"
-table_2018_TOT_DEP_EXP5$exp      <-"EXP5"
-table_2018_TOT_DEP_EXP6$exp      <-"EXP6"
-table_2018_TOT_DEP_EXP7$exp      <-"EXP7"
-table_2018_TOT_DEP_EXP8$exp      <-"EXP8"
-table_2018_TOT_DEP_EXP9$exp      <-"EXP9"
-table_2018_TOT_DEP_EXP10$exp     <-"EXP10"
-table_2018_TOT_DEP_EXP11$exp     <-"EXP11"
-table_2018_TOT_DEP_EXP12$exp     <-"EXP12"
-table_2018_TOT_DEP_EXP13$exp     <-"EXP13"
-table_2018_TOT_DEP_EXP14$exp     <-"EXP14"
-table_2018_TOT_DEP_EXP12_1$exp   <-"EXP12_1"
-table_2018_TOT_DEP_EXP12_2$exp   <-"EXP12_2"
-
-
-table_2018_all <- bind_rows(table_2018_TOT_DEP_EXP1,
-          table_2018_TOT_DEP_EXP2,
-          table_2018_TOT_DEP_EXP3,
-          table_2018_TOT_DEP_EXP4,
-          table_2018_TOT_DEP_EXP5,
-          table_2018_TOT_DEP_EXP6,
-          table_2018_TOT_DEP_EXP7,
-          table_2018_TOT_DEP_EXP8,
-          table_2018_TOT_DEP_EXP9,
-          table_2018_TOT_DEP_EXP10,
-          table_2018_TOT_DEP_EXP11,
-          table_2018_TOT_DEP_EXP12,
-          table_2018_TOT_DEP_EXP13,
-          table_2018_TOT_DEP_EXP14,
-          table_2018_TOT_DEP_EXP12_1,
-          table_2018_TOT_DEP_EXP12_2
-          )
-
-table_2018_all <- table_2018_all %>%
-  group_by(RESIDENCE_TSA2016_GRP,Q,exp) %>%
-  summarise(TOT_DEP_EXP=sum(TOT_DEP_EXP))
-
-table_2018_all <- spread(table_2018_all,RESIDENCE_TSA2016_GRP, TOT_DEP_EXP)
-
-write.csv(table_2018_all, "table_2018_all.csv")
-```
-
-```{r}
-## Leave for check
-
-table_2018_TOT <- data_2018 %>%
-  group_by(RESIDENCE_TSA2016_GRP, Q) %>%
-  summarise(TOT_EXP_2018=sum(TOT_EXP_2018))
-
-table_2018_TOT<- spread(table_2018_TOT, RESIDENCE_TSA2016_GRP, TOT_EXP_2018)
-```
-
-# Output tables in excel
-```{r, eval=FALSE}
-
-```
-
