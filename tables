@@ -42,27 +42,15 @@ library(zoo)
 # Tables
 The following tables are created:
 
-Nr.  | Table                                 | Quarterly             | Yearly     | Comment 
----- | ------------------------------------- | --------------------- | ---------- | ------------------
-1    | table_visitor nights                  | Year                  | Completed  |
-2    | Month                                 | Month                 | Completed  |
-3    | Quarter                               | Q                     | Completed  |
-4    | Gender                                | Gender                | Completed  |
-5    | Expenditure (16 components)           | EXP_1 to EXP_14       | Completed  |
-6    | Weights                               | WEIGHT                | Completed  |
-7    | Weighted expenditures (16 components) | W_EXP1 to W_EXP14     | Completed  |
-8    | Weighted Expenditure (total)          | W_EXP_TOT             | Completed  |
-9    | Resident                              | Resident              | Completed  |
-10   | Repeater                              | Repeater              | Completed  |
-11   | Place of stay                         | Place_stay            | Completed  |
-12   | Main purpose of visit                 | A1_MAIN_PURPOSE_VISIT | Completed  | Verification CBS
-13   | Number of nights                      | Nights                | Completed  |
-14   | State (U.S.A)                         | State                 | Completed  |
-15   | Household Income                      | Household_Income      | Completed  | Valid 2014 to 2018
-16   | B9 How many persons does exp. cover   | B9T                   | Completed  |
-17   | Nights per observation                | N_PERNOC              | Completed  |
-18   | Weighted Nights per observation       | W_PERNOC              | Completed  |
-19   | Average Daily Expenditure             | ADE                   | Completed  | Verification CBS 
+Nr.  | Table                                                                                | Quarterly                  | Yearly                   |  
+---- | ------------------------------------------------------------------------------------ | -------------------------- | ------------------------ |
+1    | Average daily expenditure by number of visits                                        | visitors_by_residence_Q    | visitors_by_residence_Y  |
+2    | Average daily expenditure SPENT IN ARUBA PER CATEGORY 1) ( In US$ )                  | Mav_expt_Nvisits_Q         | Mav_expt_Nvisits_Y       |
+3    | Average daily expenditure by place of residence ( In US$ )                           | av_expt_R_Q                | av_expt_R_Y              |
+4    | Average daily expenditure SPENT IN ARUBA BY PURPOSE OF VISIT ( In US$ )              | av_expt_Purpose_Q          | av_expt_Purpose_Y        |
+5    | Average daily expenditure SPENT IN ARUBA BY YEARLY HOUSEHOLD INCOME LEVEL ( In US$ ) | av_expt_HouseIn_Q          | av_expt_HouseIn_Y        |
+6    | AVERAGE EXPENDITURE PER PERSON PER TRIP BY THE MAJOR MARKETS ( In US$ )              | av_expt_market_Q           | av_expt_market_Y         |
+
 
 
 
@@ -115,14 +103,13 @@ write.csv(visitors_by_residence.Y, file = "visitors_by_residence_Y.csv")
 ```
 
 
-## 2. Average daily expenditure in Aruba per person (stayover visitor) per day *Need to double check if this is correct*
+## Average daily expenditure in Aruba per person (stayover visitor) per day 
 ```{r}
-# Correct
 Merged$ADE <- (Merged$W_TOT_EXP / Merged$WEIGHT)/Merged$N_PERNOC
 ```
 
 
-## 3. Average daily expenditure by number of visits
+## 1. Average daily expenditure by number of visits
 ```{r}
 na_s <- which(is.na(Merged$Repeater))# Only one missing value, we just drop it.
 Merged_Nvisits <- Merged[-na_s,]
@@ -146,7 +133,7 @@ write.csv(av_expt_Nvisits.Y, file = "av_expt_Nvisits_Y.csv")
 
 ```
 
-## 4. AVERAGE DAILY EXPENDITURE SPENT IN ARUBA PER CATEGORY 1) ( In US$ )
+## 2. AVERAGE DAILY EXPENDITURE SPENT IN ARUBA PER CATEGORY 1) ( In US$ )
 ```{r}
 df_categ = cbind(Merged[,7:22],Merged$WEIGHT, Merged$N_PERNOC)
 colnames(df_categ)[(ncol(df_categ)-1):ncol(df_categ)] = c("WEIGHT","N_PERNOC")
@@ -185,7 +172,7 @@ write.csv(average_exp_Categ, file = "average_exp_Categ.csv")
 
 ```
 
-## 5. Average daily expenditure by place of residence ( In US$ )
+## 3. Average daily expenditure by place of residence ( In US$ )
 ```{r}
 
 na_s <- which(is.na(Merged$Resident))# No missing value
@@ -208,7 +195,7 @@ av_expt_R.Y <-Merged%>%
 write.csv(av_expt_R.Y, file = "av_expt_R_Y.csv")
 ```
 
-## 6. AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY PURPOSE OF VISIT ( In US$ )
+## 4. AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY PURPOSE OF VISIT ( In US$ )
 ```{r}
 
 na_s <- which(is.na(Merged$A1_MAIN_PURPOSE_VISIT))# 4546 values that are NA
@@ -235,12 +222,7 @@ write.csv(av_expt_Purpose.Y , file = "av_expt_Purpose_Y.csv")
 
 ```
 
-##  AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY NUMBER OF VISITS TO ARUBA ( In US$) 
-```{r}
-# This is the same as 3.
-```
-
-## 7. AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY YEARLY HOUSEHOLD INCOME LEVEL ( In US$ )
+## 5. AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY YEARLY HOUSEHOLD INCOME LEVEL ( In US$ )
 ```{r}
 
 na_s <- which(is.na(Merged$Household_Income))# 6575 values that are NA
@@ -265,7 +247,7 @@ av_expt_HouseIn.Y <-Merged_HouseIn%>%
 write.csv(av_expt_HouseIn.Y, file = "av_expt_HouseIn_Y.csv")
 ```
 
-## AVERAGE EXPENDITURE PER PERSON PER TRIP BY THE MAJOR MARKETS ( In US$ )
+## 6. AVERAGE EXPENDITURE PER PERSON PER TRIP BY THE MAJOR MARKETS ( In US$ )
 ```{r}
 
 na_s <- which(Merged$State == "(missing)" | Merged$State == "0"| Merged$State == "")# 18484 missing values
