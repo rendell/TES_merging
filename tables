@@ -19,25 +19,19 @@ options(tinytex.verbose = TRUE)
 
 # Introduction
 The script takes as point of departure the "Merged.csv" file and the notebook "Tourism Expenditure Survey unification". 
-After the latter lays out the process of merging individual year files, this script converts the data in various tables for publication purposes, both in quarterly and yearly frequencies. 
+After the latter lays out the process of merging individual year files, this script converts the data in various tables for publication purposes.
 
 Examples of these tables can be found at: http://cbs.aw/wp/wp-content/uploads/2014/12/TOURISM-PROFILE-YEAR-REPORT-2013.pdf
 (From page 25 onwards)
 
 To reproduce the code it is necesary to change the working directory. This can be done in the "Session" tabe, "Set Working Directory". For tidyness we also clear the console and workspace. 
 ```{r}
-setwd("~/CBS TOUR/SPSS")
 # clear workspace and console
 rm(list = ls())
 cat("\014")
 
-library(tsibble)
-library(ggplot2) 
-library(feasts)
-library(tidyverse)
-library(zoo)
+setwd("~/CBS TOUR/SPSS")
 ```
-
 
 # Tables
 The following tables are created:
@@ -54,7 +48,15 @@ Nr.  | Table                                                                    
 
 
 
+
+
 ```{r}
+library(tsibble)
+library(ggplot2) 
+library(feasts)
+library(tidyverse)
+library(zoo)
+
 
 
 Merged <- read.csv("Merged.csv")
@@ -77,39 +79,77 @@ Merged$W_PERNOC <- Merged$N_PERNOC* Merged$WEIGHT
 
 
 ```{r}
-str(Merged)
+to_tsibbleQuarter <- function(table, Variable){
+  table <- table%>%
+    gather(year_q, Value, -Variable)%>%
+    mutate(
+    year_q = as.yearqtr(paste(substr(year_q,1,4), as.numeric(substr(year_q,7,7))*3, "01", sep = "-"), format= "%Y-%m-%d"
+  ))%>%
+  arrange(year_q)%>%
+  as_tsibble(index = year_q, key = Variable)
+  return(table)
+}
+
+to_tsibbleYear <- function(table, Variable){
+  table <- table%>%
+    gather("Year", Value, -Variable)%>%
+    mutate(
+    Year = as.Date(Year, format = "%Y"))%>%
+    arrange(Year)%>%
+  as_tsibble(index = "Year", key = Variable)
+  return(table)
+}
 ```
 
 
-## 1. table_visitor nights
+
+# The following variables are including in the file "Merged.csv":
+
+
+The intention is to create tables that are tabulations of this data for quarterly data as well as yearly data. 
+
+Examples of these tables can be found at: http://cbs.aw/wp/wp-content/uploads/2014/12/TOURISM-PROFILE-YEAR-REPORT-2013.pdf
+(From page 25 onwards)
+
+
+
+## 2.4. NUMBER OF VISITOR NIGHTS BY PLACE OF RESIDENCE ( * 1,000 )
 ```{r}
 # By quarter:
 visitors_by_residence.Q <- Merged%>%
   group_by(year_q,Resident)%>%
-  summarise(W_PERNOC=sum(W_PERNOC))%>%
+  summarise(W_PERNOC=sum(W_PERNOC/1000))%>%
   spread(year_q,W_PERNOC)%>%
   as_tibble()
 
 write.csv(visitors_by_residence.Q, file = "visitors_by_residence_Q.csv")
 
+visitors_by_residence.Q <- to_tsibbleQuarter(visitors_by_residence.Q, "Resident")
+
 # By Year:
 visitors_by_residence.Y <- Merged%>%
   group_by(Year, Resident)%>%
-  summarise(W_PERNOC=sum(W_PERNOC))%>%
+  summarise(W_PERNOC=sum(W_PERNOC/1000))%>%
   spread(Year,W_PERNOC)%>%
   as_tibble()
 
 write.csv(visitors_by_residence.Y, file = "visitors_by_residence_Y.csv")
+
+visitors_by_residence.Y <- to_tsibbleYear(visitors_by_residence.Y, "Resident")
+
+
+
 ```
 
 
-## Average daily expenditure in Aruba per person (stayover visitor) per day 
+## 2. Average daily expenditure in Aruba per person (stayover visitor) per day *Need to double check if this is correct*
 ```{r}
+# Correct
 Merged$ADE <- (Merged$W_TOT_EXP / Merged$WEIGHT)/Merged$N_PERNOC
 ```
 
 
-## 1. Average daily expenditure by number of visits
+## 3. Average daily expenditure by number of visits
 ```{r}
 na_s <- which(is.na(Merged$Repeater))# Only one missing value, we just drop it.
 Merged_Nvisits <- Merged[-na_s,]
@@ -122,6 +162,9 @@ av_expt_Nvisits.Q <-Merged_Nvisits%>%
   as_tibble()
 
 write.csv(av_expt_Nvisits.Q, file = "av_expt_Nvisits_Q.csv")
+
+av_expt_Nvisits.Q <- to_tsibbleQuarter(av_expt_Nvisits.Q, "Repeater")
+
 # Average daily expenditure by number of visits Yearly
 av_expt_Nvisits.Y <-Merged_Nvisits%>%
   group_by(Repeater,Year)%>%
@@ -131,9 +174,10 @@ av_expt_Nvisits.Y <-Merged_Nvisits%>%
 
 write.csv(av_expt_Nvisits.Y, file = "av_expt_Nvisits_Y.csv")
 
+av_expt_Nvisits.Y <- to_tsibbleYear(av_expt_Nvisits.Y, "Repeater")
 ```
 
-## 2. AVERAGE DAILY EXPENDITURE SPENT IN ARUBA PER CATEGORY 1) ( In US$ )
+## 4. AVERAGE DAILY EXPENDITURE SPENT IN ARUBA PER CATEGORY 1) ( In US$ )
 ```{r}
 df_categ = cbind(Merged[,7:22],Merged$WEIGHT, Merged$N_PERNOC)
 colnames(df_categ)[(ncol(df_categ)-1):ncol(df_categ)] = c("WEIGHT","N_PERNOC")
@@ -172,7 +216,7 @@ write.csv(average_exp_Categ, file = "average_exp_Categ.csv")
 
 ```
 
-## 3. Average daily expenditure by place of residence ( In US$ )
+## 5. Average daily expenditure by place of residence ( In US$ )
 ```{r}
 
 na_s <- which(is.na(Merged$Resident))# No missing value
@@ -185,6 +229,9 @@ av_expt_R.Q <-Merged%>%
   as_tibble()
 
 write.csv(av_expt_R.Q, file = "av_expt_R_Q.csv")
+
+av_expt_R.Q <- to_tsibbleQuarter(av_expt_R.Q, "Resident")
+
 # Yearly
 av_expt_R.Y <-Merged%>%
   group_by(Resident,Year)%>%
@@ -193,9 +240,12 @@ av_expt_R.Y <-Merged%>%
   as_tibble()
 
 write.csv(av_expt_R.Y, file = "av_expt_R_Y.csv")
+
+av_expt_R.Y <- to_tsibbleYear(av_expt_R.Y, "Resident")
+
 ```
 
-## 4. AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY PURPOSE OF VISIT ( In US$ )
+## 6. AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY PURPOSE OF VISIT ( In US$ )
 ```{r}
 
 na_s <- which(is.na(Merged$A1_MAIN_PURPOSE_VISIT))# 4546 values that are NA
@@ -206,10 +256,15 @@ Merged_Purp <- Merged[-na_s,]
 av_expt_Purpose.Q <-Merged_Purp%>%
   group_by(A1_MAIN_PURPOSE_VISIT,year_q)%>%
   summarize(ADE = mean(ADE))%>%
+  mutate(
+    ADE = ifelse(is.na(ADE), 0, ADE)
+  )%>%
   spread(year_q,ADE)%>%
   as_tibble()
 
 write.csv(av_expt_Purpose.Q , file = "av_expt_Purpose_Q.csv")
+
+av_expt_Purpose.Q <- to_tsibbleQuarter(av_expt_Purpose.Q, "A1_MAIN_PURPOSE_VISIT")
 
 # Yearly
 av_expt_Purpose.Y <-Merged_Purp%>%
@@ -220,9 +275,16 @@ av_expt_Purpose.Y <-Merged_Purp%>%
 
 write.csv(av_expt_Purpose.Y , file = "av_expt_Purpose_Y.csv")
 
+av_expt_Purpose.Y <- to_tsibbleYear(av_expt_Purpose.Y, "A1_MAIN_PURPOSE_VISIT")
+
 ```
 
-## 5. AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY YEARLY HOUSEHOLD INCOME LEVEL ( In US$ )
+##  AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY NUMBER OF VISITS TO ARUBA ( In US$) 
+```{r}
+# This is the same as 3.
+```
+
+## 7. AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY YEARLY HOUSEHOLD INCOME LEVEL ( In US$ )
 ```{r}
 
 na_s <- which(is.na(Merged$Household_Income))# 6575 values that are NA
@@ -237,6 +299,8 @@ av_expt_HouseIn.Q <-Merged_HouseIn%>%
   as_tibble()
 
 write.csv(av_expt_HouseIn.Q, file = "av_expt_HouseIn_Q.csv")
+
+to_tsibbleQuarter(av_expt_HouseIn.Q, "Household_Income")
 # Yearly
 av_expt_HouseIn.Y <-Merged_HouseIn%>%
   group_by(Household_Income,Year)%>%
@@ -245,9 +309,11 @@ av_expt_HouseIn.Y <-Merged_HouseIn%>%
   as_tibble()
 
 write.csv(av_expt_HouseIn.Y, file = "av_expt_HouseIn_Y.csv")
+
+av_expt_HouseIn.Y <- to_tsibbleYear(av_expt_HouseIn.Y, "Household_Income")
 ```
 
-## 6. AVERAGE EXPENDITURE PER PERSON PER TRIP BY THE MAJOR MARKETS ( In US$ )
+## AVERAGE EXPENDITURE PER PERSON PER TRIP BY THE MAJOR MARKETS ( In US$ )
 ```{r}
 
 na_s <- which(Merged$State == "(missing)" | Merged$State == "0"| Merged$State == "")# 18484 missing values
@@ -261,6 +327,9 @@ av_expt_market.Q <-Merged%>%
   spread(year_q,ADE)%>%
   as_tibble()
 write.csv(av_expt_market.Q, file = "av_expt_market_Q.csv")
+
+av_expt_market.Q <- to_tsibbleQuarter(av_expt_market.Q, "Resident")
+
 # Yearly
 av_expt_market.Y <-Merged%>%
   group_by(Resident,Year)%>%
@@ -269,6 +338,9 @@ av_expt_market.Y <-Merged%>%
   as_tibble()
 
 write.csv(av_expt_market.Y, file = "av_expt_market_Y.csv")
+
+av_expt_market.Y <- to_tsibbleYear(av_expt_market.Y, "Resident")
+
 ```
 
 ##  8. TOURISM EXPENDITURE IN ARUBA BY THE MAJOR MARKETS ( In 1,000 US dollars )
@@ -284,6 +356,8 @@ T_expt_market.Q <-Merged%>%
   as_tibble()
 
 write.csv(T_expt_market.Q, file = "T_expt_market_Q.csv")
+
+T_expt_market.Q <- to_tsibbleQuarter(T_expt_market.Q, "Resident")
 # Yearly
 T_expt_market.Y <-Merged%>%
   mutate(
@@ -295,6 +369,9 @@ T_expt_market.Y <-Merged%>%
   as_tibble()
 
 write.csv(T_expt_market.Y, file = "T_expt_market_Y.csv")
+
+T_expt_market.Y <- to_tsibbleYear(T_expt_market.Y, "Resident")
+
 ```
 
 ## 9. Total Tourism expenditure in Aruba by country
@@ -310,6 +387,8 @@ T_expt_country.Q <-Merged%>%
   as_tibble()
 
 write.csv(T_expt_country.Q, file = "T_expt_country_Q.csv")
+
+T_expt_country.Q <- to_tsibbleQuarter(T_expt_country.Q, "Resident")
 # Yearly
 T_expt_country.Y <-Merged%>%
   mutate(
@@ -320,6 +399,8 @@ T_expt_country.Y <-Merged%>%
   spread(Year,total_exp)%>%
   as_tibble()
 write.csv(T_expt_country.Y, file = "T_expt_country_Y.csv")
+
+T_expt_country.Y <- to_tsibbleYear(T_expt_country.Y, "Resident")
 
 ```
 
@@ -336,6 +417,10 @@ T_expt_HouseIn.Q <-Merged_HouseIn%>%
   as_tibble()
 
 write.csv(T_expt_HouseIn.Q, file = "T_expt_HouseIn_Q.csv")
+
+
+T_expt_HouseIn.Q <- to_tsibbleQuarter(T_expt_HouseIn.Q, "Household_Income")
+
 # Yearly
 T_expt_HouseIn.Y <-Merged_HouseIn%>%
   mutate(
@@ -346,6 +431,8 @@ T_expt_HouseIn.Y <-Merged_HouseIn%>%
   spread(Year,total_exp)%>%
   as_tibble()
 write.csv(T_expt_HouseIn.Y, file = "T_expt_HouseIn_Y.csv")
+
+T_expt_HouseIn.Y <- to_tsibbleYear(T_expt_HouseIn.Y, "Household_Income")
 
 ```
 
@@ -370,6 +457,8 @@ HouseIn_visit_perc.Q <- HouseIn_visit_perc.Q %>%
 
 write.csv(HouseIn_visit_perc.Q, file = "HouseIn_visit_perc_Q.csv")
 
+HouseIn_visit_perc.Q <- to_tsibbleQuarter(HouseIn_visit_perc.Q, "Household_Income")
+
 # Yearly
 HouseIn_visit_perc.Y <-Merged_HouseIn%>%
   group_by(Household_Income, Year)%>%
@@ -386,6 +475,8 @@ HouseIn_visit_perc.Y <- HouseIn_visit_perc.Y%>%
   as_tibble()
 
 write.csv(HouseIn_visit_perc.Y, file = "HouseIn_visit_perc_Y.csv")
+
+HouseIn_visit_perc.Y <- to_tsibbleYear(HouseIn_visit_perc.Y, "Household_Income")
 
 ```
 
@@ -409,6 +500,8 @@ repeat_visit_perc.Q <- repeat_visit_perc.Q %>%
 
 write.csv(HouseIn_visit_perc.Q, file = "HouseIn_visit_perc_Q.csv")
 
+repeat_visit_perc.Q <- to_tsibbleQuarter(repeat_visit_perc.Q, "Repeater")
+
 # Yearly
 repeat_visit_perc.Y <-Merged_Nvisits%>%
   group_by(Repeater, Year)%>%
@@ -425,6 +518,8 @@ repeat_visit_perc.Y <- repeat_visit_perc.Y%>%
   as_tibble()
 
 write.csv(HouseIn_visit_perc.Y, file = "HouseIn_visit_perc_Y.csv")
+
+repeat_visit_perc.Y <- to_tsibbleYear(repeat_visit_perc.Y, "Repeater")
 ```
 
 ## 13. NUMBER OF VISITS OF VISITORS FROM THE UNITED STATES TO ARUBA ( In Percentages )
@@ -448,6 +543,8 @@ state_visit_perc.Q <- state_visit_perc.Q %>%
 
 write.csv(state_visit_perc.Q, file = "state_visit_perc_Q.csv")
 
+state_visit_perc.Q <- to_tsibbleQuarter(state_visit_perc.Q, "State")
+
 # Yearly
 state_visit_perc.Y <-Merged_market%>%
   group_by(State, Year)%>%
@@ -466,6 +563,8 @@ state_visit_perc.Y <- state_visit_perc.Y%>%
   as_tibble()
 
 write.csv(state_visit_perc.Y, file = "state_visit_perc_Y.csv")
+
+state_visit_perc.Y <- to_tsibbleYear(state_visit_perc.Y, "State")
 
 ```
 
@@ -493,6 +592,8 @@ accomodation_visit_perc.Q <- accomodation_visit_perc.Q %>%
 
 write.csv(accomodation_visit_perc.Q, file = "accomodation_visit_perc_Q.csv")
 
+accomodation_visit_perc.Q <- to_tsibbleQuarter(accomodation_visit_perc.Q, "Place_stay")
+
 # Yearly
 accomodation_visit_perc.Y <-Merged_market%>%
   group_by(Place_stay, Year)%>%
@@ -512,9 +613,11 @@ accomodation_visit_perc.Y <- accomodation_visit_perc.Y%>%
 
 write.csv(accomodation_visit_perc.Y, file = "accomodation_visit_perc_Y.csv")
 
+accomodation_visit_perc.Y <- to_tsibbleYear(accomodation_visit_perc.Y, "Place_stay")
+
 ```
 
-## 15. Visitor by the major States of the USA
+## 13. Visitor by the major States of the USA
 ```{r}
 # Quarterly
 state_visit.Q <-Merged_market%>%
@@ -530,6 +633,8 @@ state_visit.Q <- state_visit.Q %>%
   as_tibble()
 
 write.csv(state_visit.Q, file = "state_visit_Q.csv")
+
+state_visit.Q <- to_tsibbleQuarter(state_visit.Q, "State")
 
 # Yearly
 state_visit.Y <-Merged_market%>%
@@ -548,12 +653,14 @@ for(i in seq(2,p)){
 state_visit.Y <- state_visit.Y%>%
   as_tibble()
 
-
 write.csv(state_visit.Y, file = "state_visit_Y.csv")
+
+state_visit.Y <- to_tsibbleYear(state_visit.Y, "State")
+
 ```
 
 
-##  16. AVERAGE LENGTH OF STAY BY PLACE OF RESIDENCE OF VISITORS TO ARUBA (In days)
+##  14. AVERAGE LENGTH OF STAY BY PLACE OF RESIDENCE OF VISITORS TO ARUBA (In days)
 "N_PERNOC" variable combined with "Resident". 
 ```{r}
 average_stay <- Merged %>%
