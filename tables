@@ -113,7 +113,7 @@ Examples of these tables can be found at: http://cbs.aw/wp/wp-content/uploads/20
 
 
 
-## 2.4. NUMBER OF VISITOR NIGHTS BY PLACE OF RESIDENCE ( * 1,000 )
+## 2.5. NUMBER OF VISITOR NIGHTS BY PLACE OF RESIDENCE ( * 1,000 )
 ```{r}
 # By quarter:
 visitors_by_residence.Q <- Merged%>%
@@ -142,14 +142,14 @@ visitors_by_residence.Y <- to_tsibbleYear(visitors_by_residence.Y, "Resident")
 ```
 
 
-## 2. Average daily expenditure in Aruba per person (stayover visitor) per day *Need to double check if this is correct*
+## Average daily expenditure in Aruba per person (stayover visitor) per day *Need to double check if this is correct*
 ```{r}
 # Correct
 Merged$ADE <- (Merged$W_TOT_EXP / Merged$WEIGHT)/Merged$N_PERNOC
 ```
 
 
-## 3. Average daily expenditure by number of visits
+## 4.4 Average daily expenditure by number of visits
 ```{r}
 na_s <- which(is.na(Merged$Repeater))# Only one missing value, we just drop it.
 Merged_Nvisits <- Merged[-na_s,]
@@ -177,7 +177,7 @@ write.csv(av_expt_Nvisits.Y, file = "av_expt_Nvisits_Y.csv")
 av_expt_Nvisits.Y <- to_tsibbleYear(av_expt_Nvisits.Y, "Repeater")
 ```
 
-## 4. AVERAGE DAILY EXPENDITURE SPENT IN ARUBA PER CATEGORY 1) ( In US$ )
+## 4.1 AVERAGE DAILY EXPENDITURE SPENT IN ARUBA PER CATEGORY 1) ( In US$ )
 ```{r}
 df_categ = cbind(Merged[,7:22],Merged$WEIGHT, Merged$N_PERNOC)
 colnames(df_categ)[(ncol(df_categ)-1):ncol(df_categ)] = c("WEIGHT","N_PERNOC")
@@ -216,7 +216,7 @@ write.csv(average_exp_Categ, file = "average_exp_Categ.csv")
 
 ```
 
-## 5. Average daily expenditure by place of residence ( In US$ )
+## 4.2 Average daily expenditure by place of residence ( In US$ )
 ```{r}
 
 na_s <- which(is.na(Merged$Resident))# No missing value
@@ -245,7 +245,7 @@ av_expt_R.Y <- to_tsibbleYear(av_expt_R.Y, "Resident")
 
 ```
 
-## 6. AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY PURPOSE OF VISIT ( In US$ )
+## 4.3 AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY PURPOSE OF VISIT ( In US$ )
 ```{r}
 
 na_s <- which(is.na(Merged$A1_MAIN_PURPOSE_VISIT))# 4546 values that are NA
@@ -279,12 +279,8 @@ av_expt_Purpose.Y <- to_tsibbleYear(av_expt_Purpose.Y, "A1_MAIN_PURPOSE_VISIT")
 
 ```
 
-##  AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY NUMBER OF VISITS TO ARUBA ( In US$) 
-```{r}
-# This is the same as 3.
-```
 
-## 7. AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY YEARLY HOUSEHOLD INCOME LEVEL ( In US$ )
+## 4.5 AVERAGE DAILY EXPENDITURE SPENT IN ARUBA BY YEARLY HOUSEHOLD INCOME LEVEL ( In US$ )
 ```{r}
 
 na_s <- which(is.na(Merged$Household_Income))# 6575 values that are NA
@@ -313,7 +309,7 @@ write.csv(av_expt_HouseIn.Y, file = "av_expt_HouseIn_Y.csv")
 av_expt_HouseIn.Y <- to_tsibbleYear(av_expt_HouseIn.Y, "Household_Income")
 ```
 
-## AVERAGE EXPENDITURE PER PERSON PER TRIP BY THE MAJOR MARKETS ( In US$ )
+##4.9  AVERAGE EXPENDITURE PER PERSON PER TRIP BY THE MAJOR MARKETS ( In US$ )
 ```{r}
 
 na_s <- which(Merged$State == "(missing)" | Merged$State == "0"| Merged$State == "")# 18484 missing values
@@ -343,7 +339,7 @@ av_expt_market.Y <- to_tsibbleYear(av_expt_market.Y, "Resident")
 
 ```
 
-##  8. TOURISM EXPENDITURE IN ARUBA BY THE MAJOR MARKETS ( In 1,000 US dollars )
+##  4.1 TOURISM EXPENDITURE IN ARUBA BY THE MAJOR MARKETS ( In 1,000 US dollars )
 ```{r}
 # Quarterly
 T_expt_market.Q <-Merged%>%
@@ -437,7 +433,7 @@ T_expt_HouseIn.Y <- to_tsibbleYear(T_expt_HouseIn.Y, "Household_Income")
 ```
 
 
-## 11. Yearly Household Income of visitors (in Percentages)
+## 3.1.2 Yearly Household Income of visitors (in Percentages)
 ```{r}
 
 # Quarterly
@@ -660,7 +656,7 @@ state_visit.Y <- to_tsibbleYear(state_visit.Y, "State")
 ```
 
 
-##  14. AVERAGE LENGTH OF STAY BY PLACE OF RESIDENCE OF VISITORS TO ARUBA (In days)
+##  2.4 AVERAGE LENGTH OF STAY BY PLACE OF RESIDENCE OF VISITORS TO ARUBA (In days)
 "N_PERNOC" variable combined with "Resident". 
 ```{r}
 average_stay <- Merged %>%
