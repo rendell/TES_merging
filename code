@@ -35,27 +35,85 @@ setwd("~/CBS TOUR/SPSS")
 # Variables
 The following variables were identified amd analysed:
 
-Nr.  | Variable                              | Code                  | Status        | Comment 
----- | ------------------------------------- | --------------------- | ---------- | ------------------
-1    | Year                                  | Year                  | Completed  |
-2    | Month                                 | Month                 | Completed  |
-3    | Quarter                               | Q                     | Completed  |
-4    | Gender                                | Gender                | Completed  |
-5    | Expenditure (16 components)           | EXP_1 to EXP_14       | Completed  |
-6    | Weights                               | WEIGHT                | Completed  |
-7    | Weighted expenditures (16 components) | W_EXP1 to W_EXP14     | Completed  |
-8    | Weighted Expenditure (total)          | W_EXP_TOT             | Completed  |
-9    | Resident                              | Resident              | Completed  |
-10   | Repeater                              | Repeater              | Completed  |
-11   | Place of stay                         | Place_stay            | Completed  |
-12   | Main purpose of visit                 | A1_MAIN_PURPOSE_VISIT | Completed  | Verification CBS
-13   | Number of nights                      | Nights                | Completed  |
-14   | State (U.S.A)                         | State                 | Completed  |
-15   | Household Income                      | Household_Income      | Completed  | Valid 2014 to 2018
-16   | B9 How many persons does exp. cover   | B9T                   | Completed  |
-17   | Nights per observation                | N_PERNOC              | Completed  |
-18   | Weighted Nights per observation       | W_PERNOC              | Completed  |
-19   | Average Daily Expenditure             | ADE                   | Completed  | Verification CBS 
+Nr.  | Variable                              | Code                             | Status     | Comment 
+---- | ------------------------------------- | ------------------------------   | ---------- | ------------------
+1    | Year                                  | Year                             | Completed  |
+2    | Month                                 | Month                            | Completed  |
+3    | Quarter                               | Q                                | Completed  |
+4    | Gender                                | Gender                           | Completed  |
+5    | Expenditure (16 components)           | EXP_1 to EXP_14                  | Completed  |
+6    | Weights                               | WEIGHT                           | Completed  |
+7    | Weighted expenditures (16 components) | W_EXP1 to W_EXP14                | Completed  |
+8    | Weighted Expenditure (total)          | W_EXP_TOT                        | Completed  |
+9    | Resident                              | Resident                         | Completed  |
+10   | Repeater                              | Repeater                         | Completed  |
+11   | Place of stay                         | Place_stay                       | Completed  |
+12   | Main purpose of visit                 | A1_MAIN_PURPOSE_VISIT            | Completed  | Verification CBS
+13   | Number of nights                      | Nights                           | Completed  |
+14   | State (U.S.A)                         | State                            | Completed  |
+15   | Household Income                      | Household_Income                 | Completed  | Valid 2014 to 2018
+16   | B9 How many persons does exp. cover   | B9T                              | Completed  |
+17   | Nights per observation                | N_PERNOC                         | Completed  |
+18   | Weighted Nights per observation       | W_PERNOC                         | Completed  |
+19   | Average Daily Expenditure             | ADE                              | Completed  | Verification CBS
+20   | Sources of information                | A3A_SOURCES_OF_INFORMATION       | Pending    | 
+21   | Other sources of information          | A3AOTHER_OTHER_SOURCE_OF_INFO    | Pending    | 
+22   | Is this timeshare owned by you?       | A6A                              | Pending    |
+23   | If not, specify type stay timeshare   | A6B                              | Pending    | 
+24   | If other type stay timeshare, specify | A6C_OTHER_TYPE_STAY_TIMESHARF    | Pending    |
+25   | In which age group are you?           | A8_AGE_GROUP                     | Pending    | 
+26   | What is your occupation               | A10A_OCCUPATION                  | Pending    | 
+27   | What is your occupation, other        | A10ISCO_OTHER_OCCUPATION         | Pending    |
+28   | Did you travel on a pre-paid package? | B3                               | Pending    | 
+29   | Was the prepaid package all-inclusive?| B3A                              | Pending    | 
+30   | Satisfaction Accommodation            | C1V1_SATISFACTION_ACCOMODATION   | Pending    |
+31   | Satisfaction Meals & Drinks           | C1V2_SATISFACTION_MEALS_DRINKS   | Pending    |
+32   | Satisfaction Local Transport          | C1V3_SATISFACTION_TRANSPORT      | Pending    |
+33   | Satisfaction Shopping                 | C1V4_SATISFACTION_SHOPPING       | Pending    |
+34   | Satisfaction Entertainment/Recreation | C1V5_SATISFACTION_ENT_RECREATIOO | Pending    | 
+35   | Satisfaction Quality of Service       | C1V6_SATISFACTION_SERVICE        | Pending    | 
+36   | Value money paid Accommodation        | C2V1_RATE_VALUE_ACCOMODATION     | Pending    |
+37   | value money paid Meals and Drinks     | C2V2_RATE_VALUE_MEALS_DRINKS     | Pending    |
+38   | value money paid Local transport      |C2V3_RATE_VALUE_LOCAL_TRANSPORU   | Pending    |
+39   | value money paid Shopping             | C2V4_RATE_VALUE_SHOPPING         | Pending    |
+40   | value money paid Entertain/Recreation |C2V5_RATE_VALUE_ENTERTAINMENT     | Pending    |
+41   | value money paid Quality of Service   | C2V6_RATE_VALUE_SERVICE          | Pending    |
+42   | Rate overall visit to Aruba           | C3A_RATE_OVERALL_ARUBA           | Pending    |
+43   | Aruba is a safe place to visit        | C4V1_ARUBA_SAFE                  | Pending    |
+44   | The people are friendly and hospitable| C4V2_ARUBA_FRIENDLY_HOSPITABLE   | Pending    |
+45   | Aruba is clean                        | C4V3_ARUBA_CLEAN                 | Pending    |
+46   | Aruba has nice beaches                | C4V4_ARUBA_BEACHES               | Pending    |
+47   | Aruba has pleasant weather            | C4V5_ARUBA_PLEASANT_WEATHER      | Pending    |
+48   | Aruba has good attractions            | C4V6_ARUBA_GOO_ATTRACTIONS       | Pending    |
+49   | Aruba has good nightlife              |  C4V7_ARUBA_GOOD_NIGHTLIFE       | Pending    |
+50   | Aruba has good hotels                 |  C4V8_ARUBA_GOOD_HOTELS          | Pending    |
+51   | Aruba is expensive                    | C4V9_ARUBA_EXPENSIVE             | Pending    |
+52   | Visit museum                          | VISIT_MUSEUM                     | Pending    |
+53   | Visit Historical buildings            | VISIT_HISTORICAL_BUILDINGS       | Pending    |
+54   | Visit Historical sites                | VISIT_HISTORICAL_SITES           | Pending    |
+55   | Visit Art galleries                   | VISIT_ART_GALLERIES              | Pending    |
+56   | Took cultural tour                    | TOOK_CULTURAL_TOUR               | Pending    |
+57   | Attended festival or concert          | ATTENDED_FESTIVAL_OR_CONCERT     | Pending    |
+58   | Visit beaches                         | VISIT_BEACHES                    | Pending    |
+59   | Visit center of Oranjestad            | VISIT_CENTER_OF_ORANJESTAD       | Pending    |
+60   | Visit Charlie's Bar                   | VISIT_CHARLIE_S_BAR              | Pending    |
+61   | Visit Franse Pas                      | VISIT_FRANSE_PAS                 | Pending    |
+62   | Visit Restaurant outside your hotal   | VISIT_RESTAURANT_OUTSIDE_HOTEL   | Pending    |
+63   | Saw Hotel shows                       | SAW_HOTEL_SHOWS                  | Pending    |
+64   | Made Island Tour                      | MADE_ISLAND_TOUR                 | Pending    |
+65   | Visit National Park                   | VISIT_NATIONAL_PARK              | Pending    |
+66   | Visit North Coast                     | VISIT_NORTH_COAST                | Pending    |
+67   | Architecture                          | ARCHITECTURE                     | Pending    |
+68   | Visit rock formations                 | VISIT_ROCK_FORMATIONS            | Pending    |
+69   | Visit San Nicolas                     | VISIT_SAN_NICOLAS                | Pending    |
+70   | Visit shopping malls                  | VISIT_SHOPPING_MALLS             | Pending    |
+71   | Other                                 | OTHER                            | Pending    |
+72   | Specify other visit                   | SPECIFY_OTHER_VISIT              | Pending    |
+73   | Booked trip in person                 | B4R1/B4R_BOOKED_TRIP_O1          | Pending    |
+74   | Booked trip by telephone              | B4R2/B4R_BOOKED_TRIP_O2          | Pending    | 
+75   | In Person/Tel: Travel Agent           | B4RP_T1/B4R_BOOKED_TRIP_O3       | Pending    | 
+76   | What type of flight did you use?      | B1_TYPE_OF_FLIGHT                | Pending    | 
+
 
 # Data preparation
 To complete the manipulations necesary, only two packages were utilized for ths syntax: 'tidyverse' and 'foreign'. 
