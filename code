@@ -289,6 +289,104 @@ rendell <-function(df, Name_new_variable,
 ```
 
 # Variables
+## X: "Age"
+```{r}
+df$A8_AGE_GROUP_2010 <- fct_recode(df$A8_AGE_GROUP_2010, 
+                            "Under 20 years"=" Under 20 years", 
+                            "20-29 years"=" 20 - 29 years", 
+                            "30-39 years"=" 30 - 39 years", 
+                            "40-49 years"=" 40 - 49 years", 
+                            "50-64 years"=" 50 - 64 years", 
+                            "over 65 years"=" 65 years and over"
+                            )
+
+df$A8_AGE_GROUP_2011 <- fct_recode(df$A8_AGE_GROUP_2011, 
+                            "Under 20 years"=" Under 20 years", 
+                            "20-29 years"=" 20 - 29 years", 
+                            "30-39 years"=" 30 - 39 years", 
+                            "40-49 years"=" 40 - 49 years", 
+                            "50-64 years"=" 50 - 64 years", 
+                            "over 65 years"=" 65 years and over"
+                            )
+
+df$A8_AGE_GROUP_2012 <- fct_recode(df$A8_AGE_GROUP_2012, 
+                            "Under 20 years"=" Under 20 years", 
+                            "20-29 years"=" 20 - 29 years", 
+                            "30-39 years"=" 30 - 39 years", 
+                            "40-49 years"=" 40 - 49 years", 
+                            "50-64 years"=" 50 - 64 years", 
+                            "over 65 years"=" 65 years and over"
+                            )
+
+df$A8_AGE_GROUP_2013 <- fct_recode(df$A8_AGE_GROUP_2013, 
+                            "Under 20 years"=" Under 20 years", 
+                            "20-29 years"=" 20 - 29 years", 
+                            "30-39 years"=" 30 - 39 years", 
+                            "40-49 years"=" 40 - 49 years", 
+                            "50-64 years"=" 50 - 64 years", 
+                            "over 65 years"=" 65 years and over"
+                            )
+
+df$A8_AGE_GROUP_2014 <- fct_recode(df$A8_AGE_GROUP_2014, 
+                            "Under 20 years"=" Under 20 years", 
+                            "20-29 years"=" 20 - 29 years", 
+                            "30-39 years"=" 30 - 39 years", 
+                            "40-49 years"=" 40 - 49 years", 
+                            "50-64 years"=" 50 - 64 years", 
+                            "over 65 years"=" 65 years and over"
+                            )
+
+df$A8_AGE_GROUP_2015 <- fct_recode(df$A8_AGE_GROUP_2015, 
+                            "Under 20 years"=" Under 20 years", 
+                            "20-29 years"=" 20 - 29 years", 
+                            "30-39 years"=" 30 - 39 years", 
+                            "40-49 years"=" 40 - 49 years", 
+                            "50-64 years"=" 50 - 64 years", 
+                            "over 65 years"=" 65 years and over"
+                            )
+
+df$A8_AGE_GROUP_2016 <- fct_recode(df$A8_AGE_GROUP_2016, 
+                            "Under 20 years"=" Under 20 years", 
+                            "20-29 years"=" 20 - 29 years", 
+                            "30-39 years"=" 30 - 39 years", 
+                            "40-49 years"=" 40 - 49 years", 
+                            "50-64 years"=" 50 - 64 years", 
+                            "over 65 years"=" 65 years and over"
+                            )
+
+df$A8_AGE_GROUP_2017 <- fct_recode(df$A8_AGE_GROUP_2017, 
+                            "Under 20 years"="Under 20 years", 
+                            "20-29 years"="20-29 years", 
+                            "30-39 years"="30-39 years", 
+                            "40-49 years"="40-49 years", 
+                            "50-64 years"="50-64 years", 
+                            "over 65 years"="65 years and over"
+                            )
+
+df$A8_AGE_GROUP_2018 <- fct_recode(df$A8_AGE_GROUP_2018, 
+                            "Under 20 years"="Under 20 years", 
+                            "20-29 years"="20-29 years", 
+                            "30-39 years"="30-39 years", 
+                            "40-49 years"="40-49 years", 
+                            "50-64 years"="50-64 years", 
+                            "over 65 years"="65 years and over"
+                            )
+
+
+df <- rendell(df                = df,
+        Name_new_variable = "Age", 
+        Name_2009         = "a8_2009",
+        Name_2010         = "A8_AGE_GROUP_2010", 
+        Name_2011         = "A8_AGE_GROUP_2011", 
+        Name_2012         = "A8_AGE_GROUP_2012", 
+        Name_2013         = "A8_AGE_GROUP_2013", 
+        Name_2014         = "A8_AGE_GROUP_2014", 
+        Name_2015         = "A8_AGE_GROUP_2015", 
+        Name_2016         = "A8_AGE_GROUP_2016",
+        Name_2017         = "A8_AGE_GROUP_2017",
+        Name_2018         = "A8_AGE_GROUP_2018")
+```
+
 
 ## 1: "Year"
 Since its numeric and completly clean we can at once apply the Rendell function.
